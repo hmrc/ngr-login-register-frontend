@@ -52,6 +52,7 @@ class AuthRetrievals @Inject()(
                 authProvider = credentials.map(_.providerType),
                 nino = Nino(hasNino = true,Some(nino)),
                 email = email,
+                credId = credentials.map(_.providerId),
                 affinityGroup = affinityGroup,
                 name = name
               )

@@ -26,9 +26,9 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class LoginController @Inject()( view:LoginView,
-                        authRetrievals:AuthRetrievals,
-                        mcc: MessagesControllerComponents
-                      )(implicit ec: ExecutionContext)extends FrontendController(mcc){
+                                 authRetrievals:AuthRetrievals,
+                                 mcc: MessagesControllerComponents
+                               )(implicit ec: ExecutionContext)extends FrontendController(mcc){
 
   def start(): Action[AnyContent] = Action.async{ implicit request =>
     authRetrievals.refine(request).map {
@@ -41,10 +41,11 @@ class LoginController @Inject()( view:LoginView,
           }
         }
         Ok(view(
-        nino = result.nino,
-        email = result.email,
-        name = result.name)
-      )
+          nino = result.nino,
+          email = result.email,
+          credId = result.credId,
+          name = result.name)
+        )
 
     }
   }

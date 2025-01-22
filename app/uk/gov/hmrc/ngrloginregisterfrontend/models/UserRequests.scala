@@ -42,6 +42,7 @@ final case class AuthenticatedUserRequest[A](
                                               override val confidenceLevel: Option[ConfidenceLevel],
                                               override val authProvider: Option[String],
                                               override val email: Option[String],
+                                              credId: Option[String],
                                               name: Option[Name],
                                               affinityGroup: Option[AffinityGroup],
                                               nino: Nino
