@@ -19,9 +19,8 @@ package uk.gov.hmrc.ngrloginregisterfrontend.actions
 import play.api.mvc.Request
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, Nino}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Nino}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.ngrloginregisterfrontend.config.ErrorHandler
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -30,13 +29,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 class AuthRetrievals @Inject()(
-                               val authConnector: AuthConnector,
-                               errorHandler: ErrorHandler
+                               val authConnector: AuthConnector
                               )(implicit ec: ExecutionContext)  extends AuthorisedFunctions {
   def refine[A](request: Request[A]): Future[AuthenticatedUserRequest[A]]= {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    println(Console.CYAN_B + ("BEFORE AUTH") + Console.RESET)
-    authorised().retrieve(
+    authorised(ConfidenceLevel.L250).retrieve(
       Retrievals.credentials and
       Retrievals.nino and
       Retrievals.confidenceLevel and
@@ -44,7 +41,7 @@ class AuthRetrievals @Inject()(
       Retrievals.affinityGroup and
       Retrievals.name
     ) {
-        case credentials ~ Some(nino) ~ confidenceLevel ~ email ~ affinityGroup ~ name  if confidenceLevel.level >= 250 =>
+        case credentials ~ Some(nino) ~ confidenceLevel ~ email ~ affinityGroup ~ name =>
           Future.successful(
               AuthenticatedUserRequest(
                 request = request,
