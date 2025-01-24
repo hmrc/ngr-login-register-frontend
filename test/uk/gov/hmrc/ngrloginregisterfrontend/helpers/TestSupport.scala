@@ -33,8 +33,7 @@ import java.nio.charset.Charset
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
-class TestSupport extends AnyWordSpec with Matchers with OptionValues {
-
+trait TestSupport extends AnyWordSpec with Matchers with OptionValues  {
   implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   implicit lazy val system: ActorSystem = ActorSystem("test")
@@ -92,5 +91,4 @@ trait WithFakeApplication extends BeforeAndAfterAll {
       block
     }
   }
-
 }

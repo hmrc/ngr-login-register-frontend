@@ -18,15 +18,15 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AffinityGroup
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.AuthRetrievals
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class LoginController @Inject()( view:LoginView,
-                                 authRetrievals:AuthRetrievals,
+                                 authenticate: AuthJourney,
                                  mcc: MessagesControllerComponents
                                )(implicit ec: ExecutionContext)extends FrontendController(mcc){
 

@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
-import play.api.mvc.Request
+import com.google.inject.ImplementedBy
+import play.api.mvc.Security.AuthenticatedRequest
+import play.api.mvc._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Nino}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -27,22 +29,28 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+class AuthRetrievalsImpl @Inject()(
+                               val authConnector: AuthConnector,
+                               mcc: MessagesControllerComponents
+                              )(implicit ec: ExecutionContext) extends AuthRetrievals
+  with AuthorisedFunctions {
 
-class AuthRetrievals @Inject()(
-                               val authConnector: AuthConnector
-                              )(implicit ec: ExecutionContext)  extends AuthorisedFunctions {
-  def refine[A](request: Request[A]): Future[AuthenticatedUserRequest[A]]= {
+  type RetrievalsType = Option[Credentials] ~ Option[String] ~ ConfidenceLevel ~ Option[String] ~ Option[AffinityGroup] ~ Option[Name]
+
+  override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    authorised(ConfidenceLevel.L250).retrieve(
+
+    val retrievals: Retrieval[RetrievalsType] =
       Retrievals.credentials and
       Retrievals.nino and
       Retrievals.confidenceLevel and
       Retrievals.email and
       Retrievals.affinityGroup and
       Retrievals.name
-    ) {
+
+     authorised(ConfidenceLevel.L250).retrieve(retrievals){
         case credentials ~ Some(nino) ~ confidenceLevel ~ email ~ affinityGroup ~ name =>
-          Future.successful(
+          block(
               AuthenticatedUserRequest(
                 request = request,
                 confidenceLevel = Some(confidenceLevel),
@@ -56,6 +64,15 @@ class AuthRetrievals @Inject()(
           )
         case _ ~ _ ~ confidenceLevel ~ _ => throw new Exception("confidenceLevel not met")
         case _ =>  throw new Exception("Nino not found")
-      }
+      }recoverWith {
+      case ex: Throwable =>
+        throw ex
+    }
   }
+  override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+
+  override protected def executionContext: ExecutionContext = ec
 }
+
+@ImplementedBy(classOf[AuthRetrievalsImpl])
+trait AuthRetrievals extends ActionBuilder[AuthenticatedUserRequest, AnyContent] with ActionFunction[Request, Request]

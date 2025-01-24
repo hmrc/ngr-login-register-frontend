@@ -16,56 +16,82 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito
+import org.mockito.Mockito.reset
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api
-import play.api.Application
-import play.api.http.Status
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
-import play.api.test.Helpers.baseApplicationBuilder.injector
 import play.api.test.{FakeRequest, Injecting}
-import play.mvc.Controller
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
+import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve._
-import uk.gov.hmrc.auth.core.{AuthConnector, Enrolment, Enrolments}
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthProvider, ConfidenceLevel, CredentialRole, Enrolment, Enrolments, Nino}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.Future
-class AuthRetrievalsSpec extends TestSupport with GuiceOneAppPerSuite with Injecting {
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext, Future}
+class AuthRetrievalsSpec extends TestSupport with GuiceOneAppPerSuite with Injecting with BeforeAndAfterEach {
 
-  type Retrievals = Option[Credentials] ~ Option[String]  ~ Option[Name]
+  implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
 
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val retrievals: Retrieval[Retrievals] = Retrievals.credentials and Retrievals.email and Retrievals.name
-  val applicationConfig: AppConfig = injector().instanceOf[AppConfig]
+  def appConfig: AppConfig = fakeApplication().injector.instanceOf[AppConfig]
 
-  override def fakeApplication(): Application = GuiceApplicationBuilder()
-    .overrides(
-      api.inject.bind[AuthConnector].toInstance(mockAuthConnector),
-    ).configure(
-    "metrics.jvm" -> false
-  ).build()
+  def httpClient: HttpClientV2 = fakeApplication().injector.instanceOf[HttpClientV2]
 
-  val loginController = app.injector.instanceOf[AuthRetrievals]
-
-
-  class FakeController extends Controller {
-    def onPageLoad(): Action[AnyContent] = loginController {
-      implicit request => Ok(request.nino.nino)
-    }
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockAuthConnector)
   }
+  private val testNino:String = "AA000003D"
+  private val testEmail:String = "user@test.com"
+  private val testCredId:String = "0000000022"
 
-  "calling start" should {
-    "return 200 for successful retrieval of 'authProviderId' from auth-client" in {
-      val retrievalResult = Future.successful(
-        new ~(new ~(GGCredId("cred-1234")), Enrolments(Set(Enrolment("IR-SA"))))
+  private class TestSetupAuthorisationDemoController(stubbedRetrievalResult: Future[Any])
+
+  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[String] ~ Option[Credentials] ~ ConfidenceLevel ~ Option[String]
+
+
+  def getEnrolmentPredicate(): Predicate =
+     Enrolment("IR-PAYE").withIdentifier("NINO", testNino)
+      .withDelegatedAuthRule("ers-auth") and ConfidenceLevel.L250
+
+  "calling retrieveProviderIdAndAuthorisedEnrolments" should {
+    "return 200 for successful retrieval of 'authProviderId' and 'authorisedEnrolments' from auth-client" in {
+
+      val retrievalResult: Future[~[Credentials, Enrolments]~ConfidenceLevel] = Future.successful(
+        new ~(
+          new ~(Credentials("gg", "cred-1234"),
+        Enrolments(Set(Enrolment("enrolment-value")))),
+            ConfidenceLevel.L250)
       )
-      def controller = new TestLoginController(retrievalResult)
-      val result = controller.start()(fakeRequest)
-      status(result) shouldBe Status.OK
+
+      Mockito.when(
+        mockAuthConnector.authorise[authAction.RetrievalsType](any(), any())(any(), any())
+      ).thenReturn(retrievalResult)
+
+      Mockito.when(mockAuthConnector.authorise[~[Credentials, Enrolments]~ ConfidenceLevel](any(), any())(any(), any()))
+        .thenReturn(retrievalResult)
+
+      mockAuthConnector.authorise(EmptyPredicate, Retrievals.credentials and Retrievals.authorisedEnrolments)
+
+      Mockito.verify(mockAuthConnector).authorise(eqTo(EmptyPredicate),
+        eqTo(Retrievals.credentials and Retrievals.authorisedEnrolments))(any(), any())
+
+       val authRetrievals = new AuthRetrievals(mockAuthConnector)
+       val result = authRetrievals.refine(fakeRequest)
     }
   }
 }
