@@ -16,37 +16,26 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class LoginController @Inject()( view:LoginView,
                                  authenticate: AuthJourney,
                                  mcc: MessagesControllerComponents
-                               )(implicit ec: ExecutionContext)extends FrontendController(mcc){
+                               )(implicit ec: ExecutionContext, messages: Messages)extends FrontendController(mcc){
 
-  def start(): Action[AnyContent] = Action.async{ implicit request =>
-    authRetrievals.refine(request).map {
-      case result =>
-        result.affinityGroup.map{ result =>
-          result match{
-            case AffinityGroup.Agent => println(Console.CYAN_B + ("Agent") + Console.RESET)
-            case AffinityGroup.Individual => println(Console.RED_B + ("Individual") + Console.RESET)
-            case AffinityGroup.Organisation => println(Console.MAGENTA_B + ("Organisation") + Console.RESET)
-          }
-        }
-        Ok(view(
-          nino = result.nino,
-          email = result.email,
-          credId = result.credId,
-          name = result.name)
-        )
 
+  def start(): Action[AnyContent] =
+    authenticate.authWithUserDetails.async { implicit request =>
+      Future.successful(Ok(view(request.nino, request.email, request.credId, request.name)))
     }
-  }
+
 }
+
