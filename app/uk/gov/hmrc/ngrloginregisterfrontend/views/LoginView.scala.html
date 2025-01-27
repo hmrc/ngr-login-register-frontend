@@ -14,15 +14,25 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.auth.core.Nino
+@import uk.gov.hmrc.auth.core.retrieve.Name
+
 @this(layout: Layout)
 
-@()(implicit request: RequestHeader, messages: Messages)
+@(nino: Nino, email: Option[String], credId: Option[String], name: Option[Name])(implicit request: RequestHeader, messages: Messages)
 
 @layout(pageTitle = Some("ngr-login-register-frontend")) {
-    <h1 class="govuk-heading-xl">ngr-login-register-frontend</h1>
-    <p class="govuk-body">@{messages("service.text")}</p>
+ <h1 class="govuk-heading-xl">Auth Details</h1>
+ <p class="govuk-body">@nino.nino</p>
+ <p class="govuk-body">@email</p>
+ <p class="govuk-body">@credId</p>
+@name.map{ details =>
+ <p class="govuk-body">@details.name</p>
+ <p class="govuk-body">@details.lastName</p>
+}
+
 }
 
 @{
-    //$COVERAGE-OFF$
+//$COVERAGE-OFF$
 }

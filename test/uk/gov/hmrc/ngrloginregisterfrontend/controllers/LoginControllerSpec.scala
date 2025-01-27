@@ -16,20 +16,29 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.HelloWorldPage
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import play.api.http.Status.OK
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 
-@Singleton
-class HelloWorldController @Inject()(
-  mcc: MessagesControllerComponents,
-  helloWorldPage: HelloWorldPage)
-    extends FrontendController(mcc) {
+class LoginControllerSpec extends ControllerSpecSupport{
 
-  val helloWorld: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok(helloWorldPage()))
+  lazy val loginView = inject[LoginView]
+
+  def controller() =
+    new LoginController(
+      loginView,
+      mockAuthJourney,
+      mcc,
+    )
+
+  "Login Controller" must {
+
+    "return OK and the correct view for a GET" in {
+      val result = controller().start()(authenticatedFakeRequest)
+      status(result) mustBe OK
+    }
+
   }
 
 }
