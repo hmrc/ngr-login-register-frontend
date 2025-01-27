@@ -18,13 +18,11 @@ package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import org.mockito.Mockito.when
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
-import play.api.mvc.Security.AuthenticatedRequest
+import play.api.mvc._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 
-import java.util.concurrent.Future
 import scala.concurrent.ExecutionContext
 
 trait ControllerSpecSupport extends TestSupport{

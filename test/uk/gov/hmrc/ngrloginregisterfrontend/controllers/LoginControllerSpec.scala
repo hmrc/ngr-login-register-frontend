@@ -17,10 +17,9 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.http.Status.OK
-import play.api.test.Helpers.{contentAsString, status}
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 
 class LoginControllerSpec extends ControllerSpecSupport{
 

@@ -26,7 +26,7 @@ import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{AnyContent, AnyContentAsEmpty, MessagesControllerComponents, Request}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Nino}
@@ -37,7 +37,6 @@ import uk.gov.hmrc.play.language.LanguageUtils
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.Random
 
 trait TestSupport extends PlaySpec
 with GuiceOneAppPerSuite
@@ -88,9 +87,6 @@ with IntegrationPatience {
 
   lazy val authenticatedFakeRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
     AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(true, Some("")))
-//
-//  def authRequest(request: Request[AnyContent]): AuthenticatedUserRequest[AnyContent] =
-//    AuthenticatedUserRequest(request, "", "", None, None)
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
