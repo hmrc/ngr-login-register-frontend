@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class LoginController @Inject()(view:LoginView,
                                  authenticate: AuthJourney,
                                  mcc: MessagesControllerComponents
-                               )(implicit ec: ExecutionContext, messages: Messages)extends FrontendController(mcc) with I18nSupport{
+                               )(implicit ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport{
 
   def start(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
