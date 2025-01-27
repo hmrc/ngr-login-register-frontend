@@ -16,82 +16,305 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito
-import org.mockito.Mockito.reset
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.matchers.should.Matchers
-import org.scalatestplus.mockito.MockitoSugar.mock
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.mvc._
-import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
-import uk.gov.hmrc.auth.core.retrieve._
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthProvider, ConfidenceLevel, CredentialRole, Enrolment, Enrolments, Nino}
+import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito.{spy, times, verify, when}
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import play.api.Application
+import play.api.http.Status.OK
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.Result
+import play.api.mvc.Results.Ok
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.EqualsAuthenticatedUserRequest
 
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContext, Future}
-class AuthRetrievalsSpec extends TestSupport with GuiceOneAppPerSuite with Injecting with BeforeAndAfterEach {
+import scala.concurrent.{ExecutionContext, Future}
+class AuthRetrievalsSpec extends TestSupport{
 
-  implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer 123")))
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  override implicit lazy val app: Application = GuiceApplicationBuilder().build()
 
-  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
+  private val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
-  def appConfig: AppConfig = fakeApplication().injector.instanceOf[AppConfig]
-
-  def httpClient: HttpClientV2 = fakeApplication().injector.instanceOf[HttpClientV2]
-
-  override protected def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockAuthConnector)
+  private object Stubs {
+    def successBlock(request: AuthenticatedUserRequest[_]): Future[Result] = Future.successful(Ok(""))
   }
-  private val testNino:String = "AA000003D"
-  private val testEmail:String = "user@test.com"
-  private val testCredId:String = "0000000022"
 
-  private class TestSetupAuthorisationDemoController(stubbedRetrievalResult: Future[Any])
+  private val testRequest = FakeRequest("GET", "/paye/company-car")
 
-  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[String] ~ Option[Credentials] ~ ConfidenceLevel ~ Option[String]
+  val authAction = new AuthRetrievalsImpl(mockAuthConnector, mcc)
 
+  private implicit class HelperOps[A](a: A) {
+    def ~[B](b: B) = new ~(a, b)
+  }
 
-  def getEnrolmentPredicate(): Predicate =
-     Enrolment("IR-PAYE").withIdentifier("NINO", testNino)
-      .withDelegatedAuthRule("ers-auth") and ConfidenceLevel.L250
+  "Auth Action" when {
+    "a user navigating to /ngr-login-register-frontend/start" must {
+      "the user has a confidence level of 250 with all details" in {
 
-  "calling retrieveProviderIdAndAuthorisedEnrolments" should {
-    "return 200 for successful retrieval of 'authProviderId' and 'authorisedEnrolments' from auth-client" in {
+        val retrievalResult: Future[authAction.RetrievalsType] =
+          Future.successful(
+            Some(testCredId) ~
+              Some(testNino) ~
+              testConfidenceLevel ~
+              Some(testEmail) ~
+              Some(testAffinityGroup) ~
+              Some(testName)
+          )
 
-      val retrievalResult: Future[~[Credentials, Enrolments]~ConfidenceLevel] = Future.successful(
-        new ~(
-          new ~(Credentials("gg", "cred-1234"),
-        Enrolments(Set(Enrolment("enrolment-value")))),
-            ConfidenceLevel.L250)
-      )
+        when(
+          mockAuthConnector
+            .authorise[authAction.RetrievalsType](any(), any())(any(), any())
+        )
+          .thenReturn(retrievalResult)
 
-      Mockito.when(
-        mockAuthConnector.authorise[authAction.RetrievalsType](any(), any())(any(), any())
-      ).thenReturn(retrievalResult)
+        val stubs = spy(Stubs)
 
-      Mockito.when(mockAuthConnector.authorise[~[Credentials, Enrolments]~ ConfidenceLevel](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
+        val result = authAction.invokeBlock(testRequest, stubs.successBlock)
 
-      mockAuthConnector.authorise(EmptyPredicate, Retrievals.credentials and Retrievals.authorisedEnrolments)
+        val expectedRequest = AuthenticatedUserRequest(
+          request = testRequest,
+          credId = Some(testCredId.providerId),
+          authProvider = Some(testCredId.providerType),
+          nino = Nino(true, Some(testNino)),
+          confidenceLevel = Some(testConfidenceLevel),
+          email = Some(testEmail),
+          affinityGroup = Some(testAffinityGroup),
+          name = Some(testName)
+        )
 
-      Mockito.verify(mockAuthConnector).authorise(eqTo(EmptyPredicate),
-        eqTo(Retrievals.credentials and Retrievals.authorisedEnrolments))(any(), any())
+        status(result) mustBe OK
 
-       val authRetrievals = new AuthRetrievals(mockAuthConnector)
-       val result = authRetrievals.refine(fakeRequest)
+        verify(stubs, times(1)).successBlock(argThat(EqualsAuthenticatedUserRequest(expectedRequest)))
+      }
+
+      "the user has a confidence level of 50 with all details" in {
+
+        val retrievalResult: Future[authAction.RetrievalsType] =
+          Future.successful(
+            Some(testCredId) ~
+              None ~
+              ConfidenceLevel.L50 ~
+              Some(testEmail) ~
+              Some(testAffinityGroup) ~
+              Some(testName)
+          )
+
+        when(
+          mockAuthConnector
+            .authorise[authAction.RetrievalsType](any(), any())(any(), any())
+        )
+          .thenReturn(retrievalResult)
+
+        val stubs = spy(Stubs)
+
+        val result = authAction.invokeBlock(testRequest, stubs.successBlock)
+
+        whenReady(result.failed){ e =>
+          e.getMessage mustBe "confidenceLevel not met"
+        }
+
+      }
+
+      //      "the user has a trusted helper" in {
+      //
+      //        val retrievalResult: Future[authAction.RetrievalsType] =
+      //          Future.successful(Some("extId") ~ Some(nino.nino) ~ Some("000111222") ~ Some(trustedHelper))
+      //
+      //        when(
+      //          mockAuthConnector
+      //            .authorise[authAction.RetrievalsType](any(), any())(any(), any())
+      //        )
+      //          .thenReturn(retrievalResult)
+      //
+      //        val stubs = spy(Stubs)
+      //
+      //        val result = authAction.invokeBlock(testRequest, stubs.successBlock)
+      //
+      //        val expectedRequest = AuthenticatedRequest(
+      //          request = testRequest,
+      //          externalId = "extId",
+      //          nino = delegatedNino.nino,
+      //          saUtr = None,
+      //          trustedHelper = Some(trustedHelper)
+      //        )
+      //
+      //        status(result) mustBe OK
+      //        verify(stubs, times(1)).successBlock(argThat(EqualsAuthenticatedRequest(expectedRequest)))
+      //      }
+      //
+      //      "successfully authorise the user" in {
+      //        val validBearerToken                                   = "bearer_token"
+      //        val retrievalResult: Future[authAction.RetrievalsType] =
+      //          Future.successful(Some("extId") ~ Some(nino.nino) ~ Some("000111222") ~ Some(trustedHelper))
+      //
+      //        when(
+      //          mockAuthConnector
+      //            .authorise[authAction.RetrievalsType](any(), any())(any(), any())
+      //        )
+      //          .thenReturn(retrievalResult)
+      //
+      //        val testRequestWithToken = testRequest.withHeaders("Authorization" -> s"Bearer $validBearerToken")
+      //        val result               = authAction.invokeBlock(testRequestWithToken, Stubs.successBlock)
+      //
+      //        testRequestWithToken.headers.get("Authorization") mustBe Some(s"Bearer $validBearerToken")
+      //        status(result) mustBe OK
+      //      }
+      //    }
+      //
+      //    "the user doesn't have sufficient enrolments" must {
+      //      "be successfully redirected to the service page" in {
+      //
+      //        val retrievalResult: Future[authAction.RetrievalsType] =
+      //          Future.successful(Some("extId") ~ Some(nino.nino) ~ None ~ None)
+      //
+      //        when(
+      //          mockAuthConnector
+      //            .authorise[authAction.RetrievalsType](any(), any())(any(), any())
+      //        )
+      //          .thenReturn(retrievalResult)
+      //
+      //        val stubs = spy(Stubs)
+      //
+      //        val result = authAction.invokeBlock(testRequest, stubs.successBlock)
+      //
+      //        status(result) mustBe OK
+      //
+      //        val expectedRequest = AuthenticatedRequest(
+      //          request = testRequest,
+      //          externalId = "extId",
+      //          nino = nino.nino,
+      //          saUtr = None,
+      //          trustedHelper = None
+      //        )
+      //
+      //        verify(stubs, times(1)).successBlock(argThat(EqualsAuthenticatedRequest(expectedRequest)))
+      //      }
+      //    }
+      //
+      //    "is not logged in" must {
+      //      "throw a MissingBearerToken exception" in {
+      //
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new MissingBearerToken))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[MissingBearerToken]
+      //        }
+      //      }
+      //
+      //      "throw a InvalidBearerToken exception" in {
+      //
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new InvalidBearerToken))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[InvalidBearerToken]
+      //        }
+      //      }
+      //    }
+      //
+      //    "the user's session has expired" must {
+      //      "redirect the user to log in " in {
+      //
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new BearerTokenExpired))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[BearerTokenExpired]
+      //        }
+      //      }
+      //    }
+      //
+      //    "the user doesn't have sufficient enrolments" must {
+      //      "redirect the user to the unauthorised page" in {
+      //
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new InsufficientEnrolments))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[InsufficientEnrolments]
+      //        }
+      //      }
+      //    }
+      //
+      //    "the user doesn't have sufficient confidence level" must {
+      //      "redirect the user to the unauthorised page" in {
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new InsufficientConfidenceLevel))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[InsufficientConfidenceLevel]
+      //        }
+      //      }
+      //    }
+      //
+      //    "the user used an unaccepted auth provider" must {
+      //      "redirect the user to the unauthorised page" in {
+      //
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new UnsupportedAuthProvider))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[UnsupportedAuthProvider]
+      //        }
+      //      }
+      //    }
+      //
+      //    "the user has an unsupported affinity group" must {
+      //      "redirect the user to the unauthorised page" in {
+      //
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new UnsupportedAffinityGroup))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[UnsupportedAffinityGroup]
+      //        }
+      //      }
+      //    }
+      //
+      //    "the user has an unsupported credential role" must {
+      //      "redirect the user to the unauthorised page" in {
+      //
+      //        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+      //          .thenReturn(Future.failed(new UnsupportedCredentialRole))
+      //
+      //        val result = authAction.invokeBlock(testRequest, Stubs.successBlock)
+      //
+      //        whenReady(result.failed) { e =>
+      //          e mustBe a[UnsupportedCredentialRole]
+      //        }
+      //      }
+      //    }
+      //
+      //  }
     }
   }
+}
+
+class FakeFailingAuthConnector(exceptionToReturn: Throwable) extends AuthConnector {
+
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
+                                                                           hc: HeaderCarrier,
+                                                                           ec: ExecutionContext
+  ): Future[A] =
+    Future.failed(exceptionToReturn)
 }

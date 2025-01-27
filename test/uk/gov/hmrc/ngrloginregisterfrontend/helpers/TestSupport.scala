@@ -16,79 +16,88 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.Materializer
-import org.apache.pekko.util.ByteString
-import org.scalatest.{BeforeAndAfterAll, OptionValues, Suite}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
-import org.scalatest.wordspec.AnyWordSpec
-import play.api.{Application, Play}
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
-import play.api.test.Helpers._
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice._
+import play.api.Application
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.inject.Injector
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{AnyContent, AnyContentAsEmpty, MessagesControllerComponents, Request}
+import play.api.test.{FakeRequest, Injecting}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Nino}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames}
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.play.language.LanguageUtils
 
-import java.nio.charset.Charset
+import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.concurrent.duration.Duration
+import scala.util.Random
 
-trait TestSupport extends AnyWordSpec with Matchers with OptionValues  {
-  implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+trait TestSupport extends PlaySpec
+with GuiceOneAppPerSuite
+with Matchers
+with MockitoSugar
+with Injecting
+with BeforeAndAfterEach
+with ScalaFutures
+with IntegrationPatience {
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+    GuiceApplicationBuilder()
+      .overrides()
 
-  implicit lazy val system: ActorSystem = ActorSystem("test")
-  implicit val timeout: Duration = 5.minutes
-
-  def await[A](future: Future[A])(implicit timeout: Duration): A = Await.result(future, timeout)
-
-  def status(of: Result): Int = of.header.status
-
-  def status(of: Future[Result])(implicit timeout: Duration): Int = status(Await.result(of, timeout))
-
-  def jsonBodyOf(result: Result)(implicit mat: Materializer): JsValue = {
-    Json.parse(bodyOf(result))
+  override def beforeEach(): Unit = {
+    super.beforeEach()
   }
 
-  def jsonBodyOf(resultF: Future[Result])(implicit mat: Materializer): Future[JsValue] = {
-    resultF.map(jsonBodyOf)
-  }
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
-  def bodyOf(result: Result)(implicit mat: Materializer): String = {
-    val bodyBytes: ByteString = await(result.body.consumeData)
-    // We use the default charset to preserve the behaviour of a previous
-    // version of this code, which used new String(Array[Byte]).
-    // If the fact that the previous version used the default charset was an
-    // accident then it may be better to decode in UTF-8 or the charset
-    // specified by the result's headers.
-    bodyBytes.decodeString(Charset.defaultCharset().name)
-  }
+  lazy val cacheId = "id"
 
-  def bodyOf(resultF: Future[Result])(implicit mat: Materializer): Future[String] = {
-    resultF.map(bodyOf)
-  }
+  lazy val testCredId: Credentials = Credentials(providerId = "0000000022", providerType = "Government-Gateway")
+  lazy val testNino: String = "AA000003D"
+  lazy val testConfidenceLevel: ConfidenceLevel = ConfidenceLevel.L250
+  lazy val testEmail: String = "user@test.com"
+  lazy val testAffinityGroup: AffinityGroup = AffinityGroup.Individual
+  lazy val testName: Name = Name(name = Some("testUser"), lastName = Some("testUserLastName"))
 
-}
+  def injector: Injector = app.injector
 
-trait WithFakeApplication extends BeforeAndAfterAll {
-  this: Suite =>
+  lazy val frontendAppConfig: AppConfig = inject[AppConfig]
+  lazy val messagesApi: MessagesApi             = inject[MessagesApi]
+  lazy val languageUtils: LanguageUtils         = inject[LanguageUtils]
 
-  lazy val fakeApplication: Application = new GuiceApplicationBuilder().bindings(bindModules:_*).build()
+  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type]                                                =
+    FakeRequest("", "").withHeaders(HeaderNames.authorisation -> "Bearer 1")
 
-  def bindModules: Seq[GuiceableModule] = Seq()
+  def fakeRequestWithSessionEmpAndCar(empNumber: Int, carNumber: Int): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest("", "").withSession(("emp_seq", empNumber.toString), ("car_seq", carNumber.toString))
 
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    Play.start(fakeApplication)
-  }
+  def fakeRequestWithSessionEmpAndCarAndJourney(
+                                                 empNumber: Int,
+                                                 carNumber: Int,
+                                                 journey: String
+                                               ): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest("", "")
+      .withSession(("emp_seq", empNumber.toString), ("car_seq", carNumber.toString), ("journey", journey))
 
-  override def afterAll(): Unit = {
-    super.afterAll()
-    Play.stop(fakeApplication)
-  }
+  lazy val authenticatedFakeRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
+    AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(true, Some("")))
+//
+//  def authRequest(request: Request[AnyContent]): AuthenticatedUserRequest[AnyContent] =
+//    AuthenticatedUserRequest(request, "", "", None, None)
 
-  def evaluateUsingPlay[T](block: => T): T = {
-    running(fakeApplication) {
-      block
-    }
-  }
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  def await[A](f: Future[A]): A = Await.result(f, 5.seconds)
+
+  lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+
+  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  implicit val hc: HeaderCarrier         = HeaderCarrier()
 }

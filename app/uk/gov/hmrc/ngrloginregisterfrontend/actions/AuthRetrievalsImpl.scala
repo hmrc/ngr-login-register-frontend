@@ -63,15 +63,16 @@ class AuthRetrievalsImpl @Inject()(
               )
           )
         case _ ~ _ ~ confidenceLevel ~ _ => throw new Exception("confidenceLevel not met")
-        case _ =>  throw new Exception("Nino not found")
       }recoverWith {
       case ex: Throwable =>
         throw ex
     }
   }
+  // $COVERAGE-OFF$
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
 
   override protected def executionContext: ExecutionContext = ec
+  // $COVERAGE-ON$
 }
 
 @ImplementedBy(classOf[AuthRetrievalsImpl])

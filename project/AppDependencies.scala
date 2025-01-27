@@ -12,7 +12,7 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "bootstrap-frontend-play-30" % bootstrapVersion,
     "uk.gov.hmrc"             %% "play-frontend-hmrc-play-30" % "11.11.0",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-30"         % hmrcMongoVersion,
-    "uk.gov.hmrc"             %% "centralised-authorisation-resource-client-play-30"    % "1.1.0"
+    "uk.gov.hmrc"             %% "centralised-authorisation-resource-client-play-30"    % "1.0.0"
   )
 
   val test = Seq(
