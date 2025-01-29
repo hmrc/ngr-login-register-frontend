@@ -33,6 +33,7 @@ lazy val microservice = Project("ngr-login-register-frontend", file("."))
   )
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(scoverageSettings: _*)
+  .settings(WartRemoverSettings.wartRemoverSettings: _*)
   .settings(CodeCoverageSettings.settings: _*)
   .settings(SbtUpdatesSettings.sbtUpdatesSettings *)
 
