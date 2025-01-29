@@ -1,2 +1,3 @@
-service.name = ngr-login-register-frontend
+service.name = Manage your business rates valuation
+service.navTitle = Manage your business rates valuation
 service.text = This is your new service

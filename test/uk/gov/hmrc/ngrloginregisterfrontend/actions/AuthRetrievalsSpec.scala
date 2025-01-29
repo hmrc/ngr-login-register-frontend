@@ -27,7 +27,7 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
