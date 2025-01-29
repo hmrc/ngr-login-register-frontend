@@ -16,15 +16,33 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.config
 
-import javax.inject.{Inject, Singleton}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.Configuration
 import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
-trait AppConfig {
-  val features: Features
-}
+class FeatureSpec extends TestSupport{
 
-@Singleton
-class FrontendAppConfig @Inject()(config: Configuration) extends AppConfig {
-  override val features = new Features()(config)
+  private val features = new Features()(app.injector.instanceOf[Configuration])
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    features.welshLanguageSupportEnabled(true)
+  }
+
+  "The welsh language support feature" must {
+
+    "return its current state" in {
+      features.welshLanguageSupportEnabled() shouldBe true
+    }
+
+    "switch to a new state" in {
+      features.welshLanguageSupportEnabled(false)
+      features.welshLanguageSupportEnabled() shouldBe false
+    }
+
+  }
+
+
+
 }

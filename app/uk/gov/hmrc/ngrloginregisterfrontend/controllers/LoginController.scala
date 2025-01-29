@@ -18,17 +18,18 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class LoginController @Inject()(view:LoginView,
                                  authenticate: AuthJourney,
                                  mcc: MessagesControllerComponents
-                               )(implicit ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport{
+                               )(implicit appConfig: AppConfig)extends FrontendController(mcc) with I18nSupport{
 
   def start(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>

@@ -16,16 +16,21 @@
 
 @import uk.gov.hmrc.auth.core.Nino
 @import uk.gov.hmrc.auth.core.retrieve.Name
+@import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 
 @this(layout: Layout)
 
-@(nino: Nino, email: Option[String], credId: Option[String], name: Option[Name])(implicit request: RequestHeader, messages: Messages)
+@(nino: Nino, email: Option[String], credId: Option[String], name: Option[Name])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some("ngr-login-register-frontend")) {
+@layout(pageTitle = Some(messages("service.navTitle"))) {
  <h1 class="govuk-heading-xl">Auth Details</h1>
+ <h3 class="govuk-heading-m">Nino</h3>
  <p class="govuk-body">@nino.nino</p>
+<h3 class="govuk-heading-m">Email</h3>
  <p class="govuk-body">@email</p>
+<h3 class="govuk-heading-m">CredId</h3>
  <p class="govuk-body">@credId</p>
+<h3 class="govuk-heading-m">Name</h3>
 @name.map{ details =>
  <p class="govuk-body">@details.name</p>
  <p class="govuk-body">@details.lastName</p>

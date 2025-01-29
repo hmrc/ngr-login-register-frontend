@@ -6,17 +6,6 @@ ThisBuild / scalaVersion := "2.13.12"
 val strictBuilding: SettingKey[Boolean] = StrictBuilding.strictBuilding
 StrictBuilding.strictBuildingSetting
 
-lazy val scoverageSettings = {
-  Seq(
-    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*filters.*;.*handlers.*;.*components.*;.*repositories.*;" +
-      ".*BuildInfo.*;.*javascript.*;.*config.*;.*FrontendAuditConnector.*;.*Routes.*;.*GuiceInjector;" +
-      ".*ControllerConfiguration;.*LanguageSwitchController",
-    coverageMinimumStmtTotal := 98,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true
-  )
-}
-
 lazy val microservice = Project("ngr-login-register-frontend", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(
@@ -32,7 +21,7 @@ lazy val microservice = Project("ngr-login-register-frontend", file("."))
     pipelineStages := Seq(gzip),
   )
   .settings(resolvers += Resolver.jcenterRepo)
-  .settings(scoverageSettings: _*)
+  .settings(WartRemoverSettings.wartRemoverSettings: _*)
   .settings(CodeCoverageSettings.settings: _*)
   .settings(SbtUpdatesSettings.sbtUpdatesSettings *)
 

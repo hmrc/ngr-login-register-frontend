@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.language.LanguageUtils
+import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -66,13 +67,14 @@ with IntegrationPatience {
   lazy val testName: Name = Name(name = Some("testUser"), lastName = Some("testUserLastName"))
 
   def injector: Injector = app.injector
-
   lazy val frontendAppConfig: AppConfig = inject[AppConfig]
   lazy val messagesApi: MessagesApi             = inject[MessagesApi]
   lazy val languageUtils: LanguageUtils         = inject[LanguageUtils]
 
   lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type]                                                =
     FakeRequest("", "").withHeaders(HeaderNames.authorisation -> "Bearer 1")
+
+  lazy implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   def fakeRequestWithSessionEmpAndCar(empNumber: Int, carNumber: Int): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest("", "").withSession(("emp_seq", empNumber.toString), ("car_seq", carNumber.toString))
@@ -96,4 +98,6 @@ with IntegrationPatience {
 
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
   implicit val hc: HeaderCarrier         = HeaderCarrier()
+  lazy implicit val mockConfig: MockAppConfig = new MockAppConfig(app.configuration)
+
 }
