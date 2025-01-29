@@ -19,6 +19,7 @@ lazy val microservice = Project("ngr-login-register-frontend", file("."))
     PlayKeys.playDefaultPort := 1502,
     scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
     pipelineStages := Seq(gzip),
+    Compile / scalacOptions -= "utf8",
   )
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(WartRemoverSettings.wartRemoverSettings: _*)
