@@ -14,12 +14,23 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 
-@this(layout: Layout)
+@this(layout: Layout, saveAndContinueButton: saveAndContinueButton)
 
 @()(implicit messages: Messages, appConfig: AppConfig, request: RequestHeader)
 
 @layout(pageTitle = Some(messages("service.navTitle"))) {
-<h1 class="govuk-heading-xl">START</h1>
+<h1 class="govuk-heading-xl">@messages("startView.heading")</h1>
+<p class="govuk-body">@messages("startView.body.1")</p>
+<p class="govuk-body">@messages("startView.body.2")</p>
+<ul class="govuk-list govuk-list--bullet">
+ <li>@messages("startView.bullet.1")</li>
+ <li>@messages("startView.bullet.2")</li>
+ <li>@messages("startView.bullet.3")</li>
+</ul>
+
+@saveAndContinueButton(msg = messages("startView.button"), isStartButton = true)
+
 }

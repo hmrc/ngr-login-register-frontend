@@ -35,4 +35,7 @@ class StartController @Inject()(view: StartView,
     )
   }
 
+  def continue(): Unit =
+    println("start")
+
 }
