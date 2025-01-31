@@ -23,5 +23,5 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
 class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
 
   override val features: Features = new Features()(runModeConfiguration)
-
+  override val gtmContainer: String = "a"
 }

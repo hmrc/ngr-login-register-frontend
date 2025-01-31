@@ -19,12 +19,15 @@ package uk.gov.hmrc.ngrloginregisterfrontend.config
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 trait AppConfig {
   val features: Features
+  val gtmContainer: String
 }
 
 @Singleton
-class FrontendAppConfig @Inject()(config: Configuration) extends AppConfig {
+class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) extends AppConfig {
   override val features = new Features()(config)
+  override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")
 }

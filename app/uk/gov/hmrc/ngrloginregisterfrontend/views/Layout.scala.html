@@ -22,24 +22,24 @@
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 
 @this(
-govukBackLink: GovukBackLink,
-hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
-standardBetaBanner: StandardBetaBanner,
-hmrcStandardPage: HmrcStandardPage
+    govukBackLink: GovukBackLink,
+    hmrcLanguageSelectHelper: HmrcLanguageSelectHelper,
+    standardBetaBanner: StandardBetaBanner,
+    hmrcStandardPage: HmrcStandardPage,
+    hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet
 )
 
-@(
-pageTitle: Option[String] = None,
-showBackLink: Boolean = true
+@(pageTitle: Option[String] = None,
+  showBackLink: Boolean = true
 )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
 
 @backLink = {
-@govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
+    @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
 }
 
 
 @languageSelector = {
-@hmrcLanguageSelectHelper()
+    @hmrcLanguageSelectHelper()
 }
 
 @content = {
@@ -54,15 +54,16 @@ showBackLink: Boolean = true
 </div>
 }
 
+
+
 @hmrcStandardPage(
-HmrcStandardPageParams(
-pageTitle = pageTitle,
-templateOverrides = TemplateOverrides(
-mainContentLayout = None,
-additionalHeadBlock = None
+    HmrcStandardPageParams(
+    pageTitle = pageTitle,
+    templateOverrides = TemplateOverrides(
+    mainContentLayout = None
 ),
-banners = Banners(
-phaseBanner = Some(standardBetaBanner("appConfig.betaFeedbackUrl")),
-),
+    banners = Banners(
+    phaseBanner = Some(standardBetaBanner("appConfig.betaFeedbackUrl")),
+    ),
 )
 )(content)
