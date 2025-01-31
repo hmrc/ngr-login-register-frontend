@@ -35,7 +35,10 @@ class StartController @Inject()(view: StartView,
     )
   }
 
-  def continue(): Unit =
-    println("start")
+  def submit(): Action[AnyContent] =
+
+    Action.async { implicit request =>
+      Future.successful(Redirect(routes.LoginController.start))
+    }
 
 }
