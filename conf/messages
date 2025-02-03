@@ -1,3 +1,11 @@
 service.name = Manage your business rates valuation
 service.navTitle = Manage your business rates valuation
 service.text = This is your new service
+
+startView.heading = Register for the business rates valuation service
+startView.body.1 = Use this service to meet your obligations as the ratepayer of a non-domestic property.
+startView.body.2 = When you register, you can use this service to:
+startView.bullet.1 = add a property to your account
+startView.bullet.2 = report changes to your property
+startView.bullet.3 = provide a valid Tax Reference Number
+startView.button = Start now

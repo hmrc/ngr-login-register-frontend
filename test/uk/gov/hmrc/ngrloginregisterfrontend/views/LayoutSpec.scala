@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.Mockito.when
-import play.twirl.api.Html
+import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestSupport, ViewBaseSpec}
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
@@ -45,6 +45,13 @@ class LayoutSpec extends ViewBaseSpec {
 
   "The Layout template" when {
 
+    "produce the same output for apply() and render()" in {
+      val htmlApply = injectedView.apply(pageTitle = Some("Title of page"),showBackLink = false)(Html("Test")).body
+      val htmlRender = injectedView.render(pageTitle = Some("Title of page"), showBackLink = false, contentBlock = Html("Test"), request = request, messages = messages, appConfig = mockConfig).body
+      val htmlF = injectedView.f(Some("Title of page"), false)(Html("Test"))(request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+    }
+
     "injected into the view" should {
 
       "show the nav title" in {
@@ -62,7 +69,7 @@ class LayoutSpec extends ViewBaseSpec {
       }
 
       "should show a backlink" in {
-        lazy val view = injectedView(pageTitle = Some("Title of page"),showBackLink = true)(Html("Test"))(request,messages,mockConfig)
+        lazy val view = injectedView(pageTitle = Some("Title of page"))(Html("Test"))(request,messages,mockConfig)
         lazy implicit val document: Document = Jsoup.parse(view.body)
 
         elementText(Selectors.backLink) mustBe backLink
