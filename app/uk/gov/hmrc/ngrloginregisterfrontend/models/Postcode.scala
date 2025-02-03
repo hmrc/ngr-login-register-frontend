@@ -24,4 +24,7 @@ final case class Postcode(value: String){
 
   object Postcode {
     implicit val format: Format[Postcode] = Json.format[Postcode]
+
+    val postcodeRegex = "^[^@]{+}@[^@]{+}\\.[^@]+$"
+    def isValidPostcode(postcode: String):Boolean = postcode.matches(postcodeRegex)
   }

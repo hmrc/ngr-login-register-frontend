@@ -22,4 +22,7 @@ final case class ContactNumber(value: String)
 
 object ContactNumber {
   implicit val format: Format[ContactNumber] = Json.format[ContactNumber]
+
+  val contactRegex = "^\\+[1-9]{1}[0-9]{3,14}$"
+  def isValidContactNumber(contactNmber: String):Boolean = contactNmber.matches(contactRegex)
 }

@@ -22,4 +22,9 @@ final case class Email(value: String)
 
 object Email {
   implicit val format: Format[Email] = Json.format[Email]
+
+  val emailRegex = "^[^@]{+}@[^@]{+}\\.[^@]+$"
+  def isValidEmail(email: String): Boolean = email.matches(emailRegex)
+
+
 }
