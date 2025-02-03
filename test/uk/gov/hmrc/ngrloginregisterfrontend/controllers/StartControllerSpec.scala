@@ -23,12 +23,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 
 class StartControllerSpec extends ControllerSpecSupport {
   lazy val startView: StartView = inject[StartView]
-
-  def controller =
-    new StartController(
-      startView,
-      mcc
-    )
+  lazy val controller: StartController = inject[StartController]
 
   "Start Controller" must {
     "return OK and the correct view for a GET" in {

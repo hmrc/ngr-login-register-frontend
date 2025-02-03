@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -25,6 +26,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import javax.inject.Inject
 import scala.concurrent.Future
 
+@Singleton
 class StartController @Inject()(view: StartView,
                                 mcc: MessagesControllerComponents
                                )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
