@@ -36,7 +36,5 @@ class LoginController @Inject()(view:LoginView,
       Future.successful(Ok(view(request.nino, request.email, request.credId, request.name)))
     }
 
-
-  //test
 }
 
