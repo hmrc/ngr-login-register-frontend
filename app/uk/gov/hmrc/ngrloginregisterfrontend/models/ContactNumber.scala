@@ -18,11 +18,11 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.libs.json.{Format, Json}
 
-final case class ContactNumber(value: String)
+final case class ContactNumber(value: String) {
+  private val contactNumberRegex = "^(?:0|(\\+|00)\\d\\d\\s?)?(?:\\d\\s?){9,10}$"
+  def isValidContactNumber: Boolean = value.trim.matches(contactNumberRegex)
+}
 
 object ContactNumber {
   implicit val format: Format[ContactNumber] = Json.format[ContactNumber]
-
-  val contactRegex = "^\\+[1-9]{1}[0-9]{3,14}$"
-  def isValidContactNumber(contactNmber: String):Boolean = contactNmber.matches(contactRegex)
 }

@@ -17,42 +17,10 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
 import play.api.libs.json.{JsResultException, Json}
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, Postcode, RatepayerRegistration, TradingName}
 
-class RatepayerRegistrationSpec extends TestSupport {
-
-  val testRegistrationModel: RatepayerRegistration =
-    RatepayerRegistration(UserType.Individual,
-      AgentStatus.Agent,
-      Name("John Doe"),
-      Some(TradingName("CompanyLTD")),
-      Email("JohnDoe@digital.hmrc.gov.uk"),
-      ContactNumber("07123456789"),
-      Some(ContactNumber("07123456789")),
-      Address(line1 = "99",
-        line2 = Some("Wibble Rd"),
-        town = "Worthing",
-        county = Some("West Sussex"),
-        postcode = Postcode("BN110AA"),
-        country = "UK",
-      )
-    )
-
-  val optionalFields = testRegistrationModel.copy(tradingName = None, secondaryNumber = None)
-
-  val regResponseJson = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"tradingName":{"value":"CompanyLTD"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"secondaryNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"}}
-      |""".stripMargin)
-
-  val optionalRegResponseJson = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"}, "address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"}}
-      |""".stripMargin)
-
-  val invalidRegResponseJson = Json.parse(
-    """{"userType":"Person","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"}, "address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"}}
-      |""".stripMargin)
-
+class RatepayerRegistrationSpec extends TestSupport with TestData {
 
   "RatepayerRegistrationModel" should {
     "serialise into Json" when {
@@ -60,7 +28,7 @@ class RatepayerRegistrationSpec extends TestSupport {
         Json.toJson(testRegistrationModel) mustBe regResponseJson
       }
       "the optional fields are not present" in {
-        Json.toJson(optionalFields) mustBe optionalRegResponseJson
+        Json.toJson(minRegResponseModel) mustBe minRegResponseJson
       }
 
     }
@@ -69,7 +37,7 @@ class RatepayerRegistrationSpec extends TestSupport {
         regResponseJson.as[RatepayerRegistration] mustBe testRegistrationModel
       }
       "the optional fields are not present" in {
-        optionalRegResponseJson.as[RatepayerRegistration] mustBe optionalFields
+        minRegResponseJson.as[RatepayerRegistration] mustBe minRegResponseModel
       }
     }
   }
