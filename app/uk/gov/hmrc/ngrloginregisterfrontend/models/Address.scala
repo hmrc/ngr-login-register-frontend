@@ -19,14 +19,14 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 import play.api.libs.json.{Json, OFormat}
 
 final case class Address(line1: String,
-                   line2: Option[String],
-                   town: String,
-                   county: Option[String],
-                   postcode: Postcode,
-                   country: String) {
+                         line2: Option[String],
+                         town: String,
+                         county: Option[String],
+                         postcode: Postcode,
+                         country: String) {
   override def toString: String = Seq(line1, line2.getOrElse(""), town, county.getOrElse(""), postcode.toString, country).mkString(", ")
 }
 
-object Address{
+object Address {
   implicit val format: OFormat[Address] = Json.format[Address]
 }
