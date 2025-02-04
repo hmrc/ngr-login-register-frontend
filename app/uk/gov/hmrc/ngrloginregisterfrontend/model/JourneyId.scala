@@ -19,10 +19,12 @@ package uk.gov.hmrc.ngrloginregisterfrontend.model
 import play.api.libs.functional.syntax.toInvariantFunctorOps
 import play.api.libs.json.Format
 import play.api.mvc.PathBindable
+import uk.gov.hmrc.ngrloginregisterfrontend.util.ValueClassBinder
 
 final case class JourneyId (value: String)
 
 object JourneyId {
   implicit val format: Format[JourneyId] = implicitly[Format[String]].inmap(JourneyId(_), _.value)
-  implicit val journeyIdBinder: PathBindable[JourneyId] = valueClassBinder(_.value) //TODO this is a common used file.
+  implicit val journeyIdBinder: PathBindable[JourneyId] = ValueClassBinder.valueClassBinder(_.value)
 }
+
