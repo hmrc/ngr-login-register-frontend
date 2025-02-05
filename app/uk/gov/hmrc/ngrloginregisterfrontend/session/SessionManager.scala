@@ -23,7 +23,7 @@ import javax.inject.Singleton
 @Singleton
 class SessionManager {
 
-  val journeyIdKey = "NGR-JourneyId"
+  val journeyIdKey: String = "NGR-JourneyId"
 
   private def addToSession(result: Result, key: String, value: String)(implicit requestHeader: RequestHeader) = {
     result.addingToSession(key -> value)
@@ -37,7 +37,7 @@ class SessionManager {
     result.session.get(key)
   }
 
-  def setJourneyId(result: Result, journeyId: String)(implicit requestHeader: RequestHeader) = {
+  def setJourneyId(result: Result, journeyId: String)(implicit requestHeader: RequestHeader): Result = {
     addToSession(result.withNewSession, journeyIdKey, journeyId)
   }
 
