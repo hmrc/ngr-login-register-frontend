@@ -23,7 +23,7 @@ final case class Address(line1: String,
                          town: String,
                          county: Option[String],
                          postcode: Postcode,
-                         country: String) {
+                         country: String = "GB") {
   override def toString: String = Seq(line1, line2.getOrElse(""), town, county.getOrElse(""), postcode.toString, country).mkString(", ")
 }
 
