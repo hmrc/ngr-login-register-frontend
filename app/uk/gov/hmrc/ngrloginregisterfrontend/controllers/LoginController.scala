@@ -30,14 +30,12 @@ import scala.concurrent.Future
 
 class LoginController @Inject()(view:LoginView,
                                  authenticate: AuthJourney,
-                                 mcc: MessagesControllerComponents,
-                                 sessionManager: SessionManager
+                                 mcc: MessagesControllerComponents
                                )(implicit appConfig: AppConfig)extends FrontendController(mcc) with I18nSupport{
 
   def start(): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       val result = Ok(view(request.nino, request.email, request.credId, request.name))
-      sessionManager.setJourneyId(result, sessionManager.generateJourneyId)
       Future.successful(result)
     }
   }

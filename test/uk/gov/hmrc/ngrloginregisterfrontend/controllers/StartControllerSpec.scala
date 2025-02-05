@@ -16,14 +16,21 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import org.mockito.Mockito.when
 import play.api.http.Status.OK
 import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
+
+import scala.language.postfixOps
 
 class StartControllerSpec extends ControllerSpecSupport {
   lazy val startView: StartView = inject[StartView]
   lazy val controller: StartController = inject[StartController]
+  val mockSessionManager: SessionManager = mock[SessionManager]
+  val testUUID = "00ce4ed2-a446-444b-905f-3cc148a1f831"
+
 
   "Start Controller" must {
     "return OK and the correct view for a GET" in {
@@ -34,6 +41,14 @@ class StartControllerSpec extends ControllerSpecSupport {
     "redirect when start button pressed" in {
       val result = controller.submit()(authenticatedFakeRequest)
       status(result) mustBe 303
+    }
+
+    "should store a new journey ID" in {
+      when(mockSessionManager.generateJourneyId).thenReturn(testUUID)
+      val result = controller.show()(authenticatedFakeRequest)
+      result.map(result => {
+        mockSessionManager.getFromSession(result, "NGR-JourneyId") mustBe testUUID
+      })
     }
   }
 }
