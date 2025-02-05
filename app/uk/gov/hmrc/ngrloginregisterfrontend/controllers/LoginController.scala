@@ -20,21 +20,26 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
+import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.Future
 
 class LoginController @Inject()(view:LoginView,
                                  authenticate: AuthJourney,
-                                 mcc: MessagesControllerComponents
+                                 mcc: MessagesControllerComponents,
+                                 sessionManager: SessionManager
                                )(implicit appConfig: AppConfig)extends FrontendController(mcc) with I18nSupport{
 
-  def start(): Action[AnyContent] =
+  def start(): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(view(request.nino, request.email, request.credId, request.name)))
+      val result = Ok(view(request.nino, request.email, request.credId, request.name))
+      sessionManager.setJourneyId(result, sessionManager.generateJourneyId)
+      Future.successful(result)
     }
-
+  }
 }
 
