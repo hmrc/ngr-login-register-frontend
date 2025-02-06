@@ -20,26 +20,24 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-import javax.inject.Inject
 import scala.concurrent.Future
 
 @Singleton
 class StartController @Inject()(view: StartView,
-                                mcc: MessagesControllerComponents
+                                mcc: MessagesControllerComponents,
+                                sessionManager: SessionManager
                                )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(
-      Ok(view())
-    )
+    sessionManager.setJourneyId(request.session, sessionManager.generateJourneyId)
+    Future.successful(Ok(view()))
   }
 
   def submit(): Action[AnyContent] =
-
-    Action.async { implicit request =>
+    Action.async {
       Future.successful(Redirect(routes.LoginController.start))
     }
 

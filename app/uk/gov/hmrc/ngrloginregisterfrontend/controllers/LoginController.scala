@@ -22,19 +22,20 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
+@Singleton
 class LoginController @Inject()(view:LoginView,
                                  authenticate: AuthJourney,
                                  mcc: MessagesControllerComponents
                                )(implicit appConfig: AppConfig)extends FrontendController(mcc) with I18nSupport{
 
-  def start(): Action[AnyContent] =
+  def start(): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(view(request.nino, request.email, request.credId, request.name)))
+      val result = Ok(view(request.nino, request.email, request.credId, request.name))
+      Future.successful(result)
     }
-
+  }
 }
 

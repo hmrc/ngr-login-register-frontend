@@ -21,7 +21,7 @@ import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 
-class LoginControllerSpec extends ControllerSpecSupport{
+class LoginControllerSpec extends ControllerSpecSupport {
 
   lazy val loginView = inject[LoginView]
 
