@@ -16,29 +16,26 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.session
 
-import play.api.mvc.{Result, RequestHeader}
+import play.api.mvc._
 import java.util.UUID
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
 @Singleton
-class SessionManager {
+class SessionManager @Inject()(mcc: MessagesControllerComponents) {
 
-  val journeyIdKey: String = "NGR-JourneyId"
+  private val journeyIdKey: String = "NGR-JourneyId"
 
-  private def addToSession(result: Result, key: String, value: String)(implicit requestHeader: RequestHeader) = {
-    result.addingToSession(key -> value)
-  }
+  def getSessionValue(key: String)(session: Session): Option[String] =
+    session.get(key)
 
-  private def removeFromSession(result: Result, key: String)(implicit requestHeader: RequestHeader) = {
-    result.removingFromSession(key)
-  }
+  def updateSession(key: String, value: String)(session: Session): Session =
+    session + (key -> value)
 
-  def getFromSession(result: Result, key: String)(implicit requestHeader: RequestHeader): Option[String] = {
-    result.session.get(key)
-  }
+  def removeSessionKey(key: String)(session: Session): Session =
+    session - key
 
-  def setJourneyId(result: Result, journeyId: String)(implicit requestHeader: RequestHeader): Result = {
-    addToSession(result.withNewSession, journeyIdKey, journeyId)
+  def setJourneyId(journeyId: String)(session: Session): Session = {
+    updateSession(journeyIdKey, journeyId)(session)
   }
 
   def generateJourneyId: String = {

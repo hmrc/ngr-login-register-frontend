@@ -47,7 +47,7 @@ class StartControllerSpec extends ControllerSpecSupport {
       when(mockSessionManager.generateJourneyId).thenReturn(testUUID)
       val result = controller.show()(authenticatedFakeRequest)
       result.map(result => {
-        mockSessionManager.getFromSession(result, "NGR-JourneyId") mustBe testUUID
+        mockSessionManager.getSessionValue("NGR-JourneyId")(result.session) mustBe testUUID
       })
     }
   }

@@ -23,8 +23,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-import javax.inject.Inject
 import scala.concurrent.Future
 
 @Singleton
@@ -35,7 +33,7 @@ class StartController @Inject()(view: StartView,
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     val result = Ok(view())
-    sessionManager.setJourneyId(result, sessionManager.generateJourneyId)
+    sessionManager.setJourneyId(sessionManager.generateJourneyId)(request.session)
     Future.successful(
       result
     )
