@@ -28,14 +28,14 @@ class SessionManagerSpec extends TestSupport {
 
   "SessionManager" must {
     "set a journey id" in {
-      sessionManager.getSessionValue("NGR-JourneyId")(sessionManager.setJourneyId(journeyId)(session)) mustBe Some(journeyId)
+      sessionManager.getSessionValue(sessionManager.setJourneyId(session, journeyId), "NGR-JourneyId") mustBe Some(journeyId)
     }
 
     "delete a key" in {
-      var s = sessionManager.updateSession(testKey, testValue)(session)
-      sessionManager.getSessionValue(testKey)(s) mustBe Some(testValue)
-      s = sessionManager.removeSessionKey(testKey)(s)
-      sessionManager.getSessionValue(testKey)(s) mustBe None
+      var s = sessionManager.updateSession(session, testKey, testValue)
+      sessionManager.getSessionValue(s, testKey) mustBe Some(testValue)
+      s = sessionManager.removeSessionKey(s, testKey)
+      sessionManager.getSessionValue(s, testKey) mustBe None
     }
   }
 

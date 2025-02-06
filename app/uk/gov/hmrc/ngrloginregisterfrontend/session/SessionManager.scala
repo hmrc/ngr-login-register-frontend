@@ -25,17 +25,17 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
 
   private val journeyIdKey: String = "NGR-JourneyId"
 
-  def getSessionValue(key: String)(session: Session): Option[String] =
+  def getSessionValue(session: Session, key: String): Option[String] =
     session.get(key)
 
-  def updateSession(key: String, value: String)(session: Session): Session =
+  def updateSession(session: Session, key: String, value: String): Session =
     session + (key -> value)
 
-  def removeSessionKey(key: String)(session: Session): Session =
+  def removeSessionKey(session: Session, key: String): Session =
     session - key
 
-  def setJourneyId(journeyId: String)(session: Session): Session = {
-    updateSession(journeyIdKey, journeyId)(session)
+  def setJourneyId(session: Session, journeyId: String): Session = {
+    updateSession(session, journeyIdKey, journeyId)
   }
 
   def generateJourneyId: String = {
