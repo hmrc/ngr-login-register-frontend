@@ -25,7 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actio
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Link, VoaSummaryListRow}
 
-class VoaSummaryListRowSpec extends TestSupport with TestData {
+class VoaSummaryListRowSpec extends TestSupport {
 
   val fakeGetRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/your-properties")
   val messagesAPI: MessagesApi = inject[MessagesApi]
