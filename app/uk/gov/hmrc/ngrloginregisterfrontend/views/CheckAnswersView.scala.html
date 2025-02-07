@@ -23,8 +23,8 @@
 
 @(summaryList: SummaryList)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("service.navTitle"))) {
-
+@layout(pageTitle = Some(messages("checkYourAnswers.pageTitle"))) {
+<h1 class="govuk-heading-xl">@messages("checkYourAnswers.pageTitle")</h1>
 @govukSummaryList(summaryList)
 
 }

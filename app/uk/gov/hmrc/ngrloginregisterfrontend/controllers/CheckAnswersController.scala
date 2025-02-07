@@ -44,7 +44,7 @@ class CheckAnswersController @Inject()(view: CheckAnswersView,
       VoaSummaryListRow("Name", Seq(userData.name.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
       VoaSummaryListRow("Email", Seq(userData.email.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
       VoaSummaryListRow("Contact number", Seq(userData.contactNumber.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
-      VoaSummaryListRow("Address", Seq(userData.address.line1, userData.address.line2.getOrElse(""),userData.address.town,userData.address.postcode.value,userData.address.country).filter(_.nonEmpty), Some(Link(Call("GET", "url"), "linkid", "messageKey")))
+      VoaSummaryListRow("Address", Seq(userData.address.line1, userData.address.line2.getOrElse(""),userData.address.town,userData.address.postcode.value,userData.address.country).filter(_.nonEmpty), Some(Link(Call("GET", "url"), "linkid", "Change")))
     )
   }
 
@@ -52,7 +52,7 @@ class CheckAnswersController @Inject()(view: CheckAnswersView,
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(view(SummaryList(summaryListRows))))
+      Future.successful(Ok(view(SummaryList(summaryListRows()))))
     }
   }
 

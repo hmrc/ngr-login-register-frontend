@@ -9,3 +9,7 @@ startView.bullet.1 = add a property to your account
 startView.bullet.2 = report changes to your property
 startView.bullet.3 = provide a valid Tax Reference Number
 startView.button = Start now
+
+checkYourAnswers.pageTitle = Check your answers
+checkYourAnswers.name = Name
+checkYourAnswers.address = Address
