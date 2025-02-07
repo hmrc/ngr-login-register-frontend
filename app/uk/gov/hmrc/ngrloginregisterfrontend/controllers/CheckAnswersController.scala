@@ -43,7 +43,7 @@ class CheckAnswersController @Inject()(view: CheckAnswersView,
     Seq(
       VoaSummaryListRow("Name", Seq(userData.name.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
       VoaSummaryListRow("Email", Seq(userData.email.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
-      VoaSummaryListRow("Contact number", Seq(userData.contactNumber.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
+      VoaSummaryListRow("Contact number", Seq.empty, Some(Link(Call("GET", "url"), "linkid", "Add"))),
       VoaSummaryListRow("Address", Seq(userData.address.line1, userData.address.line2.getOrElse(""),userData.address.town,userData.address.postcode.value,userData.address.country).filter(_.nonEmpty), Some(Link(Call("GET", "url"), "linkid", "Change")))
     )
   }
