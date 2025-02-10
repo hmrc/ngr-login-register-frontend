@@ -27,8 +27,8 @@ import scala.concurrent.Future
 
 @Singleton
 class LoginController @Inject()(view:LoginView,
-                                 authenticate: AuthJourney,
-                                 mcc: MessagesControllerComponents
+                                authenticate: AuthJourney,
+                                mcc: MessagesControllerComponents
                                )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   def start(): Action[AnyContent] = {
@@ -38,4 +38,3 @@ class LoginController @Inject()(view:LoginView,
     }
   }
 }
-

@@ -24,10 +24,12 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 trait AppConfig {
   val features: Features
   val gtmContainer: String
+  val citizenDetailsUrl: String
 }
 
 @Singleton
 class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) extends AppConfig {
   override val features = new Features()(config)
   override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")
+  override val citizenDetailsUrl: String = sc.baseUrl("citizen-details")
 }

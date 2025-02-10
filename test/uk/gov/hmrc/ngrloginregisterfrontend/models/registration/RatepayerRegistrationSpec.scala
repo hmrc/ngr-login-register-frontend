@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
-import play.api.libs.json.{JsResultException, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, Postcode, RatepayerRegistration, TradingName}
+import uk.gov.hmrc.ngrloginregisterfrontend.models._
 
 class RatepayerRegistrationSpec extends TestSupport with TestData {
 

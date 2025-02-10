@@ -24,4 +24,5 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
 
   override val features: Features = new Features()(runModeConfiguration)
   override val gtmContainer: String = "a"
+  override val citizenDetailsUrl: String = "https://localhost:9000"
 }
