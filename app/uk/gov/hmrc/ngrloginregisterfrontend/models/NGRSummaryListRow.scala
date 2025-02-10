@@ -21,11 +21,11 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Text, Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
 
-final case class VoaSummaryListRow(titleMessageKey: String, value: Seq[String], changeLink: Option[Link])
+final case class NGRSummaryListRow(titleMessageKey: String, value: Seq[String], changeLink: Option[Link])
 
-object VoaSummaryListRow {
+object NGRSummaryListRow {
 
-  def summarise(checkYourAnswerRow: VoaSummaryListRow)(implicit messages: Messages): SummaryListRow = {
+  def summarise(checkYourAnswerRow: NGRSummaryListRow)(implicit messages: Messages): SummaryListRow = {
     checkYourAnswerRow.value match {
       case seqOfString if seqOfString.nonEmpty => SummaryListRow(
         key     = Key(content = Text(Messages(checkYourAnswerRow.titleMessageKey))),

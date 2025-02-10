@@ -22,10 +22,10 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.VoaSummaryListRow.summarise
+import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.AgentStatus.Autonomous
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Link, Postcode, RatepayerRegistration, VoaSummaryListRow, Name}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Link, Postcode, RatepayerRegistration, NGRSummaryListRow, Name}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -39,12 +39,12 @@ class CheckAnswersController @Inject()(view: CheckAnswersView,
 
   private val testUser = RatepayerRegistration(Individual, Autonomous, Name("Phil Jones"), None, Email("this@that.com"), ContactNumber("07874346758"), None, Address("12 Nice Lane", None, "Goodtown", None, Postcode("M19 3FW"), "UK"))
 
-  private def createRowsFromUserData(userData: RatepayerRegistration): Seq[VoaSummaryListRow] = {
+  private def createRowsFromUserData(userData: RatepayerRegistration): Seq[NGRSummaryListRow] = {
     Seq(
-      VoaSummaryListRow("Name", Seq(userData.name.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
-      VoaSummaryListRow("Email", Seq(userData.email.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
-      VoaSummaryListRow("Contact number", Seq.empty, Some(Link(Call("GET", "url"), "linkid", "Add"))),
-      VoaSummaryListRow("Address", Seq(userData.address.line1, userData.address.line2.getOrElse(""),userData.address.town,userData.address.postcode.value,userData.address.country).filter(_.nonEmpty), Some(Link(Call("GET", "url"), "linkid", "Change")))
+      NGRSummaryListRow("Name", Seq(userData.name.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
+      NGRSummaryListRow("Email", Seq(userData.email.value), Some(Link(Call("GET", "url"), "linkid", "Change"))),
+      NGRSummaryListRow("Contact number", Seq.empty, Some(Link(Call("GET", "url"), "linkid", "Add"))),
+      NGRSummaryListRow("Address", Seq(userData.address.line1, userData.address.line2.getOrElse(""),userData.address.town,userData.address.postcode.value,userData.address.country).filter(_.nonEmpty), Some(Link(Call("GET", "url"), "linkid", "Change")))
     )
   }
 
