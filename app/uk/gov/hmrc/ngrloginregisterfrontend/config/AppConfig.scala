@@ -31,6 +31,5 @@ trait AppConfig {
 class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) extends AppConfig {
   override val features = new Features()(config)
   override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")
-
   override val citizenDetailsUrl: String = sc.baseUrl("citizen-details")
 }

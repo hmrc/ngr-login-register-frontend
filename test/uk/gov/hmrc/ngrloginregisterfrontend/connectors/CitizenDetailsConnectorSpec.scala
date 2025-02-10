@@ -16,25 +16,20 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import org.mockito.Mockito.when
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import org.mockito.ArgumentMatchers.any
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SERVICE_UNAVAILABLE}
-import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.libs.json.Json
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, SaUtr}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, PersonDetails}
 
-import scala.util.{Failure, Success}
-import java.net.URL
-import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
-class CitizenDetailsConnectorSpec extends MockHttpV2 with TestData{
+import scala.concurrent.Future
 
-  val requestBuilder: RequestBuilder = mock[RequestBuilder]
+class CitizenDetailsConnectorSpec extends MockHttpV2 with TestData {
+
   val httpClientV2: HttpClientV2 = mock[HttpClientV2]
   val cidConnector: CitizenDetailsConnector = new CitizenDetailsConnector(mockHttpClientV2,mockConfig)
 

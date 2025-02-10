@@ -25,12 +25,8 @@ import com.github.tomakehurst.wiremock.http.{HttpHeader, HttpHeaders}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
-import play.api.libs.ws.{WSClient, WSResponse}
-
-
-import scala.concurrent.Future
+import play.api.libs.ws.{WSClient, WSRequest}
 
 object WiremockHelper extends Eventually with IntegrationPatience {
 
@@ -233,16 +229,16 @@ trait WiremockHelper {
 
   lazy val wireMockServer = new WireMockServer(wmConfig)
 
-  def startWiremock() = {
+  def startWiremock(): Unit = {
     wireMockServer.start()
     WireMock.configureFor(wiremockHost, wiremockPort)
   }
 
-  def stopWiremock() = wireMockServer.stop()
+  def stopWiremock(): Unit = wireMockServer.stop()
 
-  def resetWiremock() = WireMock.reset()
+  def resetWiremock(): Unit = WireMock.reset()
 
-  def buildClient(path: String) = ws.url(s"http://localhost:$port/report-quarterly/income-and-expenses/view$path")
+  def buildClient(path: String): WSRequest = ws.url(s"http://localhost:$port/report-quarterly/income-and-expenses/view$path")
     .withFollowRedirects(false)
 
 }

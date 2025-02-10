@@ -20,7 +20,7 @@ import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import org.mockito.{ArgumentMatchers, Mockito}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{mock, reset, when}
+import org.mockito.Mockito.{reset, when}
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport

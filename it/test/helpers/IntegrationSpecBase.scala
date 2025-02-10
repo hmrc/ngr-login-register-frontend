@@ -21,12 +21,11 @@ import org.scalatest.concurrent.{Eventually, IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.{Application, Environment, Mode}
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.http.HeaderCarrier
 
 trait IntegrationSpecBase extends TestSuite with GuiceOneServerPerSuite with ScalaFutures with IntegrationPatience with Matchers
-with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventually {
+with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventually with IntegrationTestData {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   val mockHost: String = WiremockHelper.wiremockHost

@@ -36,7 +36,7 @@ class CitizenDetailsConnector @Inject()(http: HttpClientV2,
                                        (implicit ec: ExecutionContext) {
 
   def getMatchingResponse(nino: Nino)(implicit headerCarrier: HeaderCarrier): Future[Either[ErrorResponse, MatchingDetails]] = {
-    http.get(url"${appConfig.citizenDetailsUrl}/citizen-details/nino/${nino}")
+    http.get(url"${appConfig.citizenDetailsUrl}/citizen-details/nino/$nino")
       .execute[HttpResponse]
       .map { response =>
         response.status match {
@@ -74,6 +74,5 @@ class CitizenDetailsConnector @Inject()(http: HttpClientV2,
       case _ =>
         Left(ErrorResponse(Status.INTERNAL_SERVER_ERROR, s"Call to citizen details failed"))
     }
-      }
-
+  }
 }
