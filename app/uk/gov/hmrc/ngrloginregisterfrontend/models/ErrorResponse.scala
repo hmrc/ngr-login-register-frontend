@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models.cid
+package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json}
 
-case class CurrentName(firstName: String,
-                       lastName: String)
+case class ErrorResponse(code: Int, message: String)
 
-object CurrentName {
-  implicit val format: OFormat[CurrentName] = Json.format[CurrentName]
+object ErrorResponse {
+  implicit val format: Format[ErrorResponse] = Json.format[ErrorResponse]
 }

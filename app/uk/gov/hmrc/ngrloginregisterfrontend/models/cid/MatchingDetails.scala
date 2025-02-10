@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models.cid
 
-import play.api.libs.json.{JsPath, Reads}
+import play.api.libs.json.{Format, JsPath, Json, Reads}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.SaUtr
 
-case class MatchingDetails(firstName: Option[String],
-                           lastName: Option[String],
+case class MatchingDetails(firstName: String,
+                           lastName: String,
                            saUtr: Option[SaUtr] = None
                           )
 
@@ -28,8 +28,8 @@ object MatchingDetails {
   implicit val reads: Reads[MatchingDetails] = {
     val current = JsPath \ "name" \ "current"
     for {
-      firstName <- (current \ "firstName").readNullable[String]
-      lastName <- (current \ "lastName").readNullable[String]
+      firstName <- (current \ "firstName").read[String]
+      lastName <- (current \ "lastName").read[String]
       utr <- (JsPath \ "ids" \ "sautr").readNullable[SaUtr]
     } yield MatchingDetails(firstName,lastName,utr)
 

@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, OFormat, Reads}
 
 case class SaUtr(value: String)
 
 object SaUtr {
-  implicit val format: OFormat[SaUtr] = Json.format[SaUtr]
+  implicit val reads: Reads[SaUtr] = Reads.StringReads.map(SaUtr.apply)
 }
