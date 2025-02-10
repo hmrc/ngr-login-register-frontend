@@ -25,27 +25,16 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
-<<<<<<< HEAD
 @Singleton
 class LoginController @Inject()(view:LoginView,
-=======
-import javax.inject.Inject
-import scala.concurrent.Future
+                                authenticate: AuthJourney,
+                                mcc: MessagesControllerComponents
+                               )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
-class LoginController @Inject()(view: LoginView,
->>>>>>> 9d7108d (Removing unused imports)
-                                 authenticate: AuthJourney,
-                                 mcc: MessagesControllerComponents
-                               )(implicit appConfig: AppConfig)extends FrontendController(mcc) with I18nSupport{
-
-  def start(): Action[AnyContent] =
+  def start(): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-<<<<<<< HEAD
-      Future.successful(Ok(view(request.nino, request.email, request.credId, request.name)))
-=======
-           Future.successful(Ok(view(request.nino, request.email, request.credId, request.name)))
->>>>>>> 9d7108d (Removing unused imports)
+      val result = Ok(view(request.nino, request.email, request.credId, request.name))
+      Future.successful(result)
     }
-
+  }
 }
-
