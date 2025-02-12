@@ -55,7 +55,6 @@ class StartSpec extends ViewBaseSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
     lazy val view = injectedView()
-    val html: HtmlFormat.Appendable = view
     mockConfig.features.welshLanguageSupportEnabled(false)
   }
 
