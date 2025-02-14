@@ -6,16 +6,20 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.{Fieldset, Legend, RadioItem, Tex
 import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 
-case class NGORadio (radioGroupName: VoaRadioName, voaRadionButtons: Seq[VoaRadioButtons], voaTitle: Option[VoaRadioHeader] = None)
+case class NGRRadioName(key: String)
+case class NGRRadioButtons(radioContent: String, radioValue: RadioEntry)
+case class NGRRadioHeader(title: String, classes: String , isPageHeading: Boolean)
 
-object NGORadio {
+case class NGRRadio (radioGroupName: NGRRadioName, NGRRadioButtons: Seq[NGRRadioButtons], ngrTitle: Option[NGRRadioHeader] = None)
+
+object NGRRadio {
 
   def buildRadios[A](
                       form:Form[A],
-                      ngoRadios: NGORadio
+                      NGRRadios: NGRRadio
                     )(implicit messages: Messages): Radios = {
     Radios(
-      fieldset = ngoRadios.voaTitle.map(header =>
+      fieldset = NGRRadios.ngrTitle.map(header =>
         Fieldset(
           legend = Some(Legend(
             content = Text(Messages(header.title)),
@@ -24,9 +28,9 @@ object NGORadio {
           ))
         )
       ),
-      idPrefix = Some(ngoRadios.radioGroupName.key),
-      name = ngoRadios.radioGroupName.key,
-      items = ngoRadios.voaRadionButtons.map { item =>
+      idPrefix = Some(NGRRadios.radioGroupName.key),
+      name = NGRRadios.radioGroupName.key,
+      items = NGRRadios.NGRRadioButtons.map { item =>
         RadioItem(
           content = Text(Messages(item.radioContent)),
           value = Some(item.radioValue.toString),
@@ -34,7 +38,7 @@ object NGORadio {
         )
       },
       classes = "govuk-radios",
-      errorMessage = form(ngoRadios.radioGroupName.key).error.map(err => ErrorMessage(content = Text(messages(err.message)))),
+      errorMessage = form(NGRRadios.radioGroupName.key).error.map(err => ErrorMessage(content = Text(messages(err.message)))),
 
     )
   }
