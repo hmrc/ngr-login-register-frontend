@@ -23,8 +23,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 
-import scala.language.postfixOps
-
 class StartControllerSpec extends ControllerSpecSupport {
   lazy val startView: StartView = inject[StartView]
   lazy val controller: StartController = inject[StartController]

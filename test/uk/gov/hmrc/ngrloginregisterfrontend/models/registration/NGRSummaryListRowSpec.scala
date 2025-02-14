@@ -22,7 +22,7 @@ import play.api.mvc.{AnyContentAsEmpty, Call}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Empty, HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryListRow, Value}
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Link, NGRSummaryListRow}
 
 class NGRSummaryListRowSpec extends TestSupport {
