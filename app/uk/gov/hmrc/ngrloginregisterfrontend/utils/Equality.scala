@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models
+package uk.gov.hmrc.ngrloginregisterfrontend.utils
+// $COVERAGE-OFF$
+trait Eq[T] {
+  def eqv(x: T, y: T): Boolean
+}
 
-trait RadioEntry
+object Eq {
+  // Universal equality instance
+  def fromUniversalEquals[T]: Eq[T] = new Eq[T] {
+    override def eqv(x: T, y: T): Boolean = x == y
+  }
+}
+// $COVERAGE-ON$
