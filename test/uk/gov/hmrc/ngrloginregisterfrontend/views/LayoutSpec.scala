@@ -18,11 +18,8 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.mockito.Mockito.when
-import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestSupport, ViewBaseSpec}
-import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
+import play.twirl.api.Html
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.Layout
 
 class LayoutSpec extends ViewBaseSpec {

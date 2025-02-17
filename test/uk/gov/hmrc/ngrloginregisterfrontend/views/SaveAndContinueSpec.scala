@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.views
 
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
 

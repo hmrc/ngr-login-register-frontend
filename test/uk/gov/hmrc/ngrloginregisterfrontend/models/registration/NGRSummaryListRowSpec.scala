@@ -27,8 +27,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actio
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Link, NGRSummaryListRow}
-
 import scala.collection.IterableOnce.iterableOnceExtensionMethods
+
 
 class NGRSummaryListRowSpec extends TestSupport {
 
