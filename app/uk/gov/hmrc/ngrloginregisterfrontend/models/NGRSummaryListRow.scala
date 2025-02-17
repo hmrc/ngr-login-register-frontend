@@ -17,14 +17,15 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.i18n.Messages
+import play.api.mvc.{AnyContent, Call}
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Text, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
 
 final case class NGRSummaryListRow(titleMessageKey: String, value: Seq[String], changeLink: Option[Link])
 
 object NGRSummaryListRow {
-
   def summarise(checkYourAnswerRow: NGRSummaryListRow)(implicit messages: Messages): SummaryListRow = {
     checkYourAnswerRow.value match {
       case seqOfString if seqOfString.nonEmpty => SummaryListRow(
@@ -52,5 +53,32 @@ object NGRSummaryListRow {
         }
       )
     }
+  }
+
+  def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
+    var name = personDetails.person.firstName.getOrElse("")
+    if (personDetails.person.middleName.nonEmpty) {
+      name = name + " " + personDetails.person.middleName.getOrElse("")
+    }
+    if (personDetails.person.lastName.nonEmpty) {
+      name = name + " " + personDetails.person.lastName.getOrElse("")
+    }
+
+    val address: Seq[String] = Seq(
+      personDetails.address.line1.getOrElse(""),
+      personDetails.address.line2.getOrElse(""),
+      personDetails.address.line3.getOrElse(""),
+      personDetails.address.line4.getOrElse(""),
+      personDetails.address.line5.getOrElse(""),
+      personDetails.address.postcode.getOrElse(""),
+      personDetails.address.country.getOrElse("")
+    ).filter(_.nonEmpty)
+
+    Seq(
+      NGRSummaryListRow(messages("confirmContactDetails.contactName"), Seq(name), Some(Link(Call("GET", "url"), "linkid", "Change"))),
+      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), Seq(request.email.getOrElse("")), Some(Link(Call("GET", "url"), "linkid", "Change"))),
+      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), Seq.empty, Some(Link(Call("GET", "url"), "linkid", "Add"))),
+      NGRSummaryListRow(messages("confirmContactDetails.address"), address, Some(Link(Call("GET", "url"), "linkid", "Change")))
+    ).map(summarise)
   }
 }

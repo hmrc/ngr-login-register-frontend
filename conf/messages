@@ -13,3 +13,15 @@ startView.button = Start now
 checkYourAnswers.pageTitle = Check your answers
 checkYourAnswers.name = Name
 checkYourAnswers.address = Address
+
+confirmContactDetails.pageTitle = Confirm your contact details
+confirmContactDetails.body.1 = The Valuation Office Agency (VOA) will use these details to:
+confirmContactDetails.bullet.1 = send you information related to the service and your account
+confirmContactDetails.bullet.2 = confirm your identity if you contact the VOA
+confirmContactDetails.body.2 = This account is registered to
+confirmContactDetails.contactName = Contact name
+confirmContactDetails.emailAddress = Email address
+confirmContactDetails.phoneNumber = Phone number
+confirmContactDetails.address = Address
+confirmContactDetails.change = Change
+confirmContactDetails.continue = Continue
