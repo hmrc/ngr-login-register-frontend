@@ -21,7 +21,7 @@ import enumeratum.Enum
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{UTROption, UTROptions}
 
 sealed trait UtrOptionFormValue extends enumeratum.EnumEntry
-
+// $COVERAGE-OFF$
 object UtrOptionFormValue extends Enum[UtrOptionFormValue] {
 
   case object ProvideUTR  extends UtrOptionFormValue
@@ -41,5 +41,5 @@ object UtrOptionFormValue extends Enum[UtrOptionFormValue] {
     case ProvideNino => UTROptions.ProvideNino
     case ProvideUTRLater => UTROptions.ProvideUTRLater
   }
-
+  // $COVERAGE-ON$
 }

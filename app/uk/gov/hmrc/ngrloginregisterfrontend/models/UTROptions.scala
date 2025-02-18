@@ -24,6 +24,7 @@ import scala.collection.immutable
 
 sealed trait UTROption extends EnumEntry with RadioEntry
 
+// $COVERAGE-OFF$
 object UTROption {
   implicit val format: Format[UTROption] = EnumFormat(UTROptions)
   implicit val eq: Eq[UTROption] = Eq.fromUniversalEquals
@@ -37,3 +38,4 @@ object UTROptions extends Enum[UTROption] {
 
   override val values: immutable.IndexedSeq[UTROption] = findValues
 }
+// $COVERAGE-ON$
