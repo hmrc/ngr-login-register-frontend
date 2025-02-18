@@ -20,32 +20,50 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
+import uk.gov.hmrc.auth.core.Nino
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport, ViewBaseSpec}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{ConfirmContactDetailsView, Layout}
 
-class ConfirmContactDetailsViewSpec extends ViewBaseSpec {
+class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
 
   val layout: Layout = MockitoSugar.mock[Layout]
   val button: saveAndContinueButton = mock[saveAndContinueButton]
   val injectedView: ConfirmContactDetailsView = injector.instanceOf[ConfirmContactDetailsView]
-  val summaryList: SummaryList = SummaryList(Seq())
+  val summaryList: SummaryList = SummaryList(rows)
+  lazy val rows: Seq[SummaryListRow] = NGRSummaryListRow.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(true, Some(""))))
 
   val navTitle = "Manage your business rates valuation"
+  val pageTitle = "Confirm your contact details"
+  val body1 = "The Valuation Office Agency (VOA) will use these details to:"
+  val bullet1 = "send you information related to the service and your account"
+  val bullet2 = "confirm your identity if you contact the VOA"
+  val body2 = "This account is registered to"
+  val contactName = "Contact name"
+  val emailAddress = "Email address"
+  val phoneNumber = "Phone number"
+  val address = "Address"
+  val change = "Change"
+  val continue = "Continue"
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
-    val languageSelector = "#content > nav > ul > li:nth-child(1) > span"
-    val headingSelector = "#content > form > h1"
-    val backLink = ".govuk-back-link"
-    val button = "#continue"
-    val body1Selector = "#content > form > p:nth-child(2)"
-    val body2Selector = "#content > form > p:nth-child(3)"
-    val bullet1 = "#content > form > ul > li:nth-child(1)"
-    val bullet2 = "#content > form > ul > li:nth-child(2)"
-    val bullet3 = "#content > form > ul > li:nth-child(3)"
+    val pageTitle = "#content > h1"
+    val body1 = "#content > p:nth-child(3)"
+    val body2 = "#content > p:nth-child(5)"
+    val bullet1 = "#content > ul > li:nth-child(1)"
+    val bullet2 = "#content > ul > li:nth-child(2)"
+    val contactName = "#content > dl > div:nth-child(1) > dt"
+    val email = "#content > dl > div:nth-child(2) > dt"
+    val phone = "#content > dl > div.govuk-summary-list__row.govuk-summary-list__row--no-actions > dt"
+    val address = "#content > dl > div:nth-child(4) > dt"
+    val continue = "#continue"
   }
 
   override def beforeEach(): Unit = {
@@ -70,6 +88,16 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec {
         lazy val view = injectedView(summaryList)
         lazy implicit val document: Document = Jsoup.parse(view.body)
         elementText(Selectors.navTitle) mustBe navTitle
+        elementText(Selectors.pageTitle) mustBe pageTitle
+        elementText(Selectors.body1) mustBe body1
+        elementText(Selectors.body2) mustBe body2
+        elementText(Selectors.bullet1) mustBe bullet1
+        elementText(Selectors.bullet2) mustBe bullet2
+        elementText(Selectors.contactName) mustBe contactName
+        elementText(Selectors.email) mustBe emailAddress
+        elementText(Selectors.phone) mustBe phoneNumber
+        elementText(Selectors.address) mustBe address
+        elementText(Selectors.continue) mustBe continue
       }
 
     }
