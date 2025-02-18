@@ -16,23 +16,21 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import play.api.i18n.{I18nSupport, Messages}
+import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.{createSummaryRows, summarise}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Link, NGRSummaryListRow}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
+import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.createSummaryRows
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
+@Singleton
 class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 authenticate: AuthJourney,
                                                 mcc: MessagesControllerComponents,
