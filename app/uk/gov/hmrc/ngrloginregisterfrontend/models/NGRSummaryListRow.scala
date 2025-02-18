@@ -17,11 +17,9 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, Call}
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Text, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
 
 final case class NGRSummaryListRow(titleMessageKey: String, value: Seq[String], changeLink: Option[Link])
 
