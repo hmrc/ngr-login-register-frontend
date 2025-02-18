@@ -56,13 +56,12 @@ object NGRSummaryListRow {
   }
 
   def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
-    var name = personDetails.person.firstName.getOrElse("")
-    if (personDetails.person.middleName.nonEmpty) {
-      name = name + " " + personDetails.person.middleName.getOrElse("")
-    }
-    if (personDetails.person.lastName.nonEmpty) {
-      name = name + " " + personDetails.person.lastName.getOrElse("")
-    }
+
+    val name = List(
+      personDetails.person.firstName,
+      personDetails.person.middleName,
+      personDetails.person.lastName
+    ).flatten.mkString(" ")
 
     val address: Seq[String] = Seq(
       personDetails.address.line1.getOrElse(""),
