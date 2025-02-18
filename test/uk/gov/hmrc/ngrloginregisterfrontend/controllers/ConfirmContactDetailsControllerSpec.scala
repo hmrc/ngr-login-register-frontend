@@ -18,12 +18,15 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Status.OK
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
@@ -60,6 +63,32 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport {
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future(Left(ErrorResponse(any(), any()))))
       val result = failController().show()(authenticatedFakeRequest)
       status(result) mustBe 0
+    }
+
+    "Will generate SummaryListRow from user data" in {
+      val personDetails = PersonDetails(
+        Person(
+          title = None,
+          firstName = Some("Joe"),
+          middleName = Some("Eric"),
+          lastName = Some("Jones"),
+          honours = None,
+          sex = None,
+          dateOfBirth = None,
+          nino = None),
+        PersonAddress(
+          line1 = Some("123 Britain Street"),
+          line2 = Some("123 Britain Street"),
+          line3 = Some("Nicetown"),
+          line4 = Some("123 Britain Street"),
+          line5 = Some("123 Britain Street"),
+          postcode = Some("TT347TC"),
+          country = Some("UK")
+        )
+      )
+      val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None,None,None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
+      val rows = controller().createSummaryRows(personDetails, authRequest)
+      rows.length shouldBe 4
     }
 
   }

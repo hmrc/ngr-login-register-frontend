@@ -20,14 +20,12 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
-import uk.gov.hmrc.http.HeaderNames
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport, ViewBaseSpec}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, NGRSummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, ViewBaseSpec}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{ConfirmContactDetailsView, Layout}
 
@@ -37,7 +35,8 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
   val button: saveAndContinueButton = mock[saveAndContinueButton]
   val injectedView: ConfirmContactDetailsView = injector.instanceOf[ConfirmContactDetailsView]
   val summaryList: SummaryList = SummaryList(rows)
-  lazy val rows: Seq[SummaryListRow] = NGRSummaryListRow.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(true, Some(""))))
+  lazy val controller: ConfirmContactDetailsController = inject[ConfirmContactDetailsController]
+  lazy val rows: Seq[SummaryListRow] = controller.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(hasNino = true, Some(""))))
 
   val navTitle = "Manage your business rates valuation"
   val pageTitle = "Confirm your contact details"

@@ -18,17 +18,12 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{AnyContent, AnyContentAsEmpty, Call}
+import play.api.mvc.{AnyContentAsEmpty, Call}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Empty, HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryListRow, Value}
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Link, NGRSummaryListRow}
-import scala.collection.IterableOnce.iterableOnceExtensionMethods
-
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Link, NGRSummaryListRow}
 
 class NGRSummaryListRowSpec extends TestSupport {
 
@@ -79,30 +74,5 @@ class NGRSummaryListRowSpec extends TestSupport {
       result shouldBe SummaryListRow(Key(Text(""), ""), Value(HtmlContent(s"""<a id="id" href="url" class="govuk-link">Change</a>"""), ""), "", None)
     }
 
-    "Will generate SummaryListRow from user data" in {
-      val personDetails = PersonDetails(
-        Person(
-          title = None,
-          firstName = Some("Joe"),
-          middleName = Some("Eric"),
-          lastName = Some("Jones"),
-          honours = None,
-          sex = None,
-          dateOfBirth = None,
-          nino = None),
-        PersonAddress(
-          line1 = Some("123 Britain Street"),
-          line2 = Some("123 Britain Street"),
-          line3 = Some("Nicetown"),
-          line4 = Some("123 Britain Street"),
-          line5 = Some("123 Britain Street"),
-          postcode = Some("TT347TC"),
-          country = Some("UK")
-        )
-      )
-      val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None,None,None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
-      val rows = NGRSummaryListRow.createSummaryRows(personDetails, authRequest)
-      rows.length shouldBe 4
-    }
   }
 }

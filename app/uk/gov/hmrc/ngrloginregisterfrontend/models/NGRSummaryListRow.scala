@@ -55,29 +55,4 @@ object NGRSummaryListRow {
     }
   }
 
-  def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
-
-    val name = List(
-      personDetails.person.firstName,
-      personDetails.person.middleName,
-      personDetails.person.lastName
-    ).flatten.mkString(" ")
-
-    val address: Seq[String] = Seq(
-      personDetails.address.line1.getOrElse(""),
-      personDetails.address.line2.getOrElse(""),
-      personDetails.address.line3.getOrElse(""),
-      personDetails.address.line4.getOrElse(""),
-      personDetails.address.line5.getOrElse(""),
-      personDetails.address.postcode.getOrElse(""),
-      personDetails.address.country.getOrElse("")
-    ).filter(_.nonEmpty)
-
-    Seq(
-      NGRSummaryListRow(messages("confirmContactDetails.contactName"), Seq(name), Some(Link(Call("GET", "url"), "linkid", "Change"))),
-      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), Seq(request.email.getOrElse("")), Some(Link(Call("GET", "url"), "linkid", "Change"))),
-      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), Seq.empty, Some(Link(Call("GET", "url"), "linkid", "Add"))),
-      NGRSummaryListRow(messages("confirmContactDetails.address"), address, Some(Link(Call("GET", "url"), "linkid", "Change")))
-    ).map(summarise)
-  }
 }
