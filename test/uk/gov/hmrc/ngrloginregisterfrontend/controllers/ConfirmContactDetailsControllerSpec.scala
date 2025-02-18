@@ -25,14 +25,14 @@ import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
 import scala.concurrent.Future
 
-class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport {
+class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with TestData {
   lazy val view: ConfirmContactDetailsView = inject[ConfirmContactDetailsView]
   lazy val citizenDetailsConnector: CitizenDetailsConnector = inject[CitizenDetailsConnector]
   val noNinoAuth: AuthenticatedUserRequest[AnyContentAsEmpty.type] = AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(hasNino = false, None))
@@ -40,28 +40,25 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport {
 
   def controller() =
     new ConfirmContactDetailsController(
-      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = citizenDetailsConnector
-    )
-
-  def failController() =
-    new ConfirmContactDetailsController(
       view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector
     )
 
   "Controller" must {
     "return OK and the correct view for a GET" in {
+      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Right(personDetailsResponse)))
       val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe OK
     }
 
-    "return OK and the correct view for a GEffT" in {
+    "return OK and the correct view for a fail" in {
+      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(400, "bad"))))
       val result = controller().show()(noNinoAuth)
-      status(result) mustBe OK
+      status(result) mustBe 400
     }
 
     "person details returns error status" in {
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future(Left(ErrorResponse(any(), any()))))
-      val result = failController().show()(authenticatedFakeRequest)
+      val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe 0
     }
 

@@ -20,7 +20,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController
@@ -67,8 +66,8 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    lazy val view = injectedView(summaryList)
-    val html: HtmlFormat.Appendable = view
+//    lazy val view = injectedView(summaryList)
+//    val html: HtmlFormat.Appendable = view
     mockConfig.features.welshLanguageSupportEnabled(false)
   }
 
@@ -77,7 +76,7 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
     "produce the same output for apply() and render()" in {
       val htmlApply = injectedView.apply(summaryList).body
       val htmlRender = injectedView.render(summaryList, request, messages, mockConfig).body
-      val fFunction: HtmlFormat.Appendable = injectedView.f(summaryList)(request, messages, mockConfig)
+//      val fFunction: HtmlFormat.Appendable = injectedView.f(summaryList)(request, messages, mockConfig)
       htmlApply mustBe htmlRender
     }
 

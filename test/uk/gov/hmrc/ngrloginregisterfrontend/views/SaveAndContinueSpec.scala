@@ -27,7 +27,7 @@ class SaveAndContinueSpec extends ViewBaseSpec{
     "produce the same output for apply() and render()" in {
       val htmlApply = injectedView.apply("message").body
       val htmlRender = injectedView.render(msg = "message",showSaveProgressButton = false,isStartButton = false,messages = messages).body
-      val htmlF = injectedView.f("message", false, false)(messages).body
+//      val htmlF = injectedView.f("message", false, false)(messages).body
       htmlApply mustBe htmlRender
     }
   }
