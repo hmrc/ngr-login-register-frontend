@@ -19,7 +19,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 import play.api.libs.json._
 import uk.gov.hmrc.domain.{SimpleObjectReads, SimpleObjectWrites}
 
-case class SaUtr(value: String)
+case class SaUtr(value: String) {
+  require(SaUtr.isValid(value), s"$value is not a valid sautr.")
+}
 
 object SaUtr {
 
