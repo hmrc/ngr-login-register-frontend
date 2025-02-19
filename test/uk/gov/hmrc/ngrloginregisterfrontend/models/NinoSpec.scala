@@ -78,5 +78,43 @@ class NinoSpec extends TestSupport {
     "fail with lowercase letters" in {
       validateNino("ab123456c")  mustBe false
     }
+    "fail with less than 6 middle digits" in {
+      validateNino("AB12345C") mustBe  false
+    }
+    "fail with more than 6 middle digits" in {
+      validateNino("AB1234567C") mustBe false
+    }
+    "fail if we start with invalid characters" in {
+      val invalidStartLetterCombinations = List('D', 'F', 'I', 'Q', 'U', 'V').combinations(2).map(_.mkString("")).toList
+      val invalidPrefixes = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ")
+      for (v <- invalidStartLetterCombinations ::: invalidPrefixes) {
+        validateNino(v + "123456C") mustBe false
+      }
+    }
+    "fail if the second letter O" in {
+      validateNino("AO123456C") mustBe false
+    }
+
+    "fail if the suffix is E" in {
+      validateNino("AB123456E") mustBe false
+    }
+  }
+
+  "Creating a Nino" should {
+    "fail if the nino is not valid" in {
+      an[IllegalArgumentException] should be thrownBy Nino("INVALID_NINO")
+    }
+  }
+
+  "Formatting a Nino" should {
+    "produce a formatted nino" in {
+      Nino("CS100700A").formatted mustBe "CS 10 07 00 A"
+    }
+  }
+
+  "Removing a suffix" should {
+    "produce a nino without a suffix" in {
+      Nino("AA111111A").withoutSuffix mustBe "AA111111"
+    }
   }
 }
