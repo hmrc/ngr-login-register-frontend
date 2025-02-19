@@ -21,10 +21,9 @@ import helpers.{IntegrationSpecBase, IntegrationTestData, WiremockHelper}
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.test.Injecting
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.MatchingDetails
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, SaUtr}
 
 class CitizenDetailsConnectorISpec extends AnyWordSpec with IntegrationSpecBase with Injecting with IntegrationTestData{
 
