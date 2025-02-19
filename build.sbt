@@ -26,6 +26,7 @@ lazy val microservice = Project("ngr-login-register-frontend", file("."))
   .settings(WartRemoverSettings.wartRemoverSettings: _*)
   .settings(CodeCoverageSettings.settings: _*)
   .settings(SbtUpdatesSettings.sbtUpdatesSettings *)
+  .disablePlugins(JUnitXmlReportPlugin)
 
 lazy val it = project
   .enablePlugins(PlayScala)
