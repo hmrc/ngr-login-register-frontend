@@ -35,12 +35,44 @@ class SaUtrSpec extends TestSupport {
 
   "SaUtr" should {
     "serialize to json" in {
-      Json.toJson(saUtr) mustBe saUtrJson
+      Json.toJson(saUtr) mustBe JsString("1097172987")
     }
     "deserialize from json" in {
       saUtrJson.as[SaUtr] mustBe saUtr
     }
   }
 
+  "The validation of a sautr" should {
+    "pass with a valid number without spaces" in {
+      validateSaUtr("1097172987") mustBe true
+    }
+    "fail with more than 10 digits" in {
+      validateSaUtr("12345678901") mustBe false
+    }
+    "fail with less than 10 digits" in {
+      validateSaUtr("12345") mustBe false
+    }
+    "fail with letters" in {
+      validateSaUtr("abc1234567") mustBe false
+    }
+    "fail with total garbage" in {
+      validateSaUtr("XXX") mustBe false
+      validateSaUtr("werionownadefwe") mustBe false
+      validateSaUtr("@£%!)(*&^") mustBe false
+      validateSaUtr("123456") mustBe false
+    }
+    "fail with only space" in {
+      validateSaUtr("    ") mustBe false
+    }
+    "fail with valid number with leading space" in {
+      validateSaUtr(" 1097172987") mustBe false
+    }
+    "fail with valid number with trailing space" in {
+      validateSaUtr("1097172987 ") mustBe false
+    }
+    "fail with empty string" in {
+      validateSaUtr("")  mustBe false
+    }
+  }
 
 }

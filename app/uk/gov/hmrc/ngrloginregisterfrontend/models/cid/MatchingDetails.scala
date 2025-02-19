@@ -17,7 +17,8 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models.cid
 
 import play.api.libs.json.{JsPath, Reads}
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.ngrloginregisterfrontend.models.SaUtr
+
 
 case class MatchingDetails(firstName: String,
                            lastName: String,

@@ -17,15 +17,14 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.libs.json._
+import uk.gov.hmrc.domain.{SimpleObjectReads, SimpleObjectWrites}
 
 case class SaUtr(value: String)
 
 object SaUtr {
 
-  implicit val format: Format[SaUtr] = Format(
-    (__ \ "sautr").read[String].map(SaUtr.apply),
-    Writes(saUtr => Json.obj("sautr" -> saUtr.value))
-  )
+  implicit val saUtrWrite: Writes[SaUtr] = new SimpleObjectWrites[SaUtr](_.value)
+  implicit val saUtrRead: Reads[SaUtr] = new SimpleObjectReads[SaUtr]("sautr", SaUtr.apply)
 
   private val validSaUtrFormat = "[0-9]{10}"
 
