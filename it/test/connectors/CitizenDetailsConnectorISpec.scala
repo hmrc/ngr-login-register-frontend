@@ -48,7 +48,7 @@ class CitizenDetailsConnectorISpec extends AnyWordSpec with IntegrationSpecBase 
 
           val result = connector.getMatchingResponse(nino).futureValue
 
-          result mustBe Left(ErrorResponse(500, "Call to citizen details failed"))
+          result mustBe Left(ErrorResponse(500, "{}"))
           WiremockHelper.verifyGet(s"/citizen-details/nino/${nino.value}")
         }
 
@@ -67,7 +67,7 @@ class CitizenDetailsConnectorISpec extends AnyWordSpec with IntegrationSpecBase 
 
           val result = connector.getPersonDetails(nino).futureValue
 
-          result mustBe Left(ErrorResponse(500, "Call to citizen details failed"))
+          result mustBe Left(ErrorResponse(500, "{}"))
           WiremockHelper.verifyGet(s"/citizen-details/${nino.value}/designatory-details")
         }
 

@@ -24,7 +24,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actio
 final case class NGRSummaryListRow(titleMessageKey: String, value: Seq[String], changeLink: Option[Link])
 
 object NGRSummaryListRow {
-
   def summarise(checkYourAnswerRow: NGRSummaryListRow)(implicit messages: Messages): SummaryListRow = {
     checkYourAnswerRow.value match {
       case seqOfString if seqOfString.nonEmpty => SummaryListRow(
@@ -53,4 +52,5 @@ object NGRSummaryListRow {
       )
     }
   }
+
 }

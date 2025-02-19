@@ -28,6 +28,7 @@ object AffinityGroupHelper {
       case AffinityGroup.Agent => false
       case AffinityGroup.Individual => true
       case AffinityGroup.Organisation => false
+      case _ => false
     }
 
   def isOrganisation(ag: Option[AffinityGroup]): Boolean =
@@ -40,6 +41,7 @@ object AffinityGroupHelper {
       case AffinityGroup.Agent => false
       case AffinityGroup.Individual => false
       case AffinityGroup.Organisation => true
+      case _ => false
     }
 
   def isAgent(ag: Option[AffinityGroup]): Boolean =
@@ -52,5 +54,6 @@ object AffinityGroupHelper {
       case AffinityGroup.Agent => true
       case AffinityGroup.Individual => false
       case AffinityGroup.Organisation => false
+      case _ => false
     }
 }

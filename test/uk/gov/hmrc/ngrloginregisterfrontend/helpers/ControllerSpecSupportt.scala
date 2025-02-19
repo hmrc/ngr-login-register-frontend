@@ -19,6 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 import org.mockito.Mockito.when
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
@@ -32,7 +33,10 @@ trait ControllerSpecSupport extends TestSupport{
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
-    override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  block(request.asInstanceOf[AuthenticatedUserRequest[A]])
+    override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
+      val authRequest = AuthenticatedUserRequest(request, None, None, None, None, None, None, nino = Nino(hasNino = true, Some("AA000003D")))
+      block(authRequest)
+    }
     override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
     override protected def executionContext: ExecutionContext = ec
   }
