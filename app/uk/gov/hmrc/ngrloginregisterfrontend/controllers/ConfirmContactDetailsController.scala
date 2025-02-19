@@ -48,7 +48,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
       }
     }
 
-  def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
+  private[controllers] def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
 
     val name = List(
       personDetails.person.firstName,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.views
+package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -22,7 +22,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, ViewBaseSpec}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
