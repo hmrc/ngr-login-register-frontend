@@ -54,8 +54,6 @@ class StartSpec extends ViewBaseSpec {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-//    lazy val view = injectedView()
-//    val html: HtmlFormat.Appendable = view
     mockConfig.features.welshLanguageSupportEnabled(false)
   }
 
@@ -67,7 +65,6 @@ class StartSpec extends ViewBaseSpec {
       val htmlF: HtmlFormat.Appendable = injectedView.f()(messages, mockConfig, request)
       htmlApply mustBe htmlRender
       htmlF.toString() must not be empty
-//      html must not be empty
     }
 
     "injected into the view" should {
