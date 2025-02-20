@@ -19,6 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 import play.api.libs.json.{Format, Json}
 
 final case class Email(value: String) {
+  override def toString: String = value
   private val emailRegex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"
   def isValidEmail: Boolean = value.matches(emailRegex)
 }

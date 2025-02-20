@@ -58,7 +58,7 @@
 
 @hmrcStandardPage(
     HmrcStandardPageParams(
-    pageTitle = pageTitle,
+    pageTitle = pageTitle.map(title => messages("service.base.title", title)),
     templateOverrides = TemplateOverrides(
     mainContentLayout = None
 ),

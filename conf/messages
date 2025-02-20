@@ -1,6 +1,7 @@
 service.name = Manage your business rates valuation
 service.navTitle = Manage your business rates valuation
 service.text = This is your new service
+service.base.title = {0} - GOV.UK
 
 startView.heading = Register for the business rates valuation service
 startView.body.1 = Use this service to meet your obligations as the ratepayer of a non-domestic property.

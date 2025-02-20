@@ -38,7 +38,7 @@ class StartController @Inject()(view: StartView,
 
   def submit(): Action[AnyContent] =
     Action.async {
-      Future.successful(Redirect(routes.LoginController.start))
+      Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
     }
 
 }
