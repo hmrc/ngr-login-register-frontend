@@ -62,10 +62,9 @@ class CitizenDetailsConnectorSpec extends MockHttpV2 with TestData {
       }
       "a 500-599 response is returned" should {
         "return an ErrorResponse" in {
-          val errorResponse = HttpResponse(status = INTERNAL_SERVER_ERROR,"""Dependent systems are currently not responding.""", headers = Map.empty)
-          setupMockHttpV2Get(s"${mockConfig.citizenDetailsUrl}/citizen-details/nino/$testNino")(errorResponse)
+          setupMockFailedHttpV2Get(s"${mockConfig.citizenDetailsUrl}/citizen-details/nino/$testNino")
           val result = cidConnector.getMatchingResponse(Nino(testNino))
-          result.futureValue mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR,"Dependent systems are currently not responding."))
+          result.futureValue mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR,"Call to citizen details failed"))
         }
       }
   }
@@ -97,10 +96,9 @@ class CitizenDetailsConnectorSpec extends MockHttpV2 with TestData {
       }
       "a 500-599 response is returned" should {
         "return an ErrorResponse" in {
-          val errorResponse = HttpResponse(status = INTERNAL_SERVER_ERROR, """Dependent systems are currently not responding.""", headers = Map.empty)
-          setupMockHttpV2Get(s"${mockConfig.citizenDetailsUrl}/citizen-details/$testNino/designatory-details")(errorResponse)
+          setupMockFailedHttpV2Get(s"${mockConfig.citizenDetailsUrl}/citizen-details/$testNino/designatory-details")
           val result = cidConnector.getPersonDetails(Nino(testNino))
-          result.futureValue mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR,"Dependent systems are currently not responding."))
+          result.futureValue mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR,"Call to citizen details failed"))
         }
       }
     }

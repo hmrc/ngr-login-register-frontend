@@ -43,11 +43,11 @@ class CitizenDetailsConnectorISpec extends AnyWordSpec with IntegrationSpecBase 
           WiremockHelper.verifyGet(s"/citizen-details/nino/${nino.value}")
         }
         "return an error when the request fails" in {
-          WiremockHelper.stubGet(s"/citizen-details/nino/${nino.value}", INTERNAL_SERVER_ERROR, "{}")
+          WiremockHelper.stubGet(s"/citizen-details/nino/${nino.value}", INTERNAL_SERVER_ERROR, "Call to citizen details failed")
 
           val result = connector.getMatchingResponse(nino).futureValue
 
-          result mustBe Left(ErrorResponse(500, "{}"))
+          result mustBe Left(ErrorResponse(500, "Call to citizen details failed"))
           WiremockHelper.verifyGet(s"/citizen-details/nino/${nino.value}")
         }
 
@@ -62,11 +62,11 @@ class CitizenDetailsConnectorISpec extends AnyWordSpec with IntegrationSpecBase 
           WiremockHelper.verifyGet(s"/citizen-details/${nino.value}/designatory-details")
         }
         "return an error when the request fails" in {
-          WiremockHelper.stubGet(s"/citizen-details/${nino.value}/designatory-details", INTERNAL_SERVER_ERROR, "{}")
+          WiremockHelper.stubGet(s"/citizen-details/${nino.value}/designatory-details", INTERNAL_SERVER_ERROR, "Call to citizen details failed")
 
           val result = connector.getPersonDetails(nino).futureValue
 
-          result mustBe Left(ErrorResponse(500, "{}"))
+          result mustBe Left(ErrorResponse(500, "Call to citizen details failed"))
           WiremockHelper.verifyGet(s"/citizen-details/${nino.value}/designatory-details")
         }
 

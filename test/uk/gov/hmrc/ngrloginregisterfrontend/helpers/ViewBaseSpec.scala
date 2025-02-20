@@ -24,12 +24,15 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.Injector
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContentAsEmpty, Call}
 import play.api.test.{FakeRequest, Injecting}
 import play.twirl.api.Html
+import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, Link, NGRSummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 
-trait ViewBaseSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting with BeforeAndAfterEach with Matchers{
+trait ViewBaseSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting with BeforeAndAfterEach with Matchers with TestData {
   def injector: Injector = app.injector
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
   lazy val messagesApi: MessagesApi             = inject[MessagesApi]
@@ -64,5 +67,32 @@ trait ViewBaseSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting with
   }
 
   lazy implicit val mockConfig: MockAppConfig = new MockAppConfig(app.configuration)
+
+  val testEmail = Email("test@test.co.uk").toString
+
+
+  val personNameSummaryListDetails = Seq(
+    personDetailsResponse.person.firstName,
+    personDetailsResponse.person.middleName,
+    personDetailsResponse.person.lastName
+  ).flatten.mkString(" ")
+
+  val addressSummaryListDetails = Seq(
+    personDetailsResponse.address.line1.getOrElse(""),
+    personDetailsResponse.address.line2.getOrElse(""),
+    personDetailsResponse.address.line3.getOrElse(""),
+    personDetailsResponse.address.line4.getOrElse(""),
+    personDetailsResponse.address.line5.getOrElse(""),
+    personDetailsResponse.address.postcode.getOrElse(""),
+    personDetailsResponse.address.country.getOrElse("")
+  ).filter(_.nonEmpty)
+
+  def createSummaryListRows()(implicit messages: Messages): Seq[SummaryListRow] =
+  Seq(
+    NGRSummaryListRow("confirmContactDetails.contactName", Seq(personNameSummaryListDetails), Some(Link(Call("GET", "url"), "changeName", "Change"))),
+    NGRSummaryListRow("confirmContactDetails.emailAddress", Seq(testEmail), Some(Link(Call("GET", "url"), "changeEmail", "Change"))),
+    NGRSummaryListRow("confirmContactDetails.phoneNumber", Seq.empty, Some(Link(Call("GET", "url"), "addPhoneNumber", "Add"))),
+    NGRSummaryListRow("confirmContactDetails.address", addressSummaryListDetails, Some(Link(Call("GET", "url"), "changeAddress", "Change")))
+  ).map(summarise)
 
 }
