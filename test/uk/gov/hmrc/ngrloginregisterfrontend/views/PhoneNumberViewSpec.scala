@@ -23,7 +23,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 
 class PhoneNumberViewSpec extends ViewBaseSpec {
 
-  lazy val phoneNumberView = inject[PhoneNumberView]
+  lazy val phoneNumberView: PhoneNumberView = inject[PhoneNumberView]
   lazy val pageTitle = "Phone Number"
 
   "PhoneNumberView" must {
@@ -50,6 +50,9 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       view must include("Enter phone number")
       view must include("Phone Number")
       view must include("For international numbers include the country code")
+
+      view must not include("Enter your Phone number")
+      view must not include("Please enter a valid phone number")
     }
 
     "display error messages 'Enter your Phone number' when none is supplied" in {

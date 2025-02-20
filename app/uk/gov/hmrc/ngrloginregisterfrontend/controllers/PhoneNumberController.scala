@@ -36,7 +36,7 @@ class PhoneNumberController @Inject()( //Todo connector will need to be added he
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(phoneNumberView(form)))
+      Future.successful(Ok(phoneNumberView(form())))
     }
   }
 

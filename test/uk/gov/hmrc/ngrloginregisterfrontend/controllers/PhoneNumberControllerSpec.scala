@@ -29,7 +29,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 class PhoneNumberControllerSpec extends ControllerSpecSupport {
 
   lazy val phoneNumberRoute: String = routes.PhoneNumberController.submit.url
-  lazy val phoneNumberView = inject[PhoneNumberView]
+  lazy val phoneNumberView: PhoneNumberView = inject[PhoneNumberView]
 
   val pageTitle = "Phone Number"
 
@@ -44,6 +44,8 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
       "Return OK and the correct view" in {
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
+        val content = contentAsString(result)
+        content must include(pageTitle)
       }
     }
 
