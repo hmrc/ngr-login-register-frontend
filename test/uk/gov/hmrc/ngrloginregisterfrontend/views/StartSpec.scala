@@ -21,6 +21,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.Layout
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
@@ -63,8 +64,10 @@ class StartSpec extends ViewBaseSpec {
     "produce the same output for apply() and render()" in {
       val htmlApply = injectedView.apply().body
       val htmlRender = injectedView.render(messages, mockConfig, request).body
-//      val fFunction: HtmlFormat.Appendable = injectedView.f()(messages, mockConfig, request)
+      val htmlF: HtmlFormat.Appendable = injectedView.f()(messages, mockConfig, request)
       htmlApply mustBe htmlRender
+      htmlF.toString() must not be empty
+//      html must not be empty
     }
 
     "injected into the view" should {

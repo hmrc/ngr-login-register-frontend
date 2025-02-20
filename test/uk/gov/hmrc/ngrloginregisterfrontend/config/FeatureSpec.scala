@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.config
 
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.Configuration
-import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
+import uk.gov.hmrc.ngrloginregisterfrontend.config.features.{Features, Feature}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
 class FeatureSpec extends TestSupport{
@@ -43,6 +43,50 @@ class FeatureSpec extends TestSupport{
 
   }
 
+
+  "Feature" must {
+
+    "set system property when apply(value) is called" in {
+      val feature = new Feature("test.feature")(Configuration.empty)
+
+      feature.apply(true)
+      sys.props.get("test.feature") mustBe Some("true")
+
+      feature.apply(false)
+      sys.props.get("test.feature") mustBe Some("false")
+    }
+
+    "return system property value if set" in {
+      sys.props += "test.feature" -> "true"
+      val feature = new Feature("test.feature")(Configuration.empty)
+      feature.apply() mustBe true
+
+      sys.props += "test.feature" -> "false"
+      feature.apply() mustBe false
+    }
+
+    "return configuration value if system property is not set" in {
+      sys.props -= "test.feature" // Ensure system property is not set
+      val config = Configuration("test.feature" -> true)
+      val feature = new Feature("test.feature")(config)
+      feature.apply() mustBe true
+    }
+
+    "return false if neither system property nor configuration value is set" in {
+      sys.props -= "test.feature" // Ensure system property is not set
+      val feature = new Feature("test.feature")(Configuration.empty)
+      feature.apply() mustBe false
+    }
+
+    "handle invalid system property values gracefully" in {
+      sys.props += "test.feature" -> "invalid"
+      val feature = new Feature("test.feature")(Configuration.empty)
+
+      an[Exception] shouldBe thrownBy {
+        feature.apply()
+      }
+    }
+  }
 
 
 }

@@ -19,6 +19,8 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.util.AffinityGroupHelper
 
+
+
 class AffinityGroupHelperSpec extends TestSupport {
   val individual: AffinityGroup = AffinityGroup.Individual
   val optionalIndividual: Option[AffinityGroup] = Some(AffinityGroup.Individual)
@@ -27,6 +29,9 @@ class AffinityGroupHelperSpec extends TestSupport {
   val agent: AffinityGroup = AffinityGroup.Agent
   val optionalAgent: Option[AffinityGroup] = Some(AffinityGroup.Agent)
 
+  class UnknownAffinityGroupClass extends AffinityGroup
+
+  val unknown: UnknownAffinityGroupClass = new UnknownAffinityGroupClass
 
   "AffinityGroupHelper" must {
 
@@ -46,6 +51,9 @@ class AffinityGroupHelperSpec extends TestSupport {
     "return false when isIndividual is none" in {
       AffinityGroupHelper.isIndividual(None) mustBe false
     }
+    "return false when isIndividual is unknown affinity group" in {
+      AffinityGroupHelper.isIndividual(unknown) mustBe false
+    }
 
     "return true when isOrganisation" in {
       AffinityGroupHelper.isOrganisation(organisation) mustBe true
@@ -62,6 +70,9 @@ class AffinityGroupHelperSpec extends TestSupport {
     "return false when isOrganisation is none" in {
       AffinityGroupHelper.isOrganisation(None) mustBe false
     }
+    "return false when isOrganisation is unknown affinity group" in {
+      AffinityGroupHelper.isOrganisation(unknown) mustBe false
+    }
 
     "return true when isAgent" in {
       AffinityGroupHelper.isAgent(agent) mustBe true
@@ -77,6 +88,9 @@ class AffinityGroupHelperSpec extends TestSupport {
     }
     "return false when isAgent is none" in {
       AffinityGroupHelper.isAgent(None) mustBe false
+    }
+    "return false when isAgent is unknown affinity group" in {
+      AffinityGroupHelper.isAgent(unknown) mustBe false
     }
 
 
