@@ -54,7 +54,11 @@ class ConfirmYourContactDetailsSpec extends ViewBaseSpec {
   "Rendering the ConfirmContactDetailsView" should {
     lazy val view = confirmContactDetailsView(SummaryList(createSummaryListRows()))
     lazy implicit val document: Document = Jsoup.parse(view.body)
+    lazy val htmlF = confirmContactDetailsView.f(SummaryList(createSummaryListRows()))(request, messages, mockConfig)
 
+    "htmlF is not empty" in {
+      htmlF.toString() must not be empty
+    }
     "have the correct document title" in {
       document.title mustBe pageTitle
     }

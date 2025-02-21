@@ -54,6 +54,8 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
         .fillAndValidate(PhoneNumber("07954009726"))
       val htmlApply = phoneNumberView.apply(form).body
       val htmlRender = phoneNumberView.render(form, request, messages, mockConfig).body
+      val htmlF = phoneNumberView.f(form)(request, messages, mockConfig).body
+      htmlF must not be empty
       htmlApply mustBe htmlRender
       lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink

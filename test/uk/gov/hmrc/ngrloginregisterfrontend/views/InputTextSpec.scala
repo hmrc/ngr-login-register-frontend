@@ -16,21 +16,23 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.views
 
+import play.api.data.Form
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
+import uk.gov.hmrc.ngrloginregisterfrontend.models.PhoneNumber
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.InputText
 
-class SaveAndContinueSpec extends ViewBaseSpec{
+class InputTextSpec extends ViewBaseSpec {
+  val form: Form[PhoneNumber] = PhoneNumber.form()
 
-  val injectedView: saveAndContinueButton = injector.instanceOf[saveAndContinueButton]
-
-  "save button" when {
+  "InputText" when {
     "produce the same output for apply() and render()" in {
-      val htmlApply = injectedView.apply("message").body
-      val htmlRender = injectedView.render(msg = "message",showSaveProgressButton = false,isStartButton = false,messages = messages).body
-      val htmlF = injectedView.f("message", false, false)(messages).body
+      val htmlApply = InputText(form("phoneNumber.value"))(messages).body
+      val htmlF = InputText.f(form("phoneNumber.value"), None, "", None, None, 0, false, false)(messages).body
+      val htmlRender = InputText.render(form("phoneNumber.value"), None, "", None, None, 0, headingIsLabel = false, autocomplete = false, messages).body
       htmlApply must not be empty
       htmlRender must not be empty
       htmlF must not be empty
     }
   }
+
 }
