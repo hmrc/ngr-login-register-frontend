@@ -40,10 +40,20 @@ class NameViewSpec  extends ViewBaseSpec {
   }
 
   "NameView" must {
+
+    val form = Name
+      .form()
+      .fillAndValidate(Name("Jake"))
+    lazy val htmlF = nameView.f(form)(request, messages, mockConfig)
+
+    "htmlF is not empty" in {
+      htmlF.toString() must not be empty
+    }
+
     "produce the same output for apply() and render()" in {
       val form = Name
         .form()
-        .fillAndValidate(Name("07954009726"))
+        .fillAndValidate(Name("Jake"))
       val htmlApply = nameView.apply(form).body
       val htmlRender = nameView.render(form, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
