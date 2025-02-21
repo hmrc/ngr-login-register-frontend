@@ -28,7 +28,7 @@ sm2 --stop  NGR_LOGIN_REGISTER-FRONTEND
 
 ### Running the test suite
 ```
-sbt clean coverage test:it coverageReport
+sbt clean compile coverage test
 ```
 ### Further documentation
 
