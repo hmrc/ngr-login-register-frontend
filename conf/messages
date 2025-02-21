@@ -20,10 +20,14 @@ phoneNumber.pageTitle                = Phone Number
 phoneNumber.caption                  = Register for the business rates valuation service
 phoneNumber.heading                  = Enter phone number
 phoneNumber.label                    = Phone Number
-phoneNumber.hint                     = For international numbers include the country code
 phoneNumber.empty.error              = Enter your Phone number
 phoneNumber.invalidFormat.error      = Please enter a valid phone number
 phoneNumber.missingCountryCode.error = Please include the country code for international numbers
+
+name.pageTitle                = Contact name
+name.caption                  = Register for the business rates valuation service
+name.heading                  = Contact name
+name.empty.error              = Enter your Contact name
 
 confirmContactDetails.pageTitle = Confirm your contact details
 confirmContactDetails.body.1 = The Valuation Office Agency (VOA) will use these details to:
