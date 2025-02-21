@@ -16,10 +16,15 @@ sm2 --start NGR-ALL
 sm2 --start NGR_LOGIN_REGISTER-FRONTEND -f
 sm2 --stop  NGR_LOGIN_REGISTER-FRONTEND
 ```
-Run local changes:
+### Run local changes:
 * `cd` to the root of the project.
 * `sbt run`
-* Note the service will run on port 1502 by default
+* `Note` the service will run on port 1502 by default
+* `Setup your policies:`
+* `1.` make sure `centralised-authorisation-policy-config` is running
+* `2.` run the shell script `runMainPolicyJsonGenerator.sh` found in the `centralised-authorisation-policy-config` repo
+* `3.` stop `CENTRALISED_AUTHORISATION_POLICY_SERVER` in `service manager`
+* `4.` start `CENTRALISED_AUTHORISATION_POLICY_SERVER` in `service manager`
 
 ### Running the test suite
 ```

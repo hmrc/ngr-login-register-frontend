@@ -52,7 +52,7 @@ class ConfirmYourContactDetailsSpec extends ViewBaseSpec {
   }
 
   "Rendering the ConfirmContactDetailsView" should {
-    lazy val view = confirmContactDetailsView(SummaryList(createSummaryListRows))
+    lazy val view = confirmContactDetailsView(SummaryList(createSummaryListRows()))
     lazy implicit val document: Document = Jsoup.parse(view.body)
 
     "have the correct document title" in {

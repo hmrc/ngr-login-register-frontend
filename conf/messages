@@ -1,6 +1,7 @@
 service.name = Manage your business rates valuation
 service.navTitle = Manage your business rates valuation
 service.text = This is your new service
+service.continue = Continue
 service.base.title = {0} - GOV.UK
 
 startView.heading = Register for the business rates valuation service
@@ -15,6 +16,15 @@ checkYourAnswers.pageTitle = Check your answers
 checkYourAnswers.name = Name
 checkYourAnswers.address = Address
 
+phoneNumber.pageTitle                = Phone Number
+phoneNumber.caption                  = Register for the business rates valuation service
+phoneNumber.heading                  = Enter phone number
+phoneNumber.label                    = Phone Number
+phoneNumber.hint                     = For international numbers include the country code
+phoneNumber.empty.error              = Enter your Phone number
+phoneNumber.invalidFormat.error      = Please enter a valid phone number
+phoneNumber.missingCountryCode.error = Please include the country code for international numbers
+
 confirmContactDetails.pageTitle = Confirm your contact details
 confirmContactDetails.body.1 = The Valuation Office Agency (VOA) will use these details to:
 confirmContactDetails.bullet.1 = send you information related to the service and your account
@@ -25,4 +35,3 @@ confirmContactDetails.emailAddress = Email address
 confirmContactDetails.phoneNumber = Phone number
 confirmContactDetails.address = Address
 confirmContactDetails.change = Change
-confirmContactDetails.continue = Continue

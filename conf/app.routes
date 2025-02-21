@@ -1,9 +1,11 @@
 # microservice specific routes
 
-->         /hmrc-frontend                                  hmrcfrontend.Routes
-GET        /start                                          uk.gov.hmrc.ngrloginregisterfrontend.controllers.LoginController.start
-GET        /assets/*file                                   controllers.Assets.versioned(path = "/public", file: Asset)
-GET        /register                                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.show
-POST       /register                                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.submit
-GET        /check-answers                                  uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckAnswersController.show
-GET        /confirm-your-contact-details                   uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
+->         /hmrc-frontend                   hmrcfrontend.Routes
+GET        /start                           uk.gov.hmrc.ngrloginregisterfrontend.controllers.LoginController.start
+GET        /assets/*file                    controllers.Assets.versioned(path = "/public", file: Asset)
+GET        /register                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.show
+POST       /register                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.submit
+GET        /check-answers                   uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckAnswersController.show
+GET        /phone-number                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.show
+POST       /phone-number                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.submit
+GET        /confirm-your-contact-details    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
