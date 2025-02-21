@@ -16,10 +16,24 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import play.api.libs.json.{Format, Json}
+import play.api.data.Form
+import play.api.data.Forms.{mapping, text}
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
 
 final case class Name(value: String)
 
-object Name {
-  implicit val format: Format[Name] = Json.format[Name]
+object Name extends CommonFormValidators{
+  implicit val format: OFormat[Name] = Json.format[Name]
+
+  lazy val nameEmptyError    = "name.empty.error"
+  val name                   = "name.value"
+
+  def form(): Form[Name] =
+    Form(
+      mapping(
+        name -> text()
+          .verifying(nameEmptyError, isNonEmpty)
+      )(Name.apply)(Name.unapply)
+    )
 }

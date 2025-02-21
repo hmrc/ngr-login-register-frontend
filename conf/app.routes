@@ -8,4 +8,6 @@ POST       /register                        uk.gov.hmrc.ngrloginregisterfrontend
 GET        /check-answers                   uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckAnswersController.show
 GET        /phone-number                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.show
 POST       /phone-number                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.submit
+GET        /name                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.show
+POST       /name                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.submit
 GET        /confirm-your-contact-details    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show

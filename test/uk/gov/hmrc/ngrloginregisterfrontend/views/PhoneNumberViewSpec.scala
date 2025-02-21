@@ -30,7 +30,6 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
   lazy val content = "Register for the business rates valuation service"
   lazy val heading = "Enter phone number"
   lazy val label = "Phone Number"
-  lazy val hint = "For international numbers include the country code"
   lazy val continueButton = "Continue"
   lazy val emptyErrorMessage = "error.browser.title.prefixEnter your Phone number"
   lazy val invalidErrorMessage = "error.browser.title.prefixPlease enter a valid phone number"
@@ -62,7 +61,6 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-      elementText(Selectors.hint) mustBe hint
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
@@ -78,7 +76,6 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-      elementText(Selectors.hint) mustBe hint
       elementText(Selectors.errorMessage) mustBe emptyErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
@@ -95,7 +92,6 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-      elementText(Selectors.hint) mustBe hint
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
