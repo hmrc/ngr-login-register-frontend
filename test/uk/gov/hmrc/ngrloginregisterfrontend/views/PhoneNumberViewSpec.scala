@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.views
 
-import play.api.data.Form
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.models.PhoneNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
@@ -25,9 +26,28 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
 
   lazy val phoneNumberView: PhoneNumberView = inject[PhoneNumberView]
   lazy val pageTitle = "Phone Number"
+  lazy val backLink = "Back"
+  lazy val content = "Register for the business rates valuation service"
+  lazy val heading = "Enter phone number"
+  lazy val label = "Phone Number"
+  lazy val hint = "For international numbers include the country code"
+  lazy val continueButton = "Continue"
+  lazy val emptyErrorMessage = "error.browser.title.prefixEnter your Phone number"
+  lazy val invalidErrorMessage = "error.browser.title.prefixPlease enter a valid phone number"
+
+  val caption = "Register for the business rates valuation service"
+
+  object Selectors {
+    val caption = "#content > form > span"
+    val heading = "#content > form > h1"
+    val label   = "#content > form > div > label"
+    val hint   = "#hint-phoneNumber_value"
+    val continueButton   = "#continue"
+    val backLink = "#content > a"
+    val errorMessage = "#error-message-phoneNumber_value-input"
+  }
 
   "PhoneNumberView" must {
-
     "produce the same output for apply() and render()" in {
       val form = PhoneNumber
         .form()
@@ -35,61 +55,47 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       val htmlApply = phoneNumberView.apply(form).body
       val htmlRender = phoneNumberView.render(form, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.hint) mustBe hint
+      elementText(Selectors.continueButton) mustBe continueButton
     }
 
-    "display information correctly" in {
-      def createView(form: Form[PhoneNumber]) = phoneNumberView(form).toString()
-
-      val form = PhoneNumber
-        .form()
-        .fillAndValidate(PhoneNumber("07954009726"))
-      val view = createView(form)
-
-      view must include(pageTitle)
-      view must include("Register for the business rates valuation service")
-      view must include("Enter phone number")
-      view must include("Phone Number")
-      view must include("For international numbers include the country code")
-
-      view must not include("Enter your Phone number")
-      view must not include("Please enter a valid phone number")
-    }
-
-    "display error messages 'Enter your Phone number' when none is supplied" in {
-      def createView(form: Form[PhoneNumber]): String = phoneNumberView(form).toString()
-
+    "show missing number error correctly " in {
       val form = PhoneNumber
         .form()
         .fillAndValidate(PhoneNumber(""))
-      val view = createView(form)
-
-      view must include(pageTitle)
-      view must include("Enter your Phone number")
+      val htmlApply = phoneNumberView.apply(form).body
+      val htmlRender = phoneNumberView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.hint) mustBe hint
+      elementText(Selectors.errorMessage) mustBe emptyErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
     }
 
-    "display error messages 'Please enter a valid phone number' when invalid format is supplied" in {
-      def createView(form: Form[PhoneNumber]): String = phoneNumberView(form).toString()
-
+    "show invalid number format error correctly " in {
       val form = PhoneNumber
         .form()
-        .fillAndValidate(PhoneNumber("wrong"))
-      val view = createView(form)
-
-      view must include(pageTitle)
-      view must include("Please enter a valid phone number")
-    }
-
-    "display error messages 'Please enter a valid phone number' when number supplied is too long " in {
-      def createView(form: Form[PhoneNumber]): String = phoneNumberView(form).toString()
-
-      val form = PhoneNumber
-        .form()
-        .fillAndValidate(PhoneNumber("1234567891011121314151617"))
-      val view = createView(form)
-
-      view must include(pageTitle)
-      view must include("Please enter a valid phone number")
-
+        .fillAndValidate(PhoneNumber("invalid"))
+      val htmlApply = phoneNumberView.apply(form).body
+      val htmlRender = phoneNumberView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.hint) mustBe hint
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
     }
   }
 }

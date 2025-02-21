@@ -47,7 +47,7 @@ class PhoneNumberController @Inject()( //Todo connector will need to be added he
         .fold(
           formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors))),
           phoneNumber => {
-            //Todo Pass PhoneNumber To Connector
+            //TODO Pass PhoneNumber To Connector
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
