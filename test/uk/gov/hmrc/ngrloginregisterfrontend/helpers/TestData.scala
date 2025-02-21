@@ -20,7 +20,7 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, UserType}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, Postcode, RatepayerRegistration, SaUtr, TradingName}
+import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import java.time.LocalDate
 
 trait TestData {
