@@ -57,7 +57,7 @@ class CitizenDetailsConnector @Inject()(http: HttpClientV2,
 
   def getPersonDetails(nino: Nino)(implicit headerCarrier: HeaderCarrier): Future[Either[ErrorResponse, PersonDetails]] = {
     http.get(url"${appConfig.citizenDetailsUrl}/citizen-details/${nino.value}/designatory-details")
-      .execute[HttpResponse]
+      .execute[HttpResponse](readRaw, ec)
       .map { response =>
         response.status match {
           case OK =>
