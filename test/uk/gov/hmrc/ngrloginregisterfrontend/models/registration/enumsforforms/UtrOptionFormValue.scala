@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models.enumsforforms
+package uk.gov.hmrc.ngrloginregisterfrontend.models.registration.enumsforforms
 
 import scala.collection.immutable
 import enumeratum.Enum

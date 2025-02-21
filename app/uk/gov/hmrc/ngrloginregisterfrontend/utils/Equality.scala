@@ -15,7 +15,6 @@
  */
 
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
-// $COVERAGE-OFF$
 trait Eq[T] {
   def eqv(x: T, y: T): Boolean
 }
@@ -26,4 +25,3 @@ object Eq {
     override def eqv(x: T, y: T): Boolean = x == y
   }
 }
-// $COVERAGE-ON$

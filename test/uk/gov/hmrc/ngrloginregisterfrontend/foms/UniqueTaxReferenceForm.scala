@@ -18,12 +18,10 @@ package uk.gov.hmrc.ngrloginregisterfrontend.forms
 
 import play.api.data.Forms.mapping
 import play.api.data.{Form, Forms, Mapping}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.enumsforforms.UtrOptionFormValue
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.enumsforforms.UtrOptionFormValue
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.EnumFormatter
 
-final case class UniqueTaxReferenceForm(
-    utrOption: UtrOptionFormValue
-                                       )
+final case class UniqueTaxReferenceForm(utrOption: UtrOptionFormValue)
 
 object UniqueTaxReferenceForm {
 

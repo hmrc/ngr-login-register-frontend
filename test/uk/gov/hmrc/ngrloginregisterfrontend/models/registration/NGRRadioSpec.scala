@@ -24,7 +24,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.forms.UniqueTaxReferenceForm
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.{No, Yes}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.UTROptions.{ProvideNino, ProvideUTR, ProvideUTRLater}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.enumsforforms.UtrOptionFormValue
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.enumsforforms.UtrOptionFormValue
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioHeader, NGRRadioName}
 
 class NGRRadioSpec extends TestSupport {
