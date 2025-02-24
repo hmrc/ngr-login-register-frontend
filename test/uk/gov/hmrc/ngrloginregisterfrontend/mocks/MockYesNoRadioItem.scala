@@ -18,7 +18,6 @@ package uk.gov.hmrc.ngrloginregisterfrontend.mocks
 
 
 import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Reads, Writes}
-import play.twirl.api.JavaScript
 import uk.gov.hmrc.ngrloginregisterfrontend.models.RadioEntry
 
 sealed trait YesNoItem extends RadioEntry
@@ -37,6 +36,7 @@ object MockYesNoRadioItem {
     Writes {
       case Yes => JsString("Yes")
       case No => JsString("No")
+      case _ => JsString("Error")
     }
   )
 }

@@ -50,7 +50,7 @@ object NGRRadio {
         RadioItem(
           content = Text(Messages(item.radioContent)),
           value = Some(item.radioValue.toString),
-          checked = form.data.values.toList.contains(item.radioValue)
+          checked = form.data.values.toList.contains(item.radioValue.toString)
         )
       },
       classes = "govuk-radios",
