@@ -26,6 +26,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, RatepayerRegistration}
 
+import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,8 +35,10 @@ class NGRConnector @Inject()(http: HttpClientV2,
                              logger: NGRLogger)
                             (implicit ec: ExecutionContext, headerCarrier: HeaderCarrier) {
 
+  private def url(path: String): URL = url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/$path"
+
   def upsertRatepayer(model: RatepayerRegistrationValuation): Future[HttpResponse] = {
-    http.post(url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/upsert-ratepayer")
+    http.post(url("upsert-ratepayer"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
@@ -53,7 +56,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
   def changePhoneNumber(credId: CredId, contactNumber: ContactNumber): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(contactNumber))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/change-phone-number ")
+    http.post(url("change-phone-number"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
@@ -71,7 +74,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
   def changeEmail(credId: CredId, email: Email): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(email = Some(email))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/change-email")
+    http.post(url("change-email"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
@@ -89,7 +92,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
   def changeTrn(credId: CredId, trn: ReferenceNumber): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(referenceNumber = Some(trn))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/change-trn")
+    http.post(url("change-trn"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
@@ -107,7 +110,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
   def changeAddress(credId: CredId, address: Address): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(address = Some(address))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/change-address")
+    http.post(url("change-address"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
@@ -124,7 +127,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
 
   def findAddress(credId: CredId): Future[Option[Address]] = {
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, None)
-    http.post(url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/find-address")
+    http.post(url("find-address"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
@@ -146,7 +149,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
 
   def isRegistered(credId: CredId): Future[Boolean] = {
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
-    http.post(url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/is-registered")
+    http.post(url("is-registered"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>

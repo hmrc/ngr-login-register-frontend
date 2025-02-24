@@ -25,6 +25,7 @@ import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
+import java.net.URL
 import scala.concurrent.Future
 
 trait MockHttpV2  extends TestSupport with BeforeAndAfterEach {
@@ -53,6 +54,17 @@ trait MockHttpV2  extends TestSupport with BeforeAndAfterEach {
     when(mockRequestBuilder
       .execute[T](ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(response))
+  }
+
+  def setupMockHttpV2Post[T](url: String)(response: T): OngoingStubbing[Future[T]] = {
+    when(mockHttpClientV2.post(ArgumentMatchers.eq(url"$url"))(any())).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.execute[T](any(), any())).thenReturn(Future.successful(response))
+  }
+  def setupMockHttpV2FailedPost(url: String): OngoingStubbing[Future[Nothing]] = {
+    when(mockHttpClientV2.post(ArgumentMatchers.eq(url"$url"))(any())).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.execute(any(), any())).thenReturn(Future.failed(new RuntimeException("Request Failed")))
   }
 
   def setupMockFailedHttpV2Get[T](url: String): OngoingStubbing[Future[T]] = {

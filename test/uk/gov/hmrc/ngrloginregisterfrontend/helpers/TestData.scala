@@ -146,4 +146,35 @@ trait TestData {
       |""".stripMargin
   )
 
+
+  val expectedRatepayerRegistration : JsValue = Json.parse(
+    """{
+      |  "userType" : "Individual",
+      |  "agentStatus" : "Autonomous",
+      |  "name" : {
+      |    "value" : "Anna"
+      |  },
+      |  "tradingName" : {
+      |    "value" : "Anna Ltd."
+      |  },
+      |  "email" : {
+      |    "value" : "Anna.s@annaltd.com"
+      |  },
+      |  "contactNumber" : {
+      |    "value" : "08707632451"
+      |  },
+      |  "address" : {
+      |    "line1" : "Address Line 1",
+      |    "town" : "Chester",
+      |    "postcode" : {
+      |      "value" : "CH2 7RH"
+      |    },
+      |    "country" : "GB"
+      |  },
+      |  "isRegistered" : false
+      |}""".stripMargin
+  )
+
+
+
 }
