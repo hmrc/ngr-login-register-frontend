@@ -63,10 +63,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
           case OK => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
-      } recover {
-      case ex =>
-        throw ex
-    }
+      }
   }
 
   def changeEmail(credId: CredId, email: Email): Future[HttpResponse] = {
@@ -81,10 +78,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
           case OK => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
-      } recover {
-      case ex =>
-        throw ex
-    }
+      }
   }
 
   def changeTrn(credId: CredId, trn: ReferenceNumber): Future[HttpResponse] = {
@@ -99,10 +93,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
           case OK => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
-      } recover {
-      case ex =>
-        throw ex
-    }
+      }
   }
 
   def changeAddress(credId: CredId, address: Address): Future[HttpResponse] = {
@@ -117,10 +108,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
           case OK => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
-      } recover {
-      case ex =>
-        throw ex
-    }
+      }
   }
 
   def findAddress(credId: CredId): Future[Option[Address]] = {
@@ -139,10 +127,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
           }
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
-      } recover {
-      case ex =>
-        throw ex
-    }
+      }
   }
 
   def isRegistered(credId: CredId): Future[Boolean] = {
@@ -156,10 +141,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
           case OK => true
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
-      } recover {
-      case ex =>
-        throw ex
-    }
+      }
   }
 
 }
