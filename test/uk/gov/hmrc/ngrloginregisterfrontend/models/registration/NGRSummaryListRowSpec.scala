@@ -34,42 +34,42 @@ class NGRSummaryListRowSpec extends TestSupport {
 
     "will generate a minimum SummaryListRow from a minimum VoaSummaryListRow" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
-      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("", Seq.empty, None)
+      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("", None, Seq.empty, None)
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
       result shouldBe SummaryListRow(Key(Text(""), ""), Value(Empty, ""), "", None)
     }
 
     "will generate a minimum SummaryListRow with a key from English messages if the key is set in VoaSummaryListRow" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
-      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.name", Seq.empty, None)
+      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.name", None, Seq.empty, None)
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
       result shouldBe SummaryListRow(Key(Text("Name"), ""), Value(Empty, ""), "", None)
     }
 
     "will generate a SummaryListRow with a value if the value is set in CheckYourAnswersRow" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
-      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.name", Seq("Jimley Jackson"), None)
+      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.name", None, Seq("Jimley Jackson"), None)
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
       result shouldBe SummaryListRow(Key(Text("Name"), ""), Value(HtmlContent("Jimley Jackson")), "", None)
     }
 
     "will generate a SummaryListRow with a separated lines if the value is set as multiple strings in CheckYourAnswersRow" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
-      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.address", Seq("Line1", "Line2"), None)
+      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.address", None, Seq("Line1", "Line2"), None)
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
       result shouldBe SummaryListRow(Key(Text("Address"), ""), Value(HtmlContent("Line1</br>Line2")), "", None)
     }
 
     "will generate a SummaryListRow with an Action" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
-      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.address", Seq("Line1", "Line2"), Some(Link(Call("GET", "url"), "id", "Change")))
+      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.address", None, Seq("Line1", "Line2"), Some(Link(Call("GET", "url"), "id", "Change")))
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
       result shouldBe SummaryListRow(Key(Text("Address"), ""), Value(HtmlContent("Line1</br>Line2")), "", Some(Actions("", List(ActionItem("url", Text("Change"), None, "", Map("id" -> "id"))))))
     }
 
     "will generate a minimum SummaryListRow with an Action" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
-      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("", Seq.empty, Some(Link(Call("GET", "url"), "id", "Change")))
+      val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("", None, Seq.empty, Some(Link(Call("GET", "url"), "id", "Change")))
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
       result shouldBe SummaryListRow(Key(Text(""), ""), Value(HtmlContent(s"""<a id="id" href="url" class="govuk-link">Change</a>"""), ""), "", None)
     }

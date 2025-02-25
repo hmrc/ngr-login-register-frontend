@@ -17,17 +17,33 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.i18n.Messages
+import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Text, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
 
-final case class NGRSummaryListRow(titleMessageKey: String, value: Seq[String], changeLink: Option[Link])
+final case class NGRSummaryListRow(titleMessageKey: String, captionKey: Option[String], value: Seq[String], changeLink: Option[Link])
 
 object NGRSummaryListRow {
   def summarise(checkYourAnswerRow: NGRSummaryListRow)(implicit messages: Messages): SummaryListRow = {
+
+    val caption = checkYourAnswerRow.captionKey
+    val keyContent = if (caption.nonEmpty) {
+      HtmlContent(
+        Html(
+          Messages(checkYourAnswerRow.titleMessageKey) + "<br>" +
+            s"""<div id="account-number-hint" class="govuk-hint">${Messages(caption.getOrElse(""))}</div>"""
+        )
+      )
+    } else {
+      Text(Messages(checkYourAnswerRow.titleMessageKey))
+    }
+
+    val key = Key(content = keyContent)
+
     checkYourAnswerRow.value match {
       case seqOfString if seqOfString.nonEmpty => SummaryListRow(
-        key     = Key(content = Text(Messages(checkYourAnswerRow.titleMessageKey))),
+        key     = key,
         value   = Value(content = HtmlContent(Messages(seqOfString.mkString("</br>")))),
         actions = checkYourAnswerRow.changeLink match {
           case Some(changeLink) => Some(

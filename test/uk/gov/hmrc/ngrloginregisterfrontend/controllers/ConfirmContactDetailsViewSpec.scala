@@ -41,11 +41,11 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
   val body1 = "The Valuation Office Agency (VOA) will use these details to:"
   val bullet1 = "send you information related to the service and your account"
   val bullet2 = "confirm your identity if you contact the VOA"
-  val body2 = "This account is registered to"
+  val body2 = "This account is registered to name"
   val contactName = "Contact name"
   val emailAddress = "Email address"
   val phoneNumber = "Phone number"
-  val address = "Address"
+  val address = "Address We will send letters to this address"
   val change = "Change"
   val continue = "Continue"
 
@@ -65,24 +65,23 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-//    lazy val view = injectedView(summaryList)
-//    val html: HtmlFormat.Appendable = view
     mockConfig.features.welshLanguageSupportEnabled(false)
   }
 
   "ConfirmContactDetailsView" when {
 
     "produce the same output for apply() and render()" in {
-      val htmlApply = injectedView.apply(summaryList).body
-      val htmlRender = injectedView.render(summaryList, request, messages, mockConfig).body
-//      val fFunction: HtmlFormat.Appendable = injectedView.f(summaryList)(request, messages, mockConfig)
+      val htmlApply = injectedView.apply(summaryList, "name").body
+      val htmlRender = injectedView.render(summaryList, "name", request, messages, mockConfig).body
+      val htmlF = injectedView.f(summaryList, "name")(request, messages, mockConfig).body
       htmlApply mustBe htmlRender
+      htmlF must not be empty
     }
 
     "injected into the view" should {
 
       "render the correct page title" in {
-        lazy val view = injectedView(summaryList)
+        lazy val view = injectedView(summaryList, "name")
         lazy implicit val document: Document = Jsoup.parse(view.body)
         elementText(Selectors.navTitle) mustBe navTitle
         elementText(Selectors.pageTitle) mustBe pageTitle

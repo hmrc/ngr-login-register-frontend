@@ -20,21 +20,22 @@
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 
 @this(
-    layout: Layout,
-    govukSummaryList : GovukSummaryList,
-    saveAndContinueButton: saveAndContinueButton
+layout: Layout,
+govukSummaryList : GovukSummaryList,
+saveAndContinueButton: saveAndContinueButton
 )
 
-@(summaryList: SummaryList)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(summaryList: SummaryList, name: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("confirmContactDetails.pageTitle"))) {
-    <h1 class="govuk-heading-xl">@messages("confirmContactDetails.pageTitle")</h1>
-    <p class="govuk-body">@messages("confirmContactDetails.body.1")</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("confirmContactDetails.bullet.1")</li>
-        <li>@messages("confirmContactDetails.bullet.2")</li>
-    </ul>
-    <p class="govuk-body">@messages("confirmContactDetails.body.2")</p>
-    @govukSummaryList(summaryList)
-    @saveAndContinueButton(msg = messages("service.continue"), isStartButton = true)
+@layout(pageTitle = Some(messages("confirmContactDetails.pageTitle")), showBackLink = false) {
+<span class="govuk-caption-l">@messages("startView.heading")</span>
+<h1 class="govuk-heading-l">@messages("confirmContactDetails.pageTitle")</h1>
+<p class="govuk-body">@messages("confirmContactDetails.body.1")</p>
+<ul class="govuk-list govuk-list--bullet">
+    <li>@messages("confirmContactDetails.bullet.1")</li>
+    <li>@messages("confirmContactDetails.bullet.2")</li>
+</ul>
+<p class="govuk-body">@messages("confirmContactDetails.body.2") <b>@name</b></p>
+@govukSummaryList(summaryList)
+@saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
 }

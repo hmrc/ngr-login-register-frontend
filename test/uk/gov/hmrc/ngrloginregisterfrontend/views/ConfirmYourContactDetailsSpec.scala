@@ -52,9 +52,9 @@ class ConfirmYourContactDetailsSpec extends ViewBaseSpec {
   }
 
   "Rendering the ConfirmContactDetailsView" should {
-    lazy val view = confirmContactDetailsView(SummaryList(createSummaryListRows()))
+    lazy val view = confirmContactDetailsView(SummaryList(createSummaryListRows()), "name")
     lazy implicit val document: Document = Jsoup.parse(view.body)
-    lazy val htmlF = confirmContactDetailsView.f(SummaryList(createSummaryListRows()))(request, messages, mockConfig)
+    lazy val htmlF = confirmContactDetailsView.f(SummaryList(createSummaryListRows()), "name")(request, messages, mockConfig)
 
     "htmlF is not empty" in {
       htmlF.toString() must not be empty
@@ -64,9 +64,6 @@ class ConfirmYourContactDetailsSpec extends ViewBaseSpec {
     }
     "have the correct heading" in {
       elementText(Selectors.heading) mustBe pageHeading
-    }
-    "Back link has the correct text" in {
-        elementText(Selectors.backLink) mustBe backText
     }
     "A Summary List component is rendered" which {
       "should render a contactName row with a title, value and change link" in {
