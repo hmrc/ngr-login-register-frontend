@@ -30,6 +30,7 @@ class NameViewSpec  extends ViewBaseSpec {
   lazy val heading = "Contact name"
   lazy val continueButton = "Continue"
   lazy val emptyErrorMessage = "error.browser.title.prefixEnter your Contact name"
+  lazy val invalidErrorMessage = "error.browser.title.prefixEnter a contact name in the correct format"
 
   object Selectors {
     val backLink = "#content > a"
@@ -76,6 +77,36 @@ class NameViewSpec  extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
       elementText(Selectors.errorMessage) mustBe emptyErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show invalid contact name error correctly" in {
+      val form = Name
+        .form()
+        .fillAndValidate(Name("!name"))
+      val htmlApply = nameView.apply(form).body
+      val htmlRender = nameView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(nameView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show invalid contact name error correctly when too many characters have been added" in {
+      val form = Name
+        .form()
+        .fillAndValidate(Name("namenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamename"))
+      val htmlApply = nameView.apply(form).body
+      val htmlRender = nameView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(nameView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
   }
