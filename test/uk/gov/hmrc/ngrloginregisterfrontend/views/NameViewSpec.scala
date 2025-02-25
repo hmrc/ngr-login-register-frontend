@@ -36,7 +36,7 @@ class NameViewSpec  extends ViewBaseSpec {
     val caption = "#content > form > span"
     val heading = "#content > form > h1"
     val continueButton   = "#continue"
-    val errorMessage = "#error-message-name_value-input"
+    val errorMessage = "#error-message-name-value-input"
   }
 
   "NameView" must {

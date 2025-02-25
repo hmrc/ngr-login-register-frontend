@@ -51,12 +51,12 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
 
     "method submit" must {
       "Successfully submit valid phone number and redirect to confirm contact details" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber.value", "07953009506")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber-value", "07953009506")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
         status(result) mustBe SEE_OTHER
       }
 
       "Submit with no phone number and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber.value", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber-value", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -64,7 +64,7 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
       }
 
       "Submit incorrect phone number format and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber.value", "uk07953009506")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber-value", "uk07953009506")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -72,7 +72,7 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
       }
 
       "Submit incorrect phone number with more than 24 digits and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber.value", "0795300950607953009506506")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit).withFormUrlEncodedBody(("phoneNumber-value", "0795300950607953009506506")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)

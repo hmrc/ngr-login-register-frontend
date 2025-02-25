@@ -27,7 +27,7 @@ object Name extends CommonFormValidators{
   implicit val format: OFormat[Name] = Json.format[Name]
 
   lazy val nameEmptyError    = "name.empty.error"
-  val name                   = "name.value"
+  val name                   = "name-value"
 
   def form(): Form[Name] =
     Form(

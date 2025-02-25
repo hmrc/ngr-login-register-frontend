@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.mocks
+package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
-import play.api.Configuration
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.RatepayerRegistration
 
-class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
+case class RatepayerRegistrationValuation(credId: CredId,
+                                          ratepayerRegistration: Option[RatepayerRegistration] = None)
 
-  override val features: Features = new Features()(runModeConfiguration)
-  override val gtmContainer: String = "a"
-  override val citizenDetailsUrl: String = "https://localhost:9000"
-  override val nextGenerationRatesUrl: String = "https://localhost:1500"
-  override def getString(key: String): String = "???"
-
+object RatepayerRegistrationValuation {
+  implicit val format: OFormat[RatepayerRegistrationValuation] = Json.format[RatepayerRegistrationValuation]
 }

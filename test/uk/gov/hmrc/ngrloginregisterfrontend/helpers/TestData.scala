@@ -19,8 +19,11 @@ package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, UserType}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
+
 import java.time.LocalDate
 
 trait TestData {
@@ -35,20 +38,25 @@ trait TestData {
     )
 
   val testRegistrationModel: RatepayerRegistration =
-    RatepayerRegistration(UserType.Individual,
-      AgentStatus.Agent,
-      Name("John Doe"),
-      Some(TradingName("CompanyLTD")),
-      Email("JohnDoe@digital.hmrc.gov.uk"),
-      ContactNumber("07123456789"),
-      Some(ContactNumber("07123456789")),
-      Address(line1 = "99",
-        line2 = Some("Wibble Rd"),
-        town = "Worthing",
-        county = Some("West Sussex"),
-        postcode = Postcode("BN110AA"),
-        country = "UK",
-      )
+    RatepayerRegistration(
+      userType = Some(Individual),
+      agentStatus = Some(AgentStatus.Agent),
+      name = Some(Name("John Doe")),
+      tradingName = Some(TradingName("CompanyLTD")),
+      email = Some(Email("JohnDoe@digital.hmrc.gov.uk")),
+      contactNumber = Some(ContactNumber("07123456789")),
+      secondaryNumber = Some(ContactNumber("07123456789")),
+      address = Some(
+        Address(line1 = "99",
+          line2 = Some("Wibble Rd"),
+          town = "Worthing",
+          county = Some("West Sussex"),
+          postcode = Postcode("BN110AA"),
+          country = "UK",
+        )
+      ),
+      referenceNumber = Some(ReferenceNumber(TRN, "12345")),
+      isRegistered = Some(true)
     )
 
   val contactNumberModel: ContactNumber = ContactNumber("0300 200 3310")
@@ -68,11 +76,12 @@ trait TestData {
   val minRegResponseModel: RatepayerRegistration = testRegistrationModel.copy(tradingName = None, secondaryNumber = None)
 
   val regResponseJson: JsValue = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"tradingName":{"value":"CompanyLTD"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"secondaryNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"}}
+    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"tradingName":{"value":"CompanyLTD"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"secondaryNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"referenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
       |""".stripMargin)
 
+
   val minRegResponseJson: JsValue = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"}, "address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"}}
+    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"referenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
       |""".stripMargin)
 
 
@@ -136,5 +145,36 @@ trait TestData {
       |}
       |""".stripMargin
   )
+
+
+  val expectedRatepayerRegistration : JsValue = Json.parse(
+    """{
+      |  "userType" : "Individual",
+      |  "agentStatus" : "Autonomous",
+      |  "name" : {
+      |    "value" : "Anna"
+      |  },
+      |  "tradingName" : {
+      |    "value" : "Anna Ltd."
+      |  },
+      |  "email" : {
+      |    "value" : "Anna.s@annaltd.com"
+      |  },
+      |  "contactNumber" : {
+      |    "value" : "08707632451"
+      |  },
+      |  "address" : {
+      |    "line1" : "Address Line 1",
+      |    "town" : "Chester",
+      |    "postcode" : {
+      |      "value" : "CH2 7RH"
+      |    },
+      |    "country" : "GB"
+      |  },
+      |  "isRegistered" : false
+      |}""".stripMargin
+  )
+
+
 
 }
