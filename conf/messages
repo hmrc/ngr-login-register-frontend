@@ -39,4 +39,5 @@ confirmContactDetails.contactName = Contact name
 confirmContactDetails.emailAddress = Email address
 confirmContactDetails.phoneNumber = Phone number
 confirmContactDetails.address = Address
+confirmContactDetails.address.caption = We will send letters to this address
 confirmContactDetails.change = Change
