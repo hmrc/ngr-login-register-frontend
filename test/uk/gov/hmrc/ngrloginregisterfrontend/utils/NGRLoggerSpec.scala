@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.mocks
+package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
-import play.api.Configuration
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
-class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
+class NGRLoggerSpec extends TestSupport {
 
-  override val features: Features = new Features()(runModeConfiguration)
-  override val gtmContainer: String = "a"
-  override val citizenDetailsUrl: String = "https://localhost:9000"
-  override val nextGenerationRatesUrl: String = "https://localhost:1500"
-  override def getString(key: String): String = "???"
+  "NGRLogger" must {
 
+  }
 }
