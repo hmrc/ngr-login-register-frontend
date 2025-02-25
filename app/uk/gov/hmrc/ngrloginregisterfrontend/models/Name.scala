@@ -25,6 +25,7 @@ final case class Name(value: String)
 
 object Name extends CommonFormValidators{
   implicit val format: OFormat[Name] = Json.format[Name]
+  lazy val contactNameInvalidFormat = "name.invalidFormat.error"
 
   lazy val nameEmptyError    = "name.empty.error"
   val name                   = "name-value"
@@ -34,6 +35,7 @@ object Name extends CommonFormValidators{
       mapping(
         name -> text()
           .verifying(nameEmptyError, isNonEmpty)
+          .verifying(contactNameInvalidFormat, isValidFullName)
       )(Name.apply)(Name.unapply)
     )
 }
