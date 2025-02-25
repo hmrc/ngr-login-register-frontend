@@ -43,7 +43,7 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
     val hint   = "#hint-phoneNumber_value"
     val continueButton   = "#continue"
     val backLink = "#content > a"
-    val errorMessage = "#error-message-phoneNumber_value-input"
+    val errorMessage = "#error-message-phoneNumber-value-input"
   }
 
   "PhoneNumberView" must {
