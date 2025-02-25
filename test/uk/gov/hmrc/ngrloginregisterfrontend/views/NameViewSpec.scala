@@ -94,5 +94,20 @@ class NameViewSpec  extends ViewBaseSpec {
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
+
+    "show invalid contact name error correctly when too many characters have been added" in {
+      val form = Name
+        .form()
+        .fillAndValidate(Name("namenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamename"))
+      val htmlApply = nameView.apply(form).body
+      val htmlRender = nameView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(nameView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
   }
 }
