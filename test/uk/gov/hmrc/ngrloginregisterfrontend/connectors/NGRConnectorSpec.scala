@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, Email, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
