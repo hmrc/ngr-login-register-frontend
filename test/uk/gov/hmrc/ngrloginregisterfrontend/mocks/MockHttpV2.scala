@@ -24,8 +24,6 @@ import org.mockito.Mockito.{reset, when}
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-
-import java.net.URL
 import scala.concurrent.Future
 
 trait MockHttpV2  extends TestSupport with BeforeAndAfterEach {
