@@ -43,8 +43,11 @@
     </h1>
 
     @components.InputText(
-      field = form("name.value"),
+      field = form("name-value"),
       inputPurpose=Some("name"),
+      name =  Some("name-value"),
+      label = Some(messages("name.label")),
+      id =  Some("name-value"),
       autocomplete = true,
       inputType = "name"
     )

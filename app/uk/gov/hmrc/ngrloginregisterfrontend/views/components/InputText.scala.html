@@ -17,6 +17,8 @@
 @(
     field: Field,
     label: Option[String] = None,
+    name: Option[String] = None,
+    id: Option[String] = None,
     inputType: String = "text",
     inputPurpose: Option[String] = None,
     maxLength: Int = 1000,
@@ -39,7 +41,6 @@
     id="@{field.id}"
     name="@{field.name}"
     value="@{field.value}"
-    aria-describedby="hint-@{field.id}"
     autocomplete=@if(autocomplete){"on"}else{"off"}
   />
 </div>
