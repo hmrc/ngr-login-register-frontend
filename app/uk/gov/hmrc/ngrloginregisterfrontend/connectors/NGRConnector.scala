@@ -27,9 +27,10 @@ import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, RatepayerRegistration}
 
 import java.net.URL
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class NGRConnector @Inject()(http: HttpClientV2,
                              appConfig: AppConfig,
                              logger: NGRLogger)
@@ -47,10 +48,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
           case CREATED => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
-      } recover {
-      case ex =>
-        throw ex
-    }
+      }
   }
 
   def changePhoneNumber(credId: CredId, contactNumber: ContactNumber): Future[HttpResponse] = {
