@@ -67,10 +67,10 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     ).filter(_.nonEmpty)
 
     Seq(
-      NGRSummaryListRow(messages("confirmContactDetails.contactName"), Seq(name), Some(Link(Call("GET", routes.NameController.show.url), "linkid", "Change"))),
-      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), Seq(request.email.getOrElse("")), Some(Link(Call("GET", "url"), "linkid", "Change"))),
-      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), Seq.empty, Some(Link(Call("GET", routes.PhoneNumberController.show.url), "linkid", "Add"))),
-      NGRSummaryListRow(messages("confirmContactDetails.address"), address, Some(Link(Call("GET", "url"), "linkid", "Change")))
+      NGRSummaryListRow(messages("confirmContactDetails.contactName"), Seq(name), Some(Link(Call("GET", routes.NameController.show.url), "name-linkid", "Change"))),
+      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), Seq(request.email.getOrElse("")), Some(Link(Call("GET", "url"), "email-linkid", "Change"))),
+      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), Seq.empty, Some(Link(Call("GET", routes.PhoneNumberController.show.url), "number-linkid", "Add"))),
+      NGRSummaryListRow(messages("confirmContactDetails.address"), address, Some(Link(Call("GET", "url"), "address-linkid", "Change")))
     ).map(summarise)
   }
 
