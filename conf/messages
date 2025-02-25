@@ -27,6 +27,7 @@ phoneNumber.missingCountryCode.error = Please include the country code for inter
 name.pageTitle                = Contact name
 name.caption                  = Register for the business rates valuation service
 name.heading                  = Contact name
+name.label                    = Contact name
 name.empty.error              = Enter your Contact name
 
 confirmContactDetails.pageTitle = Confirm your contact details

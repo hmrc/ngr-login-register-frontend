@@ -45,7 +45,9 @@
  </h1>
 
  @components.InputText(
-  field = form("phoneNumber.value"),
+  field = form("phoneNumber-value"),
+  name =  Some("phoneNumber-value"),
+  id =  Some("phoneNumber-value"),
   label = Some(messages("phoneNumber.label")),
   inputPurpose=Some("tel"),
   autocomplete = true,
