@@ -29,6 +29,7 @@ name.caption                  = Register for the business rates valuation servic
 name.heading                  = Contact name
 name.label                    = Contact name
 name.empty.error              = Enter your Contact name
+name.invalidFormat.error      = Enter a contact name in the correct format
 
 confirmContactDetails.pageTitle = Confirm your contact details
 confirmContactDetails.body.1 = The Valuation Office Agency (VOA) will use these details to:

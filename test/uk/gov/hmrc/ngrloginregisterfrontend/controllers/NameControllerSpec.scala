@@ -62,6 +62,14 @@ class NameControllerSpec extends ControllerSpecSupport {
         content must include(pageTitle)
         content must include("Enter your Contact name")
       }
+
+      "Submit with invalid name and display error message" in {
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NameController.submit).withFormUrlEncodedBody(("name-value", "!name")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        status(result) mustBe BAD_REQUEST
+        val content = contentAsString(result)
+        content must include(pageTitle)
+        content must include("Enter a contact name in the correct format")
+      }
     }
   }
 
