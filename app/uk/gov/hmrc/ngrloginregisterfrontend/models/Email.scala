@@ -29,10 +29,10 @@ final case class Email(value: String) {
 
 object Email extends CommonFormValidators {
   implicit val format: Format[Email] = Json.format[Email]
-  lazy val emailEmptyError          = "registration.email.empty.error"
-  lazy val emailInvalidFormat       = "registration.email.invalidFormat.error"
+  lazy val emailEmptyError          = "email.empty.error"
+  lazy val emailInvalidFormat       = "email.invalidFormat.error"
   val maxLength                     = 24
-  val email                   = "email.value"
+  val email                   = "email-value"
 
   def form(): Form[Email] =
     Form(

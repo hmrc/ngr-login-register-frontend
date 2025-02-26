@@ -33,27 +33,28 @@ saveAndContinueButton: saveAndContinueButton
 
 @(form: Form[Email])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@heading = @{messages("home.heading")}
-@layout(pageTitle = Some(heading), showBackLink = true) {
-@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.EmailController.submit, Symbol("autoComplete") -> "off") {
+    @layout(pageTitle = Some(messages("email.pageTitle"))) {
+        @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.EmailController.submit, Symbol("autoComplete") -> "off") {
+            @if(form.errors.nonEmpty) {
+                @govukErrorSummary(ErrorSummaryViewModel(form))
+            }
 
-@if(form.errors.nonEmpty) {
-    @govukErrorSummary(ErrorSummaryViewModel(form))
-}
-
-<span class="govuk-caption-l">@messages("registration.checkAnswers.caption")</span>
+<span class="govuk-caption-l">@messages("name.caption")</span>
 <h1 class="govuk-heading-l">
-    @messages("registration.email.heading")
+    @messages("email.heading")
 </h1>
-<p class="govuk-body">@messages("registration.email.body.1")</p>
+
+<p class="govuk-body">@messages("email.subheading")</p>
 
 @components.InputText(
-    field = form("email.value"),
-    label = Some(messages("registration.email.body.3")),
-    inputPurpose=Some("tel"),
+    field = form("email-value"),
+    name = Some("email-value"),
+    id =  Some("email-value"),
+    label = Some(messages("email.label")),
+    inputPurpose=Some("email"),
     autocomplete = true,
-    inputType = "tel"
+    inputType = "email"
 )
-    @saveAndContinueButton("continue")
+    @saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
     }
 }

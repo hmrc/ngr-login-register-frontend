@@ -24,6 +24,13 @@ phoneNumber.empty.error              = Enter your Phone number
 phoneNumber.invalidFormat.error      = Please enter a valid phone number
 phoneNumber.missingCountryCode.error = Please include the country code for international numbers
 
+email.pageTitle = Email
+email.heading = Enter email address
+email.subheading = This will be the email we will contact regarding your business rates.
+email.label = Email address
+email.invalidFormat.error =  Enter a valid email address
+email.empty.error = Enter your email address
+
 name.pageTitle                = Contact name
 name.caption                  = Register for the business rates valuation service
 name.heading                  = Contact name
