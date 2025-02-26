@@ -19,8 +19,8 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, Name}
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{EmailView, NameView}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 
 class EmailViewSpec  extends ViewBaseSpec {
 
@@ -39,7 +39,7 @@ class EmailViewSpec  extends ViewBaseSpec {
     val errorMessage = "#error-message-email-value-input"
   }
 
-  "NameView" must {
+  "EmailView" must {
 
     val form = Email
       .form()
@@ -64,7 +64,7 @@ class EmailViewSpec  extends ViewBaseSpec {
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
-    "show missing contact name error correctly " in {
+    "show missing contact email error correctly " in {
       val form = Email
         .form()
         .fillAndValidate(Email(""))

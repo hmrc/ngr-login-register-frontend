@@ -24,7 +24,7 @@ import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{EmailView, PhoneNumberView}
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 
 class EmailControllerSpec extends ControllerSpecSupport {
 
@@ -50,7 +50,7 @@ class EmailControllerSpec extends ControllerSpecSupport {
     }
 
     "method submit" must {
-      "Successfully submit valid phone number and redirect to confirm contact details" in {
+      "Successfully submit valid email and redirect to confirm contact details" in {
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.EmailController.submit).withFormUrlEncodedBody(("email-value", "test@test.co.uk")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
         status(result) mustBe SEE_OTHER
       }
