@@ -46,7 +46,7 @@ class FindAddressController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(findAddressView(formWithErrors))),
           findAddress => {
-            println(findAddress.toString)
+            println("FOUND ADDRESS!!!" + findAddress.toString)
             //TODO Pass Address To Connector
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
