@@ -13,7 +13,8 @@ object CodeCoverageSettings {
     "testOnly.*",
     "testOnlyDoNotUseInAppConf.*",
     ".*CheckAnswersView.*",
-    ".*CheckAnswersController.*"
+    ".*CheckAnswersController.*",
+    ".*InputText.*"
   )
 
   val settings: Seq[Setting[?]] = Seq(

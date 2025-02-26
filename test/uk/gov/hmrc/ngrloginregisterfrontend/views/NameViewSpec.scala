@@ -29,15 +29,15 @@ class NameViewSpec  extends ViewBaseSpec {
   lazy val caption = "Register for the business rates valuation service"
   lazy val heading = "Contact name"
   lazy val continueButton = "Continue"
-  lazy val emptyErrorMessage = "error.browser.title.prefixEnter your Contact name"
-  lazy val invalidErrorMessage = "error.browser.title.prefixEnter a contact name in the correct format"
+  lazy val emptyErrorMessage = "Error: Enter your Contact name"
+  lazy val invalidErrorMessage = "Error: Enter a contact name in the correct format"
 
   object Selectors {
     val backLink = "#content > a"
     val caption = "#content > form > span"
     val heading = "#content > form > h1"
     val continueButton   = "#continue"
-    val errorMessage = "#error-message-name-value-input"
+    val errorMessage = "  #name-value-error"
   }
 
   "NameView" must {
