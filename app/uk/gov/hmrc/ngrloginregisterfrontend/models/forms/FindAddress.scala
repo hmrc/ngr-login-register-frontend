@@ -29,6 +29,7 @@ object FindAddress extends CommonFormValidators{
   implicit val format: OFormat[FindAddress] = Json.format[FindAddress]
 
   private lazy val postcodeEmptyError    = "postcode.empty.error"
+  private lazy val invalidPostcodeError    = "postcode.invalid.error"
   val postcode                   = "postcode-value"
   val propertyName               = "property-name-value"
 
@@ -37,6 +38,7 @@ object FindAddress extends CommonFormValidators{
       mapping(
         postcode -> text()
           .verifying(postcodeEmptyError, isNonEmpty)
+          .verifying(invalidPostcodeError, isValidPostcode)
           .transform[Postcode](Postcode.apply, _.value),
         propertyName -> optional(text)
       )(FindAddress.apply)(FindAddress.unapply)

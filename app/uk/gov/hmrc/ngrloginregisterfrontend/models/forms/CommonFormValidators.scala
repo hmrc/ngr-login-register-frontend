@@ -21,9 +21,12 @@ import com.google.common.base.Strings
 import java.util.regex.Pattern
 
 trait CommonFormValidators {
-  val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9\\(\\)\\- ]{9,16}$")
+  private val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9\\(\\)\\- ]{9,16}$")
+  private val postcodeRegexPattern: Pattern = Pattern.compile("[A-Za-z]{1,2}[0-9Rr][0-9A-Za-z]? [0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}")
   val isNonEmpty: String => Boolean = value => !Strings.isNullOrEmpty(value) && value.trim.nonEmpty
-  val isMatchingPattern: (String, Pattern) => Boolean = (value, pattern) => pattern.matcher(value).matches()
+  private val isMatchingPattern: (String, Pattern) => Boolean = (value, pattern) => pattern.matcher(value).matches()
   val isValidTelephoneNumber: String => Boolean = (value: String) =>
     value.isEmpty || isMatchingPattern(value, phoneNumberRegexPattern)
+  val isValidPostcode: String => Boolean = (value: String) =>
+    value.isEmpty || isMatchingPattern(value, postcodeRegexPattern)
 }
