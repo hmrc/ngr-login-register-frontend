@@ -14,34 +14,57 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-
-@this(govukInput: GovukInput)
 @(
- form: Form[_],
- id: String,
- name: String,
- label: String,
- isPageHeading: Boolean,
- headingMessageArgs: Seq[String] = Seq(),
- hint: Option[Hint] = None,
- classes: Option[String] = None,
- stripWhitespace: Boolean = false,
- autoComplete: String = "",
- populateField: Boolean = true
+field: Field,
+label: Option[String] = None,
+labelClass: Option[String] = None,
+labelHtml: Option[Html] = None,
+inputClass: Option[String] = None,
+inputType: String = "text",
+hint: Option[String] = None,
+maxLength: Int = 1000,
+inputPurpose: Option[String] = None,
+headingIsLabel: Boolean = false,
+captionMsg: Option[String] = None,
+contentHtml : Option[Html] = None,
+autocomplete:Boolean = false
 )(implicit messages: Messages)
 
-@govukInput(Input(
- id,
- name,
- classes = classes.fold("")(x => x),
- label = Label(
- content = Text(messages(label, headingMessageArgs: _*)),
- isPageHeading = isPageHeading,
- classes = if(isPageHeading) "govuk-label--xl" else "govuk-visually-hidden"
- ),
- hint = hint,
- value = if(populateField) form(name).value else None,
- errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
- autocomplete = Some(autoComplete)
-))
+<div class="govuk-form-group @if(field.hasErrors){govuk-form-group--error}">
+    @if(headingIsLabel){
+    <h1 class="govuk-heading-xl">
+        @captionMsg.map{caption =>
+        <span class="govuk-caption-xl">
+                <span class="govuk-visually-hidden">
+                    @messages("site.sectionIs")
+                </span>
+                @caption
+            </span>
+        }
+        <label class="govuk-label govuk-label--xl" for="@{field.id}">@label</label>
+    </h1>
+    } else {
+    <label class="govuk-label" for="@{field.id}">
+        @label
+    </label>
+    }
+
+    @labelHtml.map { lb => @lb }
+    @contentHtml.map {content => @content}
+    @if(hint.isDefined){
+    <div class="govuk-hint" id="hint-@{field.id}">@hint</div>
+    }
+    @field.errors.map { error =>
+    <span class="govuk-error-message" id="error-message-@{field.id}-input"><span class="govuk-visually-hidden">@messages("error.browser.title.prefix")</span>@messages(error.message, error.args: _*)</span>
+    }
+    <input
+            class="govuk-input  @inputClass.getOrElse("govuk-input--width-10") @if(field.hasErrors){govuk-input--error}"
+            type=@inputType
+            maxlength=@maxLength
+            id="@{field.id}"
+            name="@{field.name}"
+            value="@{field.value}"
+            aria-describedby="@if(hint.isDefined){hint-@{field.id}} else if(field.hasErrors){error-message-@{field.id}-input} else {@field.id}"
+            autocomplete=@if(autocomplete){"on"}else{"off"}
+    />
+</div>
