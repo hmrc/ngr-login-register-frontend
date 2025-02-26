@@ -21,9 +21,14 @@ import com.google.common.base.Strings
 import java.util.regex.Pattern
 
 trait CommonFormValidators {
-  val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9\\(\\)\\- ]{9,16}$")
+
+  val fullNameRegexPattern: Pattern     = Pattern.compile("^[A-Za-z .'-]{1,160}$")
+  val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9\\(\\)\\ ]{9,16}$")
+
   val isNonEmpty: String => Boolean = value => !Strings.isNullOrEmpty(value) && value.trim.nonEmpty
   val isMatchingPattern: (String, Pattern) => Boolean = (value, pattern) => pattern.matcher(value).matches()
+  val isValidFullName: String => Boolean = (value: String) =>
+    value.isEmpty || isMatchingPattern(value, fullNameRegexPattern)
   val isValidTelephoneNumber: String => Boolean = (value: String) =>
     value.isEmpty || isMatchingPattern(value, phoneNumberRegexPattern)
 }

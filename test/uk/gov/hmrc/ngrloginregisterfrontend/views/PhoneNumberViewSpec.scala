@@ -95,5 +95,21 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
+
+    "show invalid number format error correctly when - is used" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("079430-09506"))
+      val htmlApply = phoneNumberView.apply(form).body
+      val htmlRender = phoneNumberView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
   }
 }
