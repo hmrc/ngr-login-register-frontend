@@ -29,14 +29,15 @@ class EmailViewSpec  extends ViewBaseSpec {
   lazy val caption = "Register for the business rates valuation service"
   lazy val heading = "Enter email address"
   lazy val continueButton = "Continue"
-  lazy val emptyErrorMessage = "error.browser.title.prefixEnter your email address"
+  lazy val emptyErrorMessage = "Error: Enter your email address"
+  lazy val invalidErrorMessage = "Error: Enter a valid email address"
 
   object Selectors {
     val backLink = "#content > a"
     val caption = "#content > form > span"
     val heading = "#content > form > h1"
     val continueButton   = "#continue"
-    val errorMessage = "#error-message-email-value-input"
+    val errorMessage = "#email-value-error"
   }
 
   "EmailView" must {
@@ -76,6 +77,20 @@ class EmailViewSpec  extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
       elementText(Selectors.errorMessage) mustBe emptyErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+    "show invalid contact email error correctly " in {
+      val form = Email
+        .form()
+        .fillAndValidate(Email("test@testuser.comtest@testUser.com"))
+      val htmlApply = emailView.apply(form).body
+      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
   }

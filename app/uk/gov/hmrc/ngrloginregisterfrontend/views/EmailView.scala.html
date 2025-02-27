@@ -23,20 +23,21 @@
 
 
 @this(
-layout: Layout,
-govukSummaryList : GovukSummaryList,
-formHelper: FormWithCSRF,
-govukErrorSummary: GovukErrorSummary,
-govukFieldset: GovukFieldset,
-saveAndContinueButton: saveAndContinueButton
+    layout: Layout,
+    govukSummaryList : GovukSummaryList,
+    inputText: components.InputText,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukFieldset: GovukFieldset,
+    saveAndContinueButton: saveAndContinueButton
 )
 
-@(form: Form[Email])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(emailForm: Form[Email])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
     @layout(pageTitle = Some(messages("email.pageTitle"))) {
         @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.EmailController.submit, Symbol("autoComplete") -> "off") {
-            @if(form.errors.nonEmpty) {
-                @govukErrorSummary(ErrorSummaryViewModel(form))
+            @if(emailForm.errors.nonEmpty) {
+                @govukErrorSummary(ErrorSummaryViewModel(emailForm))
             }
 
 <span class="govuk-caption-l">@messages("name.caption")</span>
@@ -46,14 +47,13 @@ saveAndContinueButton: saveAndContinueButton
 
 <p class="govuk-body">@messages("email.subheading")</p>
 
-@components.InputText(
-    field = form("email-value"),
-    name = Some("email-value"),
-    id =  Some("email-value"),
-    label = Some(messages("email.label")),
-    inputPurpose=Some("email"),
-    autocomplete = true,
-    inputType = "email"
+@inputText(
+    form  =   emailForm,
+    id    =  "email-value",
+    name  =  "email-value",
+    label =   messages("email.label"),
+    isPageHeading = false,
+    classes = Some("govuk-input--width-20")
 )
     @saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
     }
