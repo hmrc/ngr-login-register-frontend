@@ -27,5 +27,5 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
   override val citizenDetailsUrl: String = "https://localhost:9000"
   override val nextGenerationRatesUrl: String = "https://localhost:1500"
   override def getString(key: String): String = "???"
-
+  override val centralAuthServerUrl: String = "https://localhost:15000"
 }
