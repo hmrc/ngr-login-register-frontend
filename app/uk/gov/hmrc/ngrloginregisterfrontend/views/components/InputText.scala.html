@@ -14,33 +14,34 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(govukInput: GovukInput)
 @(
-    field: Field,
-    label: Option[String] = None,
-    name: Option[String] = None,
-    id: Option[String] = None,
-    inputType: String = "text",
-    inputPurpose: Option[String] = None,
-    maxLength: Int = 1000,
-    headingIsLabel: Boolean = false,
-    autocomplete:Boolean = false
+ form: Form[_],
+ id: String,
+ name: String,
+ label: String,
+ isPageHeading: Boolean,
+ headingMessageArgs: Seq[String] = Seq(),
+ hint: Option[Hint] = None,
+ classes: Option[String] = None,
+ stripWhitespace: Boolean = false,
+ autoComplete: String = "",
+ populateField: Boolean = true
 )(implicit messages: Messages)
 
-<div class="govuk-form-group @if(field.hasErrors){govuk-form-group--error}">
-    <label class="govuk-label" for="@{field.id}">
-        @label
-    </label>
-
-  @field.errors.map { error =>
-    <span class="govuk-error-message" id="error-message-@{field.id}-input"><span class="govuk-visually-hidden">@messages("error.browser.title.prefix")</span>@messages(error.message, error.args: _*)</span>
-  }
-  <input
-    class="govuk-input govuk-input--width-10 @if(field.hasErrors){govuk-input--error}"
-    type=@inputType
-    maxlength=@maxLength
-    id="@{field.id}"
-    name="@{field.name}"
-    value="@{field.value}"
-    autocomplete=@if(autocomplete){"on"}else{"off"}
-  />
-</div>
+@govukInput(Input(
+ id,
+ name,
+ classes = classes.fold("")(x => x),
+ label = Label(
+ content = Text(messages(label, headingMessageArgs: _*)),
+ isPageHeading = isPageHeading,
+ classes = if(isPageHeading) "govuk-label--xl" else "govuk-visually-hidden"
+ ),
+ hint = hint,
+ value = if(populateField) form(name).value else None,
+ errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
+ autocomplete = Some(autoComplete)
+))

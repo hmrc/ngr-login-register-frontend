@@ -31,8 +31,8 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
   lazy val heading = "Enter phone number"
   lazy val label = "Phone Number"
   lazy val continueButton = "Continue"
-  lazy val emptyErrorMessage = "error.browser.title.prefixEnter your Phone number"
-  lazy val invalidErrorMessage = "error.browser.title.prefixPlease enter a valid phone number"
+  lazy val emptyErrorMessage = "Error: Enter your Phone number"
+  lazy val invalidErrorMessage = "Error: Please enter a valid phone number"
 
   val caption = "Register for the business rates valuation service"
 
@@ -43,7 +43,7 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
     val hint   = "#hint-phoneNumber_value"
     val continueButton   = "#continue"
     val backLink = "#content > a"
-    val errorMessage = "#error-message-phoneNumber-value-input"
+    val errorMessage = "#phoneNumber-value-error"
   }
 
   "PhoneNumberView" must {

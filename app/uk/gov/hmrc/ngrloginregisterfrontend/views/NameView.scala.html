@@ -24,33 +24,34 @@
 @this(
   layout: Layout,
   govukSummaryList : GovukSummaryList,
+  inputText: components.InputText,
   formHelper: FormWithCSRF,
   govukErrorSummary: GovukErrorSummary,
   govukFieldset: GovukFieldset,
   saveAndContinueButton: saveAndContinueButton
 )
 
-@(form: Form[Name])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(nameForm: Form[Name])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = Some(messages("name.pageTitle"))) {
   @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.NameController.submit, Symbol("autoComplete") -> "off") {
-    @if(form.errors.nonEmpty) {
-      @govukErrorSummary(ErrorSummaryViewModel(form))
+    @if(nameForm.errors.nonEmpty) {
+      @govukErrorSummary(ErrorSummaryViewModel(nameForm))
     }
     <span class="govuk-caption-l">@messages("name.caption")</span>
     <h1 class="govuk-heading-l">
         @messages("name.heading")
     </h1>
 
-    @components.InputText(
-      field = form("name-value"),
-      inputPurpose=Some("name"),
-      name =  Some("name-value"),
-      label = Some(messages("name.label")),
-      id =  Some("name-value"),
-      autocomplete = true,
-      inputType = "name"
+    @inputText(
+        form  =   nameForm,
+        id    =  "name-value",
+        name  =  "name-value",
+        label =   messages("name.label"),
+        isPageHeading = false,
+        classes = Some("govuk-input--width-10")
     )
+
     @saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
   }
 }
