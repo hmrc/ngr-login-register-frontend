@@ -21,6 +21,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 class NGRLoggerSpec extends TestSupport {
   val logger: NGRLogger = inject[NGRLogger]
+  // todo: Figure out how to check logs
   "NGRLogger" must {
     logger.debug("")
     logger.debug("", new RuntimeException(""))
