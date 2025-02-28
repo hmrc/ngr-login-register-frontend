@@ -17,10 +17,18 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 class NGRLoggerSpec extends TestSupport {
-
+  val logger: NGRLogger = inject[NGRLogger]
   "NGRLogger" must {
-
+    logger.debug("")
+    logger.debug("", new RuntimeException(""))
+    logger.info("")
+    logger.info("", new RuntimeException(""))
+    logger.warn("")
+    logger.warn("", new RuntimeException(""))
+    logger.error("")
+    logger.error("", new RuntimeException(""))
   }
 }

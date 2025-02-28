@@ -24,7 +24,7 @@ import javax.inject.Inject
 @Singleton
 class NGRLogger @Inject()(appConfig: AppConfig) {
   private lazy val loggerName: String = appConfig.getString("application.logger.name")
-  private lazy val logger = play.api.Logger(loggerName)
+  private[util] lazy val logger = play.api.Logger(loggerName)
 
   def debug(msg: => String): Unit = logger.debug(msg)
   def debug(msg: => String, e: => Throwable): Unit = logger.debug(msg, e)
