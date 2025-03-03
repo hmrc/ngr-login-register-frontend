@@ -26,7 +26,6 @@ class AuthJourney @Inject() (
                               authAction: AuthRetrievals,
                               defaultActionBuilder: DefaultActionBuilder
                             ) {
-
   val authWithUserDetails: ActionBuilder[AuthenticatedUserRequest, AnyContent] =
     defaultActionBuilder  andThen authAction
 }

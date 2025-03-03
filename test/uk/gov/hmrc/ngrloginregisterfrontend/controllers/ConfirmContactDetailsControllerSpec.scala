@@ -40,8 +40,14 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
 
   def controller() =
     new ConfirmContactDetailsController(
-      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector
+      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector, connector = mockNGRConnector
     )
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    when(mockNGRConnector.getRatepayer(any())(any()))
+      .thenReturn(Future.successful(None))
+  }
 
   "Controller" must {
     "return OK and the correct view for a GET" in {

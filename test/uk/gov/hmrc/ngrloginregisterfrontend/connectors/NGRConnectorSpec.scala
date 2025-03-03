@@ -35,7 +35,6 @@ import scala.concurrent.Future
 class NGRConnectorSpec extends MockHttpV2 with TestData {
   val logger: NGRLogger = inject[NGRLogger]
   val ngrConnector: NGRConnector = new NGRConnector(mockHttpClientV2, mockConfig, logger)
-  val mockConnector: NGRConnector = mock[NGRConnector]
   val credId: CredId = CredId("1234")
   val email: Email = Email("hello@me.com")
   val trn: ReferenceNumber = ReferenceNumber(TRN, "1234")
@@ -74,6 +73,17 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
         exception.getMessage must include("Request Failed")
       }
     }
+
+  "getRatepayer" when {
+    "Successfully return a Ratepayer" in {
+      val ratepayer: RatepayerRegistration = RatepayerRegistration()
+      val response: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+      setupMockHttpV2Get(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/get-ratepayer")(Some(response))
+      val result: Future[Option[RatepayerRegistrationValuation]] = ngrConnector.getRatepayer(credId)
+      result.futureValue.get.credId mustBe credId
+      result.futureValue.get.ratepayerRegistration mustBe Some(ratepayer)
+    }
+  }
 
   "changePhoneNumber" when {
     "return HttpResponse when the response is OK" in {

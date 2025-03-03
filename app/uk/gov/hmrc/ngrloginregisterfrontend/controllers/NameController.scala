@@ -19,34 +19,45 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Name
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Name.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NameView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Name.form
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class NameController  @Inject()( //Todo connector will need to be added here to pull the name
+class NameController  @Inject()(
                                  nameView: NameView,
+                                 connector: NGRConnector,
                                  authenticate: AuthJourney,
-                                 mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+                                 mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(nameView(form())))
+      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+        val nameForm = ratepayerOpt
+          .flatMap(_.ratepayerRegistration)
+          .flatMap(_.name)
+          .map(name => form().fill(Name(name.value)))
+          .getOrElse(form())
+
+        Ok(nameView(nameForm))
+      }
     }
   }
 
   def submit(): Action[AnyContent] =
-    Action.async { implicit request =>
+    authenticate.authWithUserDetails.async { implicit request =>
       Name.form()
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(nameView(formWithErrors))),
           name => {
-            //TODO Pass name To Connector
+            connector.changeName(CredId(request.credId.getOrElse("")), name)
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )

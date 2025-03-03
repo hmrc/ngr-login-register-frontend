@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{CREATED, OK}
+import play.api.http.Status.{CREATED, NOT_FOUND, OK}
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
-import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, RatepayerRegistration}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, RatepayerRegistration}
 
 import java.net.URL
 import javax.inject.{Inject, Singleton}
@@ -34,11 +35,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class NGRConnector @Inject()(http: HttpClientV2,
                              appConfig: AppConfig,
                              logger: NGRLogger)
-                            (implicit ec: ExecutionContext, headerCarrier: HeaderCarrier) {
+                            (implicit ec: ExecutionContext) {
 
   private def url(path: String): URL = url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/$path"
 
-  def upsertRatepayer(model: RatepayerRegistrationValuation): Future[HttpResponse] = {
+  def upsertRatepayer(model: RatepayerRegistrationValuation)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.post(url("upsert-ratepayer"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
@@ -51,7 +52,33 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def changePhoneNumber(credId: CredId, contactNumber: ContactNumber): Future[HttpResponse] = {
+
+  def getRatepayer(credId: CredId)(implicit hc: HeaderCarrier): Future[Option[RatepayerRegistrationValuation]] = {
+    implicit val rds: HttpReads[RatepayerRegistrationValuation] = readFromJson
+    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, None)
+    http.get(url("get-ratepayer"))
+      .withBody(Json.toJson(model))
+      .execute[Option[RatepayerRegistrationValuation]].recoverWith {
+      case UpstreamErrorResponse(_, NOT_FOUND, _ , _) => Future.successful(None)
+    }
+  }
+
+  def changeName(credId: CredId, name: Name)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val ratepayer: RatepayerRegistration = RatepayerRegistration(name = Some(name))
+    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+    http.post(url("change-name"))
+      .withBody(Json.toJson(model))
+      .execute[HttpResponse]
+      .map { response =>
+        logger.info("Change name" + response.body)
+        response.status match {
+          case OK => response
+          case _ => throw new Exception(s"${response.status}: ${response.body}")
+        }
+      }
+  }
+
+  def changePhoneNumber(credId: CredId, contactNumber: ContactNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(contactNumber))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-phone-number"))
@@ -66,7 +93,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def changeEmail(credId: CredId, email: Email): Future[HttpResponse] = {
+  def changeEmail(credId: CredId, email: Email)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(email = Some(email))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-email"))
@@ -81,7 +108,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def changeTrn(credId: CredId, trn: ReferenceNumber): Future[HttpResponse] = {
+  def changeTrn(credId: CredId, trn: ReferenceNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(referenceNumber = Some(trn))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-trn"))
@@ -96,7 +123,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def changeAddress(credId: CredId, address: Address): Future[HttpResponse] = {
+  def changeAddress(credId: CredId, address: Address)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(address = Some(address))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-address"))
@@ -111,7 +138,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def findAddress(credId: CredId): Future[Option[Address]] = {
+  def findAddress(credId: CredId)(implicit hc: HeaderCarrier): Future[Option[Address]] = {
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, None)
     http.post(url("find-address"))
       .withBody(Json.toJson(model))
@@ -130,7 +157,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def isRegistered(credId: CredId): Future[Boolean] = {
+  def isRegistered(credId: CredId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
     http.post(url("is-registered"))
       .withBody(Json.toJson(model))
