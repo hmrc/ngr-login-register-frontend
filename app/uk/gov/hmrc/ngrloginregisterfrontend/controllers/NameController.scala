@@ -38,12 +38,14 @@ class NameController  @Inject()(
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.get)).flatMap { ratepayerRegistrationValuation =>
-        ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
-          model => model.name.map(
-            name =>
-              Future.successful(Ok(nameView(form().fill(Name(name.value))))
-              ))).getOrElse(Future.successful(Ok(nameView(form()))))
+      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+        val nameForm = ratepayerOpt
+          .flatMap(_.ratepayerRegistration)
+          .flatMap(_.name)
+          .map(name => form().fill(Name(name.value)))
+          .getOrElse(form())
+
+        Ok(nameView(nameForm))
       }
     }
   }
@@ -55,7 +57,7 @@ class NameController  @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(nameView(formWithErrors))),
           name => {
-            connector.changeName(CredId(request.credId.get), name)
+            connector.changeName(CredId(request.credId.getOrElse("")), name)
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )

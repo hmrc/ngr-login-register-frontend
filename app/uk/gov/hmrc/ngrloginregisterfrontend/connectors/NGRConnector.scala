@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
-import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, RatepayerRegistration}
 
 import java.net.URL

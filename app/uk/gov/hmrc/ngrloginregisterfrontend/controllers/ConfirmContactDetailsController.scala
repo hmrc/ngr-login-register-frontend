@@ -44,15 +44,15 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
   //TODO WE DONT'T HAVE TOWN FROM PERSON DETAILS BUT NEED IT IN MAKING A RATEPAYER
 
   def show(): Action[AnyContent] =
-    (authenticate.authWithUserDetails.async) { implicit request =>
-      connector.getRatepayer(CredId(request.credId.get)).flatMap( ratepayerRegistrationValuation =>
+    authenticate.authWithUserDetails.async { implicit request =>
+      connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap( ratepayerRegistrationValuation =>
         if(ratepayerRegistrationValuation.isEmpty){
           citizenDetailsConnector.getPersonDetails(Nino(request.nino.nino.getOrElse(""))).map {
             case Left(error) => Status(error.code)(Json.toJson(error))
             case Right(personDetails) =>
               connector.upsertRatepayer(
                 RatepayerRegistrationValuation(
-                  credId = CredId(request.credId.get),
+                  credId = CredId(request.credId.getOrElse("")),
                   ratepayerRegistration = Some(RatepayerRegistration(
                     name = Some(Name(name(personDetails))),
                     email = Some(Email(request.email.getOrElse(""))),
@@ -96,7 +96,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
       Seq(
         NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.name).map{name => name.value}.getOrElse("")), Some(Link(Call("GET", routes.NameController.show.url), "name-linkid", "confirmContactDetails.change"))),
-        NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, Seq(request.email.getOrElse("")), Some(Link(Call("GET", "url"), "email-linkid", "confirmContactDetails.change"))),
+        NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.email).map{email => email.value}.getOrElse("")), Some(Link(Call("GET", routes.EmailController.show.url), "email-linkid", "confirmContactDetails.change"))),
         NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.contactNumber).map(number => number.value).getOrElse("")), Some(Link(Call("GET", routes.PhoneNumberController.show.url), "number-linkid", if(contactNumber.isEmpty){"confirmContactDetails.add"} else {"confirmContactDetails.change"}))),
         NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")), address, Some(Link(Call("GET", "url"), "address-linkid", "confirmContactDetails.change")))
       ).map(summarise)

@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Play.materializer
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NameView
@@ -25,6 +27,8 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
+
+import scala.concurrent.Future
 
 class NameControllerSpec extends ControllerSpecSupport {
 
@@ -43,6 +47,8 @@ class NameControllerSpec extends ControllerSpecSupport {
   "Phone Number Controller" must {
     "method show" must {
       "Return OK and the correct view" in {
+        when(mockNGRConnector.getRatepayer(any())(any()))
+          .thenReturn(Future.successful(None))
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -52,12 +58,12 @@ class NameControllerSpec extends ControllerSpecSupport {
 
     "method submit" must {
       "Successfully submit valid name and redirect to confirm contact details" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NameController.submit).withFormUrlEncodedBody(("name-value", "Jake")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NameController.submit).withFormUrlEncodedBody(("name-value", "Jake")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
       }
 
       "Submit with no name and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NameController.submit).withFormUrlEncodedBody(("name-value", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NameController.submit).withFormUrlEncodedBody(("name-value", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -65,7 +71,7 @@ class NameControllerSpec extends ControllerSpecSupport {
       }
 
       "Submit with invalid name and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NameController.submit).withFormUrlEncodedBody(("name-value", "!name")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NameController.submit).withFormUrlEncodedBody(("name-value", "!name")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)

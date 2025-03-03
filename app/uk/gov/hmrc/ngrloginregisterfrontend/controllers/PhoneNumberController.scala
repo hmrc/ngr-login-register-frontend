@@ -39,7 +39,7 @@ class PhoneNumberController @Inject()(
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.get)).flatMap { ratepayerRegistrationValuation =>
+      connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap { ratepayerRegistrationValuation =>
         ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
           contactNumber => contactNumber.contactNumber.map(
           number =>
@@ -57,7 +57,7 @@ class PhoneNumberController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors))),
           phoneNumber => {
-            connector.changePhoneNumber(CredId(request.credId.get), ContactNumber(phoneNumber.value))
+            connector.changePhoneNumber(CredId(request.credId.getOrElse("")), ContactNumber(phoneNumber.value))
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
