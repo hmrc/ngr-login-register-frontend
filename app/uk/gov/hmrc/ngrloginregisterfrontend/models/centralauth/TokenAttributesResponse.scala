@@ -21,6 +21,8 @@ import play.api.libs.json.{Format, Json}
 case class TokenAttributesResponse(authenticationProvider: String,
                                    name: Option[String],
                                    email: Option[String] = None,
+                                   identity: Option[Identity] = None,
+                                   enrolments: Set[Enrolment] = Set.empty,
                                    credId: String,
                                    eacdGroupId: Option[String] = None,
                                    caUserId: Option[String] = None)

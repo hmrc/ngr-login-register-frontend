@@ -33,7 +33,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import scala.concurrent.Future
 
 class NGRConnectorSpec extends MockHttpV2 with TestData {
-  val logger: NGRLogger = inject[NGRLogger]
   val ngrConnector: NGRConnector = new NGRConnector(mockHttpClientV2, mockConfig, logger)
   val mockConnector: NGRConnector = mock[NGRConnector]
   val credId: CredId = CredId("1234")

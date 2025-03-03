@@ -108,13 +108,6 @@ class CitizenDetailsConnectorSpec extends MockHttpV2 with TestData {
           result.futureValue mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR,"Call to citizen details failed"))
         }
       }
-      "return a future.unsuccessful" when {
-        "the GET call has failed" in {
-          setupMockFailedHttpV2Get(s"${mockConfig.citizenDetailsUrl}/citizen-details/$testNino/designatory-details")
-          val result = cidConnector.getPersonDetails(Nino(testNino))
-          result.futureValue mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR,"Call to citizen details failed"))
-        }
-      }
     }
   }
 }

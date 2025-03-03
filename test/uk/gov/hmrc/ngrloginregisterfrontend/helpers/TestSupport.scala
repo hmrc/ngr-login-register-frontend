@@ -35,6 +35,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.language.LanguageUtils
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -55,6 +56,7 @@ with IntegrationPatience {
     super.beforeEach()
   }
 
+  val logger: NGRLogger = inject[NGRLogger]
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
   lazy val cacheId = "id"
