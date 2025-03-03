@@ -35,6 +35,7 @@ class NameControllerSpec extends ControllerSpecSupport {
 
   def controller() = new NameController(
     nameView,
+    mockNGRConnector,
     mockAuthJourney,
     mcc
   )

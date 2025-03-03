@@ -75,6 +75,22 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
       }
     }
 
+  "getRatepayer" when {
+    "Successfully return a Ratepayer" in {
+      //Generate rate payer
+      val ratepayer: RatepayerRegistration = RatepayerRegistration()
+
+      val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+      setupMockHttpV2Post(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/upsert-ratepayer")(HttpResponse(201, "Created"))
+
+      val response: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+      setupMockHttpV2Get(s"${mockConfig.nextGenerationRatesUrl}/get-ratepayer")(response)
+      val result: Future[RatepayerRegistrationValuation] = ngrConnector.getRatepayer
+      result.futureValue.credId mustBe credId
+      result.futureValue.ratepayerRegistration mustBe ratepayer
+    }
+  }
+
   "changePhoneNumber" when {
     "return HttpResponse when the response is OK" in {
       val response: HttpResponse = HttpResponse(200, "Phone number changed")

@@ -23,29 +23,57 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Link, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
+import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 authenticate: AuthJourney,
+                                                connector: NGRConnector,
                                                 mcc: MessagesControllerComponents,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+  //TODO WE DONT'T HAVE TOWN FROM PERSON DETAILS BUT NEED IT IN MAKING A RATEPAYER
 
   def show(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
-      citizenDetailsConnector.getPersonDetails(Nino(request.nino.nino.getOrElse(""))).map {
-        case Left(error) => Status(error.code)(Json.toJson(error))
-        case Right(personDetails) => Ok(view(SummaryList(createSummaryRows(personDetails, request)), name(personDetails)))
-      }
+    (authenticate.authWithUserDetails.async) { implicit request =>
+      connector.getRatepayer(CredId(request.credId.get)).flatMap( ratepayerRegistrationValuation =>
+        if(ratepayerRegistrationValuation == null){
+          citizenDetailsConnector.getPersonDetails(Nino(request.nino.nino.getOrElse(""))).map {
+            case Left(error) => Status(error.code)(Json.toJson(error))
+            case Right(personDetails) =>
+              connector.upsertRatepayer(
+                RatepayerRegistrationValuation(
+                  credId = CredId(request.credId.get),
+                  ratepayerRegistration = Some(RatepayerRegistration(
+                    name = Some(Name(name(personDetails))),
+                    email = Some(Email(request.email.getOrElse(""))),
+                    address = Some(Address(
+                      line1 = personDetails.address.line1.getOrElse(""),
+                      line2 = personDetails.address.line2,
+                      town = personDetails.address.line4.getOrElse(""),
+                      county = personDetails.address.line5,
+                      postcode = Postcode(personDetails.address.postcode.getOrElse("")),
+                      country = personDetails.address.country.getOrElse("")
+                    ))
+                  ))
+                )
+              )
+              Ok(view(SummaryList(createSummaryRows(personDetails, request)), name(personDetails)))
+            }
+        }else{
+          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayerRegistrationValuation, request)), ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.name).map{name => name.value}.getOrElse(""))))
+        }
+      )
+
     }
 
   def name(personDetails: PersonDetails): String = List(
@@ -53,6 +81,27 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     personDetails.person.middleName,
     personDetails.person.lastName
   ).flatten.mkString(" ")
+
+  private[controllers] def createSummaryRowsFromRatePayer(ratepayerRegistrationValuation: RatepayerRegistrationValuation, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
+      val address = ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.address).map { address => {
+        Seq(
+          address.line1,
+          address.line2.getOrElse(""),
+          address.postcode.value,
+          address.country
+        )
+      }}.getOrElse(Seq.empty)
+
+    val contactNumber = ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.contactNumber).map(number => number.value).getOrElse("")
+
+      Seq(
+        NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.name).map{name => name.value}.getOrElse("")), Some(Link(Call("GET", routes.NameController.show.url), "name-linkid", "confirmContactDetails.change"))),
+        NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, Seq(request.email.getOrElse("")), Some(Link(Call("GET", "url"), "email-linkid", "confirmContactDetails.change"))),
+        NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.contactNumber).map(number => number.value).getOrElse("")), Some(Link(Call("GET", routes.PhoneNumberController.show.url), "number-linkid", if(contactNumber.isEmpty){"confirmContactDetails.add"} else {"confirmContactDetails.change"}))),
+        NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")), address, Some(Link(Call("GET", "url"), "address-linkid", "confirmContactDetails.change")))
+      ).map(summarise)
+    }
+
 
   private[controllers] def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
 

@@ -24,7 +24,7 @@ import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.auth.core.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
@@ -40,7 +40,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
 
   def controller() =
     new ConfirmContactDetailsController(
-      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector
+      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector, connector = mockNGRConnector
     )
 
   "Controller" must {
