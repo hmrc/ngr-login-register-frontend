@@ -36,14 +36,16 @@ class NameController  @Inject()(
                                  authenticate: AuthJourney,
                                  mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
-  def show: Action[AnyContent] =
+  def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-       connector.getRatepayer(CredId(request.credId.get)).flatMap{ ratepayerRegistrationValuation =>
-          ratepayerRegistrationValuation.ratepayerRegistration.map{
-           ratepayerRegistration => val nameForm = form().fill(ratepayerRegistration.name.getOrElse(Name("")))
-             Future.successful(Ok(nameView(nameForm)))
-         }.getOrElse(Future.successful(Ok(nameView(form()))))
-       }
+      connector.getRatepayer(CredId(request.credId.get)).flatMap { ratepayerRegistrationValuation =>
+        ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
+          model => model.name.map(
+            name =>
+              Future.successful(Ok(nameView(form().fill(Name(name.value))))
+              ))).getOrElse(Future.successful(Ok(nameView(form()))))
+      }
+    }
   }
 
   def submit(): Action[AnyContent] =

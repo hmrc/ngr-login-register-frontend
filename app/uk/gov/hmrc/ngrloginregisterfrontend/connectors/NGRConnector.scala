@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{CREATED, OK}
+import play.api.http.Status.{CREATED, NOT_FOUND, OK}
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -53,15 +53,13 @@ class NGRConnector @Inject()(http: HttpClientV2,
   }
 
 
-  def getRatepayer(credId: CredId)(implicit hc: HeaderCarrier): Future[RatepayerRegistrationValuation] = {
+  def getRatepayer(credId: CredId)(implicit hc: HeaderCarrier): Future[Option[RatepayerRegistrationValuation]] = {
     implicit val rds: HttpReads[RatepayerRegistrationValuation] = readFromJson
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, None)
     http.get(url("get-ratepayer"))
       .withBody(Json.toJson(model))
-      .execute[RatepayerRegistrationValuation].recoverWith {
-      case e =>
-        logger.warn(s"Unable to collect Ratepayer due to an exception ${e.getMessage}")
-        throw new Exception(s"Unable to collect Ratepayer due to an exception")
+      .execute[Option[RatepayerRegistrationValuation]].recoverWith {
+      case UpstreamErrorResponse(_, NOT_FOUND, _ , _) => Future.successful(None)
     }
   }
 

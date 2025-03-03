@@ -46,7 +46,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
   def show(): Action[AnyContent] =
     (authenticate.authWithUserDetails.async) { implicit request =>
       connector.getRatepayer(CredId(request.credId.get)).flatMap( ratepayerRegistrationValuation =>
-        if(ratepayerRegistrationValuation == null){
+        if(ratepayerRegistrationValuation.isEmpty){
           citizenDetailsConnector.getPersonDetails(Nino(request.nino.nino.getOrElse(""))).map {
             case Left(error) => Status(error.code)(Json.toJson(error))
             case Right(personDetails) =>
@@ -70,7 +70,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
               Ok(view(SummaryList(createSummaryRows(personDetails, request)), name(personDetails)))
             }
         }else{
-          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayerRegistrationValuation, request)), ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.name).map{name => name.value}.getOrElse(""))))
+          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayerRegistrationValuation.get, request)), ratepayerRegistrationValuation.get.ratepayerRegistration.flatMap(_.name).map{name => name.value}.getOrElse(""))))
         }
       )
 

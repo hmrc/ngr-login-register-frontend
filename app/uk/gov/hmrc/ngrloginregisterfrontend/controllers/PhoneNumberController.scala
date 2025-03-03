@@ -40,14 +40,15 @@ class PhoneNumberController @Inject()(
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       connector.getRatepayer(CredId(request.credId.get)).flatMap { ratepayerRegistrationValuation =>
-        ratepayerRegistrationValuation.ratepayerRegistration.map {
-          ratepayerRegistration =>
-            val numberForm = form().fill(PhoneNumber(ratepayerRegistration.contactNumber.map { number => number.value }.getOrElse("")))
-            Future.successful(Ok(phoneNumberView(numberForm)))
-        }.getOrElse(Future.successful(Ok(phoneNumberView(form()))))
+        ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
+          contactNumber => contactNumber.contactNumber.map(
+          number =>
+          Future.successful(Ok(phoneNumberView(form().fill(PhoneNumber(number.value))))
+        ))).getOrElse(Future.successful(Ok(phoneNumberView(form()))))
       }
     }
   }
+
 
   def submit(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
