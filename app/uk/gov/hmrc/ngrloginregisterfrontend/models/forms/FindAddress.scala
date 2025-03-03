@@ -29,9 +29,9 @@ object FindAddress extends CommonFormValidators{
   implicit val format: OFormat[FindAddress] = Json.format[FindAddress]
 
   private lazy val postcodeEmptyError    = "postcode.empty.error"
-  private lazy val invalidPostcodeError    = "postcode.invalid.error"
-  val postcode                   = "postcode-value"
-  val propertyName               = "property-name-value"
+  private lazy val invalidPostcodeError  = "postcode.invalid.error"
+  private val postcode                   = "postcode-value"
+  private val propertyName               = "property-name-value"
 
   def form(): Form[FindAddress] =
     Form(
