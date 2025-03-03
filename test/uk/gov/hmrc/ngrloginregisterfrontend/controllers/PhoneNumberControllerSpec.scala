@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.Play.materializer
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.test.FakeRequest
@@ -23,7 +25,8 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 
 class PhoneNumberControllerSpec extends ControllerSpecSupport {
@@ -33,8 +36,10 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
 
   val pageTitle = "Phone Number"
 
+
   def controller() = new PhoneNumberController(
     phoneNumberView,
+    mockNGRConnector,
     mockAuthJourney,
     mcc
   )
@@ -42,6 +47,9 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
   "Phone Number Controller" must {
     "method show" must {
       "Return OK and the correct view" in {
+        val ratepayer: RatepayerRegistration = RatepayerRegistration()
+        val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+        when(mockNGRConnector.getRatepayer(any()))thenReturn()
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
