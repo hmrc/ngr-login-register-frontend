@@ -23,10 +23,12 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Link, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -38,6 +40,7 @@ import scala.concurrent.ExecutionContext
 class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 authenticate: AuthJourney,
                                                 mcc: MessagesControllerComponents,
+                                                alConnector: AddressLookupConnector,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(): Action[AnyContent] =
@@ -47,6 +50,16 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
         case Right(personDetails) => Ok(view(SummaryList(createSummaryRows(personDetails, request)), name(personDetails)))
       }
     }
+
+  def showAddressLookupTest(): Action[AnyContent] = {
+    authenticate.authWithUserDetails.async { implicit request =>
+      val addressRequest : AddressLookupRequest = AddressLookupRequest("AA1 1ZZ", Some("The Rectory"))
+      alConnector.findAddressByPostcode(addressRequest).map {
+        case Left(error) => Status((error.code))(Json.toJson(error))
+        case Right(response) =>  Ok(Json.toJson(response))
+      }
+    }
+  }
 
   def name(personDetails: PersonDetails): String = List(
     personDetails.person.firstName,
