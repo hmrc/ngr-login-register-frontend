@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.config
 
+import com.typesafe.config.Config
+
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
@@ -32,4 +34,23 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   override val features = new Features()(config)
   override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")
   override val citizenDetailsUrl: String = sc.baseUrl("citizen-details")
+  private val accessibilityHost: String = sc.getConfString(
+    confKey = "accessibility-statement.host", throw new Exception("missing config accessibility-statement.host")
+  )
+
+  def accessibilityFooterUrl = s"$accessibilityHost/accessibility-statement/ngr-login-register-frontend"
+  val addressLookupService: String = sc.baseUrl("address-lookup-frontend")
+  val addressLookUpFrontendTestEnabled: Boolean = sc.getBoolean("addressLookupFrontendTest.enabled")
+  val addressLookupOffRampUrl: String = sc.getString(key ="addressLookupOffRampUrl")
+
+  object AddressLookupConfig {
+
+    private val addressLookupInitConfig: Config = config
+      .getOptional[Configuration](s"address-lookup-frontend-init-config")
+      .getOrElse(throw new IllegalArgumentException(s"Configuration for address-lookup-frontend-init-config not found"))
+      .underlying
+
+    val version: Int = addressLookupInitConfig.getInt("version")
+    val selectPageConfigProposalLimit: Int = addressLookupInitConfig.getInt("select-page-config.proposalListLimit")
+  }
 }
