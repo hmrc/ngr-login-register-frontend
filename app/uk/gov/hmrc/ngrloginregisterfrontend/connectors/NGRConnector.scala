@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{CREATED, NOT_FOUND, OK}
+import play.api.http.Status.{CREATED, OK}
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -58,9 +58,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, None)
     http.get(url("get-ratepayer"))
       .withBody(Json.toJson(model))
-      .execute[Option[RatepayerRegistrationValuation]].recoverWith {
-      case UpstreamErrorResponse(_, NOT_FOUND, _ , _) => Future.successful(None)
-    }
+      .execute[Option[RatepayerRegistrationValuation]]
   }
 
   def changeName(credId: CredId, name: Name)(implicit hc: HeaderCarrier): Future[HttpResponse] = {

@@ -60,6 +60,7 @@ trait TestData {
     )
 
   val contactNumberModel: ContactNumber = ContactNumber("0300 200 3310")
+  val nameModel: Name = Name("Lovely Fella")
 
   val contactNumberJson: JsValue = Json.parse(
     """

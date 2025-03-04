@@ -25,7 +25,8 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Email, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 
 import scala.concurrent.Future
@@ -49,6 +50,17 @@ class EmailControllerSpec extends ControllerSpecSupport {
       "Return OK and the correct view" in {
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(None))
+        val result = controller().show()(authenticatedFakeRequest)
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must include(pageTitle)
+      }
+
+      "Return OK and the correct view with data" in {
+        val ratepayer: RatepayerRegistration = RatepayerRegistration(email = Some(Email("yes@no.biz")))
+        val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+        when(mockNGRConnector.getRatepayer(any())(any()))
+          .thenReturn(Future.successful(Some(model)))
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)

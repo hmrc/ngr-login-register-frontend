@@ -45,36 +45,46 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap( ratepayerRegistrationValuation =>
-        if(ratepayerRegistrationValuation.isEmpty){
-          citizenDetailsConnector.getPersonDetails(Nino(request.nino.nino.getOrElse(""))).map {
-            case Left(error) => Status(error.code)(Json.toJson(error))
-            case Right(personDetails) =>
-              connector.upsertRatepayer(
-                RatepayerRegistrationValuation(
-                  credId = CredId(request.credId.getOrElse("")),
-                  ratepayerRegistration = Some(RatepayerRegistration(
-                    name = Some(Name(name(personDetails))),
-                    email = Some(Email(request.email.getOrElse(""))),
-                    address = Some(Address(
-                      line1 = personDetails.address.line1.getOrElse(""),
-                      line2 = personDetails.address.line2,
-                      town = personDetails.address.line4.getOrElse(""),
-                      county = personDetails.address.line5,
-                      postcode = Postcode(personDetails.address.postcode.getOrElse("")),
-                      country = personDetails.address.country.getOrElse("")
-                    ))
-                  ))
-                )
-              )
-              Ok(view(SummaryList(createSummaryRows(personDetails, request)), name(personDetails)))
-            }
-        }else{
-          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayerRegistrationValuation.get, request)), ratepayerRegistrationValuation.get.ratepayerRegistration.flatMap(_.name).map{name => name.value}.getOrElse(""))))
-        }
-      )
+      val credId = CredId(request.credId.getOrElse(""))
+      val nino = Nino(request.nino.nino.getOrElse(""))
+      val email = Email(request.email.getOrElse(""))
 
+      connector.getRatepayer(credId).flatMap {
+        case Some(ratepayer) =>
+          val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
+          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayer, request)), name)))
+
+        case None =>
+          citizenDetailsConnector.getPersonDetails(nino).flatMap {
+            case Left(error) =>
+              Future.successful(Status(error.code)(Json.toJson(error)))
+
+            case Right(personDetails) =>
+              val nameValue = name(personDetails)
+              val ratepayerRegistration = RatepayerRegistration(
+                name = Some(Name(nameValue)),
+                email = Some(email),
+                address = Some(buildAddress(personDetails))
+              )
+
+              val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
+
+              connector.upsertRatepayer(ratepayerData).map { _ =>
+                Ok(view(SummaryList(createSummaryRows(personDetails, request)), nameValue))
+              }
+          }
+      }
     }
+
+  private def buildAddress(personDetails: PersonDetails): Address =
+    Address(
+      line1 = personDetails.address.line1.getOrElse(""),
+      line2 = personDetails.address.line2,
+      town = personDetails.address.line4.getOrElse(""),
+      county = personDetails.address.line5,
+      postcode = Postcode(personDetails.address.postcode.getOrElse("")),
+      country = personDetails.address.country.getOrElse("")
+    )
 
   def name(personDetails: PersonDetails): String = List(
     personDetails.person.firstName,
