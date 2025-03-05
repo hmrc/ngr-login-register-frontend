@@ -18,10 +18,10 @@ package uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup
 
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, AddressLookupResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
@@ -29,7 +29,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.HeaderCarrier
 
 class AddressLookupConnector @Inject()(http: HttpClientV2,
                                        appConfig: AppConfig,
@@ -38,7 +37,7 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
   private def url(path: String): URL = url"${appConfig.addressLookupUrl}/address-lookup/$path"
 
 
-  def findAddressByPostcode(request: AddressLookupRequest)(implicit headerCarrier: HeaderCarrier) : Future[Either[ErrorResponse, AddressLookupResponse]] = {
+  def findAddressByPostcode(request: AddressLookupRequest)(implicit headerCarrier: HeaderCarrier) : Future[Either[ErrorResponse, Seq[AddressLookupResponse]]] = {
     http.post(url("lookup"))
       .withBody(Json.toJson(request))
       .execute[HttpResponse](readRaw, ec)
@@ -47,7 +46,7 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
           case OK => response.json.validate[AddressLookupResponse] match {
             case JsSuccess(valid, _) => {
               logger.debug("AddressLookupResponse received" + valid)
-              Right(valid)
+              Right(Seq(valid))
             }
             case JsError(errors) =>
               Left(ErrorResponse(BAD_REQUEST, s"Json Validation Errors: $errors"))
