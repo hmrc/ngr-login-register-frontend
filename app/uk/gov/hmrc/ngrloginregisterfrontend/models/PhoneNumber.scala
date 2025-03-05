@@ -20,23 +20,28 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.mappings.Constraints
 
 final case class PhoneNumber(value: String)
 
-object PhoneNumber extends CommonFormValidators {
+object PhoneNumber extends CommonFormValidators with Constraints {
 
   implicit val format: OFormat[PhoneNumber] = Json.format[PhoneNumber]
 
-  lazy val phoneNumberEmptyError    = "phoneNumber.empty.error"
-  lazy val phoneNumberInvalidFormat = "phoneNumber.invalidFormat.error"
-  val phoneNumber                   = "phoneNumber-value"
+  private lazy val phoneNumberEmptyError    = "phoneNumber.empty.error"
+  private lazy val phoneNumberInvalidFormat = "phoneNumber.invalidFormat.error"
+  val phoneNumber                           = "phoneNumber-value"
 
   def form(): Form[PhoneNumber] =
     Form(
       mapping(
         phoneNumber -> text()
-          .verifying(phoneNumberEmptyError, isNonEmpty)
-          .verifying(phoneNumberInvalidFormat, isValidTelephoneNumber)
+          .verifying(
+            firstError(
+              isNotEmpty(phoneNumber, phoneNumberEmptyError),
+              regexp(phoneNumberRegexPattern.pattern(), phoneNumberInvalidFormat)
+            )
+          )
       )(PhoneNumber.apply)(PhoneNumber.unapply)
     )
 

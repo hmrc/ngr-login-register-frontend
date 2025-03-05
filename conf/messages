@@ -49,3 +49,16 @@ confirmContactDetails.phoneNumber = Phone number
 confirmContactDetails.address = Address
 confirmContactDetails.address.caption = We will send letters to this address
 confirmContactDetails.change = Change
+
+findAddress.heading = Find the contact address
+findAddress.caption = Register for the business rates valuation service
+findAddress.body = We will use this address to send letters via post
+findAddress.postcode.label = Postcode
+findAddress.manual = Enter the address manually
+findAddress.propertyName = Property name or number (optional)
+findAddress.propertyName.hint = For example, 116, The Mill, or Suite 10
+findAddress.button = Find address
+
+postcode.empty.error = Empty postcode error
+postcode.invalid.error = Enter a full UK postcode
+maxlength.100.error = No more than {n} characters allowed

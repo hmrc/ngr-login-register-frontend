@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,34 +20,37 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-import javax.inject.Inject
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress.form
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
-class EmailController @Inject()(emailView: EmailView,
-                                 authenticate: AuthJourney,
-                                 mcc: MessagesControllerComponents,
-                                 )(implicit appConfig: AppConfig)
-  extends FrontendController(mcc) with I18nSupport {
+@Singleton
+class FindAddressController @Inject()(
+                                       findAddressView: FindAddressView,
+                                       authenticate: AuthJourney,
+                                       mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
-  def show: Action[AnyContent] = {
+  def show: Action[AnyContent]  = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(emailView(Email.form())))
+      Future.successful(Ok(findAddressView(form())))
     }
   }
 
   def submit(): Action[AnyContent] =
     Action.async { implicit request =>
-      Email.form()
+      FindAddress.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
-          email => {
+          formWithErrors => Future.successful(BadRequest(findAddressView(formWithErrors))),
+          findAddress => {
+            println("FOUND ADDRESS!!!" + findAddress.toString)
+            //TODO Pass Address To Connector
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }
+
 }
