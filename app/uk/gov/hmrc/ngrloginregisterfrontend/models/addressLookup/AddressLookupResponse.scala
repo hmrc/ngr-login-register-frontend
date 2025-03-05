@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup
 
 import play.api.libs.json.{Format, Json}
 
-case class AddressLookupResponse (
+final case class AddressLookupResponse (
                                    id: String,
                                    uprn: Int,
                                    parentUprn: Option[Int],
@@ -36,7 +36,7 @@ object AddressLookupResponse {
   implicit val format: Format[AddressLookupResponse] = Json.format[AddressLookupResponse]
 }
 
-  case class Address(
+final case class Address(
                       lines: Seq[String],
                       town: String,
                       postcode: String,
@@ -49,7 +49,7 @@ object Address {
 }
 
 
-  case class Subdivision(
+final case class Subdivision(
                           code: String,
                           name: String
                         )
@@ -58,7 +58,7 @@ object Subdivision {
   implicit val format: Format[Subdivision] = Json.format[Subdivision]
 }
 
-  case class LocalCustodian(
+final case class LocalCustodian(
                              code: Int,
                              name: String
                            )
