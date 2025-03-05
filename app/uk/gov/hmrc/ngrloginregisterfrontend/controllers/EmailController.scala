@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
