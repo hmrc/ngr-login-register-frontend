@@ -19,35 +19,49 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Email.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EmailController @Inject()(emailView: EmailView,
-                                 authenticate: AuthJourney,
-                                 mcc: MessagesControllerComponents,
-                                 )(implicit appConfig: AppConfig)
+                                connector: NGRConnector,
+                                authenticate: AuthJourney,
+                                mcc: MessagesControllerComponents,
+                               )(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(emailView(Email.form())))
+      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+        val emailForm = ratepayerOpt
+          .flatMap(_.ratepayerRegistration)
+          .flatMap(_.email)
+          .map(email => form().fill(Email(email.value)))
+          .getOrElse(form())
+
+        Ok(emailView(emailForm))
+      }
     }
   }
 
-    def submit(): Action[AnyContent] =
-      Action.async { implicit request =>
-        Email.form()
-          .bindFromRequest()
-          .fold(
-            formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
-            email => {
-              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-            }
-          )
-      }
-  }
+  def submit(): Action[AnyContent] =
+    authenticate.authWithUserDetails.async { implicit request =>
+      Email.form()
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
+          email => {
+            connector.changeEmail(CredId(request.credId.getOrElse("")), email)
+            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+          }
+        )
+    }
+
+}

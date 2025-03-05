@@ -21,8 +21,10 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 
 import scala.concurrent.ExecutionContext
 
@@ -30,7 +32,9 @@ trait ControllerSpecSupport extends TestSupport{
 
   implicit lazy val msgs: Messages          = MessagesImpl(Lang("en"), inject[MessagesApi])
   val mockAuthJourney: AuthJourney          = mock[AuthJourney]
+  val mockNGRConnector: NGRConnector        = mock[NGRConnector]
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+  val credId: CredId = CredId("1234")
 
   when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {

@@ -42,6 +42,8 @@ trait MockHttpV2  extends TestSupport with BeforeAndAfterEach {
       .get(ArgumentMatchers.eq(url"$url"))(ArgumentMatchers.any()))
       .thenReturn(mockRequestBuilder)
 
+    when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+
     when(mockRequestBuilder.setHeader(any[(String, String)]))
       .thenReturn(mockRequestBuilder)
 

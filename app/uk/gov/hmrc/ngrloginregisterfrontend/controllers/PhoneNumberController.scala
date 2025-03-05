@@ -19,35 +19,45 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.PhoneNumber
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{ContactNumber, PhoneNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.PhoneNumber.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PhoneNumberController @Inject()( //Todo connector will need to be added here to pull the phone number
+class PhoneNumberController @Inject()(
                                        phoneNumberView: PhoneNumberView,
+                                       connector: NGRConnector,
                                        authenticate: AuthJourney,
-                                       mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+                                       mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(phoneNumberView(form())))
+      connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap { ratepayerRegistrationValuation =>
+        ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
+          contactNumber => contactNumber.contactNumber.map(
+          number =>
+          Future.successful(Ok(phoneNumberView(form().fill(PhoneNumber(number.value))))
+        ))).getOrElse(Future.successful(Ok(phoneNumberView(form()))))
+      }
     }
   }
 
+
   def submit(): Action[AnyContent] =
-    Action.async { implicit request =>
+    authenticate.authWithUserDetails.async { implicit request =>
       PhoneNumber.form()
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors))),
           phoneNumber => {
-            //TODO Pass PhoneNumber To Connector
+            connector.changePhoneNumber(CredId(request.credId.getOrElse("")), ContactNumber(phoneNumber.value))
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )

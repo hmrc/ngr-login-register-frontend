@@ -19,14 +19,16 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.http.Status.OK
+import play.api.http.Status.{CREATED, OK}
 import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.auth.core.Nino
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
@@ -40,8 +42,19 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
 
   def controller() =
     new ConfirmContactDetailsController(
-      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector
+      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector, connector = mockNGRConnector
     )
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    val ratepayer: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
+    val response: Option[RatepayerRegistrationValuation] = Some(ratepayer)
+    val httpResponse = HttpResponse(CREATED, "Created Successfully")
+    when(mockNGRConnector.getRatepayer(any())(any()))
+      .thenReturn(Future.successful(response))
+    when(mockNGRConnector.upsertRatepayer(any())(any()))
+      .thenReturn(Future.successful(httpResponse))
+  }
 
   "Controller" must {
     "return OK and the correct view for a GET" in {
@@ -50,16 +63,47 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       status(result) mustBe OK
     }
 
-    "return OK and the correct view for a fail" in {
-      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(400, "bad"))))
-      val result = controller().show()(noNinoAuth)
-      status(result) mustBe 400
+    "return the correct status when no ratepayer is found and citizen details fail" in {
+      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
+      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(404, "Not Found"))))
+
+      val result = controller().show()(fakeRequest)
+      status(result) mustBe 404
     }
 
     "person details returns error status" in {
-      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future(Left(ErrorResponse(any(), any()))))
+      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future(Left(ErrorResponse(200, "bad"))))
       val result = controller().show()(authenticatedFakeRequest)
-      status(result) mustBe 0
+      status(result) mustBe 200
+    }
+
+    "create a ratepayer when no existing ratepayer is found and citizen details succeed" in {
+      val personDetails = PersonDetails(
+        person = Person(
+          title = Some("Mr"),
+          firstName = Some("John"),
+          middleName = None,
+          lastName = Some("Doe"),
+          honours = None,
+          sex = Some("M"),
+          dateOfBirth = None,
+          nino = None
+        ),
+        address = PersonAddress(
+          line1 = Some("123 Street"),
+          line2 = Some("Area"),
+          line4 = Some("Town"),
+          line5 = Some("County"),
+          postcode = Some("AB12 3CD"),
+          country = Some("UK")
+        )
+      )
+      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
+      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Right(personDetails)))
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(HttpResponse(CREATED, "Created Successfully")))
+
+      val result = controller().show()(fakeRequest)
+      status(result) mustBe OK
     }
 
     "Will generate SummaryListRow from user data" in {
@@ -85,6 +129,14 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       )
       val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None,None,None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
       val rows = controller().createSummaryRows(personDetails, authRequest)
+      rows.length shouldBe 4
+    }
+
+    "will create summary rows from ratepayer registration model" in {
+      val model = testRegistrationModel
+      val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
+      val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None,None,None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
+      val rows = controller().createSummaryRowsFromRatePayer(ratepayer, authRequest)
       rows.length shouldBe 4
     }
 

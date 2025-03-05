@@ -29,13 +29,11 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
-
 import scala.concurrent.Future
 
 class NGRConnectorSpec extends MockHttpV2 with TestData {
   val logger: NGRLogger = inject[NGRLogger]
   val ngrConnector: NGRConnector = new NGRConnector(mockHttpClientV2, mockConfig, logger)
-  val mockConnector: NGRConnector = mock[NGRConnector]
   val credId: CredId = CredId("1234")
   val email: Email = Email("hello@me.com")
   val trn: ReferenceNumber = ReferenceNumber(TRN, "1234")
@@ -75,6 +73,22 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
       }
     }
 
+  "getRatepayer" when {
+    "Successfully return a Ratepayer" in {
+      val ratepayer: RatepayerRegistration = RatepayerRegistration()
+      val response: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+      setupMockHttpV2Get(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/get-ratepayer")(Some(response))
+      val result: Future[Option[RatepayerRegistrationValuation]] = ngrConnector.getRatepayer(credId)
+      result.futureValue.get.credId mustBe credId
+      result.futureValue.get.ratepayerRegistration mustBe Some(ratepayer)
+    }
+    "ratepayer not found" in {
+      setupMockHttpV2Get(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/get-ratepayer")(None)
+      val result: Future[Option[RatepayerRegistrationValuation]] = ngrConnector.getRatepayer(credId)
+      result.futureValue mustBe None
+    }
+  }
+
   "changePhoneNumber" when {
     "return HttpResponse when the response is OK" in {
       val response: HttpResponse = HttpResponse(200, "Phone number changed")
@@ -99,6 +113,35 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
       setupMockHttpV2FailedPost(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/change-phone-number")
       val exception = intercept[RuntimeException] {
         ngrConnector.changePhoneNumber(credId, contactNumberModel).futureValue
+      }
+      exception.getMessage must include("Request Failed")
+    }
+  }
+
+  "changeName" when {
+    "return HttpResponse when the response is OK" in {
+      val response: HttpResponse = HttpResponse(200, "Name changed")
+      setupMockHttpV2Post(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/change-name")(response)
+      val result: Future[HttpResponse] = ngrConnector.changeName(credId, nameModel)
+      result.futureValue.status mustBe 200
+    }
+
+    "throw an exception when response is not 200" in {
+      val response: HttpResponse = HttpResponse(400, "Bad Request")
+
+      setupMockHttpV2Post(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/change-name")(response)
+
+      val exception = intercept[Exception] {
+        ngrConnector.changeName(credId, nameModel).futureValue
+      }
+      exception.getMessage must include("400: Bad Request")
+    }
+
+    "propagate exception when the request fails" in {
+
+      setupMockHttpV2FailedPost(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/change-name")
+      val exception = intercept[RuntimeException] {
+        ngrConnector.changeName(credId, nameModel).futureValue
       }
       exception.getMessage must include("Request Failed")
     }
