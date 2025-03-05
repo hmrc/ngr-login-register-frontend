@@ -28,5 +28,5 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
   override val nextGenerationRatesUrl: String = "https://localhost:1500"
   override def getString(key: String): String = "???"
 
-  override val addressLookupUrl: String = "htttp://localhost:9000"
+  override val addressLookupUrl: String = "http://localhost:9000"
 }

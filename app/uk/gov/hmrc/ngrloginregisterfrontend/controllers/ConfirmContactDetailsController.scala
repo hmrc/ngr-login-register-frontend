@@ -40,7 +40,6 @@ import scala.concurrent.ExecutionContext
 class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 authenticate: AuthJourney,
                                                 mcc: MessagesControllerComponents,
-                                                alConnector: AddressLookupConnector,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(): Action[AnyContent] =
@@ -50,16 +49,6 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
         case Right(personDetails) => Ok(view(SummaryList(createSummaryRows(personDetails, request)), name(personDetails)))
       }
     }
-
-  def showAddressLookupTest(): Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
-      val addressRequest : AddressLookupRequest = AddressLookupRequest("AA1 1ZZ", Some("The Rectory"))
-      alConnector.findAddressByPostcode(addressRequest).map {
-        case Left(error) => Status((error.code))(Json.toJson(error))
-        case Right(response) =>  Ok(Json.toJson(response))
-      }
-    }
-  }
 
   def name(personDetails: PersonDetails): String = List(
     personDetails.person.firstName,

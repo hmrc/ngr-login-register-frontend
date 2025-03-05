@@ -151,11 +151,12 @@ object WiremockHelper extends Eventually with IntegrationPatience {
       )
     )
 
-  def stubPostWithHeader(url: String, status: Integer, key: String, header: String): StubMapping =
+  def stubPostWithHeader(url: String, status: Integer, responseBody: String, key: String, header: String): StubMapping =
     stubFor(post(urlEqualTo(url))
       .willReturn(
         aResponse().
           withStatus(status).
+          withBody(responseBody).
           withHeader(key, header)
       )
     )

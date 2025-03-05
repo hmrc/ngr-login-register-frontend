@@ -36,10 +36,12 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
 
   private def url(path: String): URL = url"${appConfig.addressLookupUrl}/address-lookup/$path"
 
+  val headers = Seq("User-Agent" -> "xyz")
 
   def findAddressByPostcode(request: AddressLookupRequest)(implicit headerCarrier: HeaderCarrier) : Future[Either[ErrorResponse, Seq[AddressLookupResponse]]] = {
     http.post(url("lookup"))
       .withBody(Json.toJson(request))
+      .setHeader(headers:_*)
       .execute[HttpResponse](readRaw, ec)
       .map { response =>
         response.status match {

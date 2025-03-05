@@ -21,7 +21,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupResponse, LocalCustodian, Subdivision, Address => AlfAddress}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, AddressLookupResponse, LocalCustodian, Subdivision, Address => AlfAddress}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
 
@@ -87,6 +87,11 @@ trait TestData {
     language = "English",
     administrativeArea = Some("AdminArea"),
     poBox = Some("PO321")
+  )
+
+  val testAddressLookupRequest: AddressLookupRequest = AddressLookupRequest(
+    postcode = "AA1 1BB",
+    filter = Some("filter")
   )
 
   val contactNumberModel: ContactNumber = ContactNumber("0300 200 3310")
@@ -206,9 +211,70 @@ trait TestData {
   )
 
   val addressLookupResponseJson : JsValue = Json.parse(
-
-
+    """
+      |{
+      |  "id": "1234567890",
+      |  "uprn": 246810,
+      |  "parentUprn": 1234567890,
+      |  "usrn": 987654321,
+      |  "organisation": "Capgemini",
+      |  "address": {
+      |    "lines": [
+      |      "99Wibble Rd"
+      |    ],
+      |    "town": "Worthing",
+      |    "postcode": "BN110AA",
+      |    "subdivision": {
+      |      "code": "code",
+      |      "name": "name"
+      |    },
+      |    "country": {
+      |      "code": "GB",
+      |      "name": "Great Britain"
+      |    }
+      |  },
+      |  "localCustodian": {
+      |    "code": 123,
+      |    "name": "LcName"
+      |  },
+      |  "location": [1, 2, 3],
+      |  "language": "English",
+      |  "administrativeArea": "AdminArea",
+      |  "poBox": "PO321"
+      |}
+      |""".stripMargin
   )
 
-
+  val invalidAddressLookupResponseJson : JsValue = Json.parse(
+    """
+      |{
+      |  "parentUprn": 1234567890,
+      |  "usrn": 987654321,
+      |  "organisation": "Capgemini",
+      |  "address": {
+      |    "lines": [
+      |      "99Wibble Rd"
+      |    ],
+      |    "town": "Worthing",
+      |    "postcode": "BN110AA",
+      |    "subdivision": {
+      |      "code": "code",
+      |      "name": "name"
+      |    },
+      |    "country": {
+      |      "code": "GB",
+      |      "name": "Great Britain"
+      |    }
+      |  },
+      |  "localCustodian": {
+      |    "code": 123,
+      |    "name": "LcName"
+      |  },
+      |  "location": [1, 2, 3],
+      |  "language": "English",
+      |  "administrativeArea": "AdminArea",
+      |  "poBox": "PO321"
+      |}
+      |""".stripMargin
+  )
 }
