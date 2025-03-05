@@ -1,5 +1,5 @@
 @*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ layout: Layout,
 formHelper: FormWithCSRF,
 govukFieldset: GovukFieldset,
 govukErrorSummary: GovukErrorSummary,
+inputText: components.InputText,
 saveAndContinueButton: saveAndContinueButton
 )
 
@@ -42,24 +43,23 @@ saveAndContinueButton: saveAndContinueButton
 <p class="govuk-body">@messages("findAddress.body")</p>
 
 
-@components.InputText(
-field = form("postcode-value"),
-label = Some(messages("findAddress.postcode.label")),
-inputPurpose=Some("postcode"),
-autocomplete = true,
-inputType = "postcode"
+@inputText(
+form  =   form,
+id    =  "postcode-value",
+name  =  "postcode-value",
+label =   messages("findAddress.postcode.label"),
+isPageHeading = true,
+classes = Some("govuk-!-width-one-third")
 )
-
 <p class="govuk-body"><a class="govuk-link" href="">@messages("findAddress.manual")</a></p>
 
-@components.InputText(
-field = form("property-name-value"),
-label = Some(messages("findAddress.propertyName")),
-inputClass = Some("govuk-!-width-two-thirds"),
-hint = Some(messages("findAddress.propertyName.hint")),
-inputPurpose=Some("propertyName"),
-autocomplete = true,
-inputType = "name"
+@inputText(
+form  =   form,
+id    =  "property-name-value",
+name  =  "property-name-value",
+label =   messages("findAddress.propertyName"),
+isPageHeading = true,
+classes = Some("govuk-!-width-two-thirds")
 )
 
 @saveAndContinueButton(msg = messages("findAddress.button"), isStartButton = false)
