@@ -23,12 +23,13 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.InputText
 
 class InputTextSpec extends ViewBaseSpec {
   val form: Form[PhoneNumber] = PhoneNumber.form()
+  val inputText: InputText = inject[InputText]
 
   "InputText" when {
     "produce the same output for apply() and render()" in {
-      val htmlApply = InputText(form("phoneNumber-value"))(messages).body
-      val htmlF = InputText.f(form("phoneNumber-value"), None, None, None, None, "", None, 0, None, false, None, None, false)(messages).body
-      val htmlRender = InputText.render(form("phoneNumber-value"), None, None, None, None, "", None, 0, None, false, None, None, false, messages).body
+      val htmlApply = inputText(form, "phoneNumber-value", "phoneNumber-value", "Phone Number", true)(messages).body
+      val htmlF = inputText.f(form, "phoneNumber-value", "phoneNumber-value", "Phone Number", false, Seq.empty, None, None, false, "", false)(messages).body
+      val htmlRender = inputText.render(form, "phoneNumber-value", "phoneNumber-value", "Phone Number", true, Seq.empty, None, None, false, "", false, messages).body
       htmlApply must not be empty
       htmlRender must not be empty
       htmlF must not be empty

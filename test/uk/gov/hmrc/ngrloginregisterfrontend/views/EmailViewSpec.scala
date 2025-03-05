@@ -28,14 +28,18 @@ class EmailViewSpec  extends ViewBaseSpec {
   lazy val backLink = "Back"
   lazy val caption = "Register for the business rates valuation service"
   lazy val heading = "Enter email address"
+  lazy val label = "Email address"
   lazy val continueButton = "Continue"
   lazy val emptyErrorMessage = "Error: Enter your email address"
   lazy val invalidErrorMessage = "Error: Enter a valid email address"
+  lazy val maxLengthErrorMessage = "Error: No more than 100 characters allowed"
+  lazy val over100Characters = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789@hotmail.com"
 
   object Selectors {
     val backLink = "#content > a"
     val caption = "#content > form > span"
     val heading = "#content > form > h1"
+    val label   = "#content > form > div > label"
     val continueButton   = "#continue"
     val errorMessage = "#email-value-error"
   }
@@ -61,7 +65,8 @@ class EmailViewSpec  extends ViewBaseSpec {
       lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
-      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label) mustBe label
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
@@ -75,7 +80,8 @@ class EmailViewSpec  extends ViewBaseSpec {
       lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
-      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label) mustBe label
       elementText(Selectors.errorMessage) mustBe emptyErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
@@ -89,8 +95,25 @@ class EmailViewSpec  extends ViewBaseSpec {
       lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
-      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label) mustBe label
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show contact email exceed max length error correctly" in {
+      val form = Email
+        .form()
+        .fillAndValidate(Email(over100Characters))
+      val htmlApply = emailView.apply(form).body
+      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label) mustBe label
+      elementText(Selectors.errorMessage) mustBe maxLengthErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
   }
