@@ -27,6 +27,7 @@ trait AppConfig {
   val citizenDetailsUrl: String
   val nextGenerationRatesUrl: String
   def getString(key: String): String
+  val addressLookupUrl: String
 }
 
 @Singleton
@@ -35,6 +36,7 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")
   override val citizenDetailsUrl: String = sc.baseUrl("citizen-details")
   override val nextGenerationRatesUrl: String = sc.baseUrl("next-generation-rates")
+  override val addressLookupUrl: String = sc.baseUrl("address-lookup")
 
   def getString(key: String): String =
     config.getOptional[String](key).getOrElse(throwConfigNotFoundError(key))

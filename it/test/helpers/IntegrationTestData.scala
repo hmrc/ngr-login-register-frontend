@@ -16,7 +16,9 @@
 
 package helpers
 
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, AddressLookupResponse, LocalCustodian, Subdivision, Address => AlfAddress}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 
 import java.time.LocalDate
@@ -71,6 +73,107 @@ trait IntegrationTestData {
       |    "country" : "GREAT BRITAIN",
       |    "type" : "Residential"
       |  }
+      |}
+      |""".stripMargin
+
+  val testAddressLookupRequest: AddressLookupRequest = AddressLookupRequest(
+    postcode = "AA1 1BB",
+    filter = Some("filter")
+  )
+
+  val testAddressLookupResponseModel : AddressLookupResponse = AddressLookupResponse (
+    id = "1234567890",
+    uprn = 246810,
+    parentUprn = Some(1234567890),
+    usrn = Some(987654321),
+    organisation = Some("Capgemini"),
+    address =
+      AlfAddress(
+        lines = Seq("99"+"Wibble Rd"),
+        town= "Worthing",
+        postcode ="BN110AA",
+        subdivision = Some(Subdivision(
+          code = "code",
+          name = "name"
+        )),
+        country = Subdivision(
+          code = "GB",
+          name = "Great Britain"
+        )),
+    localCustodian = Some(LocalCustodian(
+      code = 123,
+      name = "LcName"
+    )),
+    location = Some(Seq(1,2,3)),
+    language = "English",
+    administrativeArea = Some("AdminArea"),
+    poBox = Some("PO321")
+  )
+
+  val addressLookupResponseJson : String =
+    """
+      |{
+      |  "id": "1234567890",
+      |  "uprn": 246810,
+      |  "parentUprn": 1234567890,
+      |  "usrn": 987654321,
+      |  "organisation": "Capgemini",
+      |  "address": {
+      |    "lines": [
+      |      "99Wibble Rd"
+      |    ],
+      |    "town": "Worthing",
+      |    "postcode": "BN110AA",
+      |    "subdivision": {
+      |      "code": "code",
+      |      "name": "name"
+      |    },
+      |    "country": {
+      |      "code": "GB",
+      |      "name": "Great Britain"
+      |    }
+      |  },
+      |  "localCustodian": {
+      |    "code": 123,
+      |    "name": "LcName"
+      |  },
+      |  "location": [1, 2, 3],
+      |  "language": "English",
+      |  "administrativeArea": "AdminArea",
+      |  "poBox": "PO321"
+      |}
+      |""".stripMargin
+
+
+  val invalidAddressLookupResponseJson : String =
+    """
+      |{
+      |  "parentUprn": 1234567890,
+      |  "usrn": 987654321,
+      |  "organisation": "Capgemini",
+      |  "address": {
+      |    "lines": [
+      |      "99Wibble Rd"
+      |    ],
+      |    "town": "Worthing",
+      |    "postcode": "BN110AA",
+      |    "subdivision": {
+      |      "code": "code",
+      |      "name": "name"
+      |    },
+      |    "country": {
+      |      "code": "GB",
+      |      "name": "Great Britain"
+      |    }
+      |  },
+      |  "localCustodian": {
+      |    "code": 123,
+      |    "name": "LcName"
+      |  },
+      |  "location": [1, 2, 3],
+      |  "language": "English",
+      |  "administrativeArea": "AdminArea",
+      |  "poBox": "PO321"
       |}
       |""".stripMargin
 
