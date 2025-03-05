@@ -32,6 +32,8 @@ class EmailViewSpec  extends ViewBaseSpec {
   lazy val emptyErrorMessage = "Error: Enter your email address"
   lazy val invalidErrorMessage = "Error: Enter a valid email address"
   lazy val emailLabel = "Email address"
+  lazy val maxLengthErrorMessage = "Error: No more than 100 characters allowed"
+  lazy val over100Characters = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789@hotmail.com"
 
   object Selectors {
     val backLink = "body > div > a"
@@ -97,6 +99,22 @@ class EmailViewSpec  extends ViewBaseSpec {
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
       elementText(Selectors.emailLabel) mustBe emailLabel
+    }
+
+    "show contact email exceed max length error correctly" in {
+      val form = Email
+        .form()
+        .fillAndValidate(Email(over100Characters))
+      val htmlApply = emailView.apply(form).body
+      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label) mustBe label
+      elementText(Selectors.errorMessage) mustBe maxLengthErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
     }
   }
 }
