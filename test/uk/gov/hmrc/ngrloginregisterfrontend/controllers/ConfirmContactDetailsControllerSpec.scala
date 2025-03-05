@@ -29,7 +29,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
 import scala.concurrent.Future
@@ -133,7 +133,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
     }
 
     "will create summary rows from ratepayer registration model" in {
-      val model = RatepayerRegistration(address = Some(testAddressModel), contactNumber = Some(contactNumberModel))
+      val model = testRegistrationModel
       val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
       val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None,None,None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
       val rows = controller().createSummaryRowsFromRatePayer(ratepayer, authRequest)

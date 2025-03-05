@@ -104,12 +104,29 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
     val contactNumber = ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.contactNumber).map(number => number.value).getOrElse("")
 
-      Seq(
-        NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.name).map{name => name.value}.getOrElse("")), Some(Link(Call("GET", routes.NameController.show.url), "name-linkid", "confirmContactDetails.change"))),
-        NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.email).map{email => email.value}.getOrElse("")), Some(Link(Call("GET", routes.EmailController.show.url), "email-linkid", "confirmContactDetails.change"))),
-        NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, Seq(ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.contactNumber).map(number => number.value).getOrElse("")), Some(Link(Call("GET", routes.PhoneNumberController.show.url), "number-linkid", if(contactNumber.isEmpty){"confirmContactDetails.add"} else {"confirmContactDetails.change"}))),
-        NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")), address, Some(Link(Call("GET", "url"), "address-linkid", "confirmContactDetails.change")))
-      ).map(summarise)
+    def getValue[T](extract: RatepayerRegistration => Option[T], default: String = ""): String =
+      ratepayerRegistrationValuation.ratepayerRegistration.flatMap(extract).map(_.toString).getOrElse(default)
+
+    def getUrl(route: String, linkId: String, messageKey: String): Option[Link] = {
+      Some(Link(Call("GET", route), linkId, messageKey))
+    }
+
+    Seq(
+      NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, Seq(getValue(_.name.map(_.value))),
+        getUrl(routes.NameController.show.url, "name-linkid", "confirmContactDetails.change")),
+
+      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, Seq(getValue(_.email.map(_.value))),
+        getUrl(routes.EmailController.show.url, "email-linkid", "confirmContactDetails.change")),
+
+      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, Seq(getValue(_.contactNumber.map(_.value))),
+        getUrl(routes.PhoneNumberController.show.url, "number-linkid",
+          if (contactNumber.isEmpty) "confirmContactDetails.add" else "confirmContactDetails.change")),
+
+      NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")),
+        address, getUrl("url", "address-linkid", "confirmContactDetails.change")),
+
+    ).map(summarise)
+
     }
 
 
