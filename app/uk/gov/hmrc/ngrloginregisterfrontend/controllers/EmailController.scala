@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -25,24 +27,27 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class EmailController @Inject()(
-                                 mcc: MessagesControllerComponents,
-                                 emailView: EmailView)(implicit appConfig: AppConfig)
-  extends FrontendController(mcc) {
+class EmailController @Inject()(emailView: EmailView,
+                                authenticate: AuthJourney,
+                                mcc: MessagesControllerComponents,
+                               )(implicit appConfig: AppConfig)
+  extends FrontendController(mcc) with I18nSupport {
 
-  def show: Action[AnyContent] = Action { implicit request =>
-    Ok(emailView(Email.form()))
+  def show: Action[AnyContent] = {
+    authenticate.authWithUserDetails.async { implicit request =>
+      Future.successful(Ok(emailView(Email.form())))
+    }
   }
 
-    def submit(): Action[AnyContent] =
-      Action.async { implicit request =>
-        Email.form()
-          .bindFromRequest()
-          .fold(
-            formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
-            email => {
-              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-            }
-          )
-      }
-  }
+  def submit(): Action[AnyContent] =
+    Action.async { implicit request =>
+      Email.form()
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
+          email => {
+            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+          }
+        )
+    }
+}

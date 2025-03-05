@@ -37,6 +37,7 @@ class CentralAuthConnector @Inject()(http: HttpClientV2,
   def getTokenAttributesResponse(gnapToken: String)(implicit headerCarrier: HeaderCarrier) : Future[Either[ErrorResponse, TokenAttributesResponse]] = {
     val model: TokenAttributesRequest = TokenAttributesRequest(gnapToken)
     http.post(url"${appConfig.centralAuthServerUrl}/centralised-authorisation-server/token/search")
+      .setHeader("User-Agent" -> "ngr-login-register-frontend")
       .withBody(Json.toJson(model))
       .execute[HttpResponse](readRaw, ec)
       .map { response =>
