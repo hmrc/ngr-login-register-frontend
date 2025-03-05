@@ -36,8 +36,20 @@ class PostcodeSpec extends TestSupport with TestData {
       val postCode = Postcode("E20 1HZ").isValidPostcode
       postCode mustBe true
     }
-    "return true if its a valid post with only two characters as the prefix" in {
+    "return true if its a valid post with only one characters and a number as the prefix" in {
       val postCode = Postcode("M1 2HZ").isValidPostcode
+      postCode mustBe true
+    }
+    "return true if its a valid post with only two characters and a number as the prefix" in {
+      val postCode = Postcode("AA9 9AA").isValidPostcode
+      postCode mustBe true
+    }
+    "return true if its a valid post with only two characters and two number as the prefix" in {
+      val postCode = Postcode("AA99 9AA").isValidPostcode
+      postCode mustBe true
+    }
+    "return true if its a valid post with only two characters, a number and a character as the prefix" in {
+      val postCode = Postcode("AA9A 9AA").isValidPostcode
       postCode mustBe true
     }
     "return false if the post code starts with a number" in {
