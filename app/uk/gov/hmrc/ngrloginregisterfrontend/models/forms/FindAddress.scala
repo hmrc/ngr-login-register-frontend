@@ -20,12 +20,13 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, optional, text}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.mappings.Constraints
 
 final case class FindAddress(postcode: Postcode, propertyName: Option[String]) {
   override def toString: String = Seq(propertyName, postcode.value).mkString(",")
 }
 
-object FindAddress extends CommonFormValidators{
+object FindAddress extends CommonFormValidators with Constraints {
   implicit val format: OFormat[FindAddress] = Json.format[FindAddress]
 
   private lazy val postcodeEmptyError    = "postcode.empty.error"
@@ -37,10 +38,15 @@ object FindAddress extends CommonFormValidators{
     Form(
       mapping(
         postcode -> text()
-          .verifying(postcodeEmptyError, isNonEmpty)
-          .verifying(invalidPostcodeError, isValidPostcode)
+          .verifying(
+            firstError(
+              isNotEmpty(postcode, postcodeEmptyError),
+              regexp(postcodeRegexPattern.pattern(), invalidPostcodeError)
+            )
+          )
           .transform[Postcode](Postcode.apply, _.value),
-        propertyName -> optional(text)
+        propertyName -> optional(text
+          .verifying(maxLength(100, maxLengthErrorMessage(100))))
       )(FindAddress.apply)(FindAddress.unapply)
     )
 }

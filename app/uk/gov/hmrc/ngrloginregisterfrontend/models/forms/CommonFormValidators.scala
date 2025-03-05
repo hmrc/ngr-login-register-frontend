@@ -24,7 +24,8 @@ trait CommonFormValidators {
 
   val fullNameRegexPattern: Pattern     = Pattern.compile("^[A-Za-z .'-]{1,160}$")
   val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9\\(\\)\\ ]{9,16}$")
-  private val postcodeRegexPattern: Pattern = Pattern.compile("[A-Za-z]{1,2}[0-9Rr][0-9A-Za-z]? [0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}")
+  val postcodeRegexPattern: Pattern = Pattern.compile("^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$")
+  val maxLengthErrorMessage: (Int) => String = (maxLength) => s"No more than $maxLength characters allowed"
 
   val isNonEmpty: String => Boolean = value => !Strings.isNullOrEmpty(value) && value.trim.nonEmpty
   val isMatchingPattern: (String, Pattern) => Boolean = (value, pattern) => pattern.matcher(value).matches()
@@ -35,5 +36,5 @@ trait CommonFormValidators {
   val isValidEmail: String => Boolean = (email: String) => email.isEmpty || isMatchingPattern(email, emailPattern)
   private val emailPattern: Pattern =
     Pattern.compile("""[a-zA-Z0-9]+([-+.'][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*\.[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*""")
-
+  val isValidPostcode: String => Boolean = (value: String) => value.isEmpty || isMatchingPattern(value, postcodeRegexPattern)
 }

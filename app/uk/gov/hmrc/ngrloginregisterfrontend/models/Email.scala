@@ -20,6 +20,7 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.mappings.Constraints
 
 final case class Email(value: String) {
   override def toString: String = value
@@ -27,19 +28,23 @@ final case class Email(value: String) {
   def isValidEmail: Boolean = value.matches(emailRegex)
 }
 
-object Email extends CommonFormValidators {
+object Email extends CommonFormValidators with Constraints {
   implicit val format: Format[Email] = Json.format[Email]
-  lazy val emailEmptyError          = "email.empty.error"
-  lazy val emailInvalidFormat       = "email.invalidFormat.error"
-  val maxLength                     = 24
-  val email                   = "email-value"
+  private lazy val emailEmptyError          = "email.empty.error"
+  private lazy val emailInvalidFormat       = "email.invalidFormat.error"
+  val email                                 = "email-value"
 
   def form(): Form[Email] =
     Form(
       mapping(
         email -> text()
-          .verifying(emailEmptyError, isNonEmpty)
-          .verifying(emailInvalidFormat, isValidEmail)
+          .verifying(
+            firstError(
+              isNotEmpty(email, emailEmptyError),
+              regexp(emailPattern.pattern(), emailInvalidFormat),
+              maxLength(100, maxLengthErrorMessage(100))
+            )
+          )
       )(Email.apply)(Email.unapply)
     )
 }
