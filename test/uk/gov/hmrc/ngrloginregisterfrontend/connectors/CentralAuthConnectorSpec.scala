@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.libs.json.Json
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
@@ -35,6 +37,15 @@ class CentralAuthConnectorSpec extends MockHttpV2 with TestData {
         setupMockHttpV2Post(s"${mockConfig.centralAuthServerUrl}/centralised-authorisation-server/token/search")(successResponse)
         val result = centralAuthConnector.getTokenAttributesResponse(gnapToken)
         result.futureValue mustBe Right(tokenAttributesResponse)
+      }
+    }
+    "json is invalid" should {
+      "return an error" in {
+        val successResponse = HttpResponse(status = OK, json = Json.obj(), headers = Map.empty)
+        setupMockHttpV2Post(s"${mockConfig.centralAuthServerUrl}/centralised-authorisation-server/token/search")(successResponse)
+        val result = centralAuthConnector.getTokenAttributesResponse(gnapToken)
+        result.futureValue mustBe Left(ErrorResponse(BAD_REQUEST, "Json Validation Error: List((/credId,List(JsonValidationError(List(error.path.missing),List()))), " +
+          "(/authenticationProvider,List(JsonValidationError(List(error.path.missing),List()))), (/enrolments,List(JsonValidationError(List(error.path.missing),List()))))"))
       }
     }
     "a 400-499 response is returned" should {

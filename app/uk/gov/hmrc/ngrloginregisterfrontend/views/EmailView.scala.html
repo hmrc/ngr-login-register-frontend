@@ -23,12 +23,13 @@
 
 
 @this(
-layout: Layout,
-govukSummaryList : GovukSummaryList,
-formHelper: FormWithCSRF,
-govukErrorSummary: GovukErrorSummary,
-govukFieldset: GovukFieldset,
-saveAndContinueButton: saveAndContinueButton
+    layout: Layout,
+    govukSummaryList : GovukSummaryList,
+    inputText: components.InputText,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukFieldset: GovukFieldset,
+    saveAndContinueButton: saveAndContinueButton
 )
 
 @(form: Form[Email])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)

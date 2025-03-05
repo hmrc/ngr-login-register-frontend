@@ -21,7 +21,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesRequest, TokenAttributesResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
 

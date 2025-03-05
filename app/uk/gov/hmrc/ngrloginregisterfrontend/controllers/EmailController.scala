@@ -34,15 +34,15 @@ class EmailController @Inject()(
     Ok(emailView(Email.form()))
   }
 
-  def submit(): Action[AnyContent] =
-    Action.async { implicit request =>
-      Email.form()
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
-          email => {
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-          }
-        )
-    }
-}
+    def submit(): Action[AnyContent] =
+      Action.async { implicit request =>
+        Email.form()
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
+            email => {
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+            }
+          )
+      }
+  }
