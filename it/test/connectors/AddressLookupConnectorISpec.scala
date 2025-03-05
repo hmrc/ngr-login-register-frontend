@@ -36,19 +36,19 @@ class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase w
     "calling findAddressByPostcode" when {
       "sending a request" should {
         "return a successful response" in {
-          WiremockHelper.stubPostWithHeader(s"/address-lookup/lookup",OK, addressLookupResponseJson,"User-agent","xyz")
+          WiremockHelper.stubPost(s"/address-lookup/lookup",OK, addressLookupResponseJson)
           val result = connector.findAddressByPostcode(testAddressLookupRequest).futureValue
-          result mustBe Right(testAddressLookupResponseModel)
+          result mustBe Right(Seq(testAddressLookupResponseModel))
           WiremockHelper.verifyPost(s"/address-lookup/lookup")
         }
-//        "return an error when the request fails" in {
-//          WiremockHelper.stubPostWithHeader((s"/address-lookup/lookup"), INTERNAL_SERVER_ERROR, "Call to address lookup failed", "xyz")
-//
-//          val result = connector.findAddressByPostcode(testAddressLookupRequest).futureValue
-//
-//          result mustBe Left(ErrorResponse(500, "Call to address lookup failed"))
-//          WiremockHelper.verifyGet(s"/address-lookup/lookup")
-//        }
+        "return an error when the request fails" in {
+          WiremockHelper.stubPost(s"/address-lookup/lookup", INTERNAL_SERVER_ERROR, "Call to address lookup failed")
+
+          val result = connector.findAddressByPostcode(testAddressLookupRequest).futureValue
+
+          result mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Call to address lookup failed"))
+          WiremockHelper.verifyPost(s"/address-lookup/lookup")
+        }
       }
     }
   }

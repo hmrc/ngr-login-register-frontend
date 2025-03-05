@@ -23,12 +23,10 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Link, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController

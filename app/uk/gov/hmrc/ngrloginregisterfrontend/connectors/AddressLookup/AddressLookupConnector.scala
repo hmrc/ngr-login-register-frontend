@@ -36,26 +36,21 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
 
   private def url(path: String): URL = url"${appConfig.addressLookupUrl}/address-lookup/$path"
 
-  val headers = Seq("User-Agent" -> "xyz")
-
   def findAddressByPostcode(request: AddressLookupRequest)(implicit headerCarrier: HeaderCarrier) : Future[Either[ErrorResponse, Seq[AddressLookupResponse]]] = {
     http.post(url("lookup"))
       .withBody(Json.toJson(request))
-      .setHeader(headers:_*)
       .execute[HttpResponse](readRaw, ec)
       .map { response =>
         response.status match {
           case OK => response.json.validate[AddressLookupResponse] match {
-            case JsSuccess(valid, _) => {
-              logger.debug("AddressLookupResponse received" + valid)
+            case JsSuccess(valid, _) =>
+              logger.info("AddressLookupResponse received" + valid)
               Right(Seq(valid))
-            }
             case JsError(errors) =>
               Left(ErrorResponse(BAD_REQUEST, s"Json Validation Errors: $errors"))
           }
-          case _ => {
+          case _ =>
             Left(ErrorResponse(response.status, response.body))
-          }
         }
       } recover {
       case ex =>
