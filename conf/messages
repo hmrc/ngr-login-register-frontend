@@ -63,3 +63,7 @@ findAddress.button = Find address
 postcode.empty.error = Empty postcode error
 postcode.invalid.error = Enter a full UK postcode
 maxlength.100.error = No more than {n} characters allowed
+
+AddressSearchResult.heading = Search results for {0}
+AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
+AddressSearchResult.link    = Select property

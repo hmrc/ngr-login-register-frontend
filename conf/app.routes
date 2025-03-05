@@ -14,3 +14,4 @@ POST       /find-address                    uk.gov.hmrc.ngrloginregisterfrontend
 GET        /name                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.show
 POST       /name                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.submit
 GET        /confirm-your-contact-details    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
+GET        /address-search-results/:page    uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.show(page:Int)
