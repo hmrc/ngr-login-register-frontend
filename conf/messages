@@ -49,3 +49,7 @@ confirmContactDetails.phoneNumber = Phone number
 confirmContactDetails.address = Address
 confirmContactDetails.address.caption = We will send letters to this address
 confirmContactDetails.change = Change
+
+AddressSearchResult.heading = Search results for {0}
+AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
+AddressSearchResult.link    = Select property
