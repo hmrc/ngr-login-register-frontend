@@ -66,7 +66,6 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def show(page:Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      println(Console.YELLOW + s"page = ${page.toString} " + Console.RESET)
 
      val mockAddressTotal = testAddressList.length
 

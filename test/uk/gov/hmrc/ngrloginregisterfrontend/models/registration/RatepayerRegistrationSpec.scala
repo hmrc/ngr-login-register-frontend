@@ -25,7 +25,6 @@ class RatepayerRegistrationSpec extends TestSupport with TestData {
   "RatepayerRegistrationModel" should {
     "serialise into Json" when {
       "all fields are present" in {
-        println(Json.toJson(testRegistrationModel))
         Json.toJson(testRegistrationModel) mustBe regResponseJson
       }
       "the optional fields are not present" in {

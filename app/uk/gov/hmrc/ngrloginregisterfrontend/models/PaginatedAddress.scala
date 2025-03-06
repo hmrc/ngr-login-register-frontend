@@ -57,10 +57,6 @@ object PaginatedAddress {
       }
   }
 
-//  def generatePaginate(): PaginatedAddress  = {
-//
-//  }
-
   def displayPaginateLinks (currentPage: Int, total: Int, pageSize: Int): Seq[PaginateLink] = {
     val totalPages: Int = math.ceil(total.toFloat / pageSize.toFloat).toInt
     totalPages match {
@@ -74,7 +70,7 @@ object PaginatedAddress {
     currentPage * pageSize
   }
 
-   def pageBottom (currentPage: Int, pageSize: Int) = {
+   def pageBottom (currentPage: Int, pageSize: Int): Int = {
     (currentPage * pageSize) - pageSize
   }
 
