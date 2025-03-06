@@ -71,3 +71,7 @@ AddressSearchResult.heading = Search results for {0}
 AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
 AddressSearchResult.search  = Search again
 AddressSearchResult.link    = Select property
+
+confirmAddress.pageTitle = Confirm Address
+confirmAddress.caption   = Register for the business rates valuation service
+confirmAddress.heading = Do you want to use this address?

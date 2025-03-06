@@ -1,0 +1,70 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.ngrloginregisterfrontend.models.Address
+@import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.Aliases._
+@import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+@import uk.gov.hmrc.ngrloginregisterfrontend.viewmodels.govuk.all._
+
+@this(
+layout: Layout,
+address : String,
+govukRadios : GovukRadios,
+govukErrorSummary: GovukErrorSummary,
+formHelper: FormWithCSRF,
+saveAndContinueButton: saveAndContinueButton)
+
+@(confirmAddressForm: Form[Address])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+
+@layout(pageTitle = Some(messages("confirmAddress.pageTitle"))) {
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmAddressController.submit, Symbol("autoComplete") -> "off") {
+ @if(confirmAddressForm.errors.nonEmpty) {
+  @govukErrorSummary(ErrorSummaryViewModel(confirmAddressForm))
+}
+
+<span class="govuk-caption-l">@messages("confirmAddress.caption")</span>
+<h1 class="govuk-heading-l">
+    @messages("confirmAddress.heading")
+</h1>
+<p class="govuk-body">5 Brixham Marina, Berry Head Road, Devon, TQ5 9BW</p>
+
+    @NGRRadio(NGRRadioName("confirmAddressRadio"), Seq(NGRRadioButtons("Yes", Yes), NGRRadioButtons("No", No))
+
+    @govukRadios(Radios(
+    name = "value",
+    items = Seq(
+    RadioItem(
+    content = Text("Yes"),
+    value = Some(YesNoOptions.YES.toString),
+    checked = formValues.value.contains(YesNoOptions.YES.toString)
+    ),
+    RadioItem(
+    content = Text("No"),
+    value = Some(YesNoOptions.NO.toString),
+    checked = formValues.value.contains(YesNoOptions.NO.toString)
+    )
+    ),
+    classes = "govuk-radios",
+    errorMessage = formValues.error.map(err => ErrorMessage(content = Text(messages(err.message)))),
+    ))
+
+<p class="govuk-body">@messages("registration.checkAnswers.contactDetails.table.address.subheading")</p>
+
+    @saveAndContinueButton("continue")
+ }
+}
