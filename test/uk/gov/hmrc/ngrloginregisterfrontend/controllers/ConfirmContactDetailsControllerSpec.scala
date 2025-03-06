@@ -135,8 +135,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
     "will create summary rows from ratepayer registration model" in {
       val model = testRegistrationModel
       val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
-      val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None,None,None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
-      val rows = controller().createSummaryRowsFromRatePayer(ratepayer, authRequest)
+      val rows = controller().createSummaryRowsFromRatePayer(ratepayer)
       rows.length shouldBe 4
     }
 

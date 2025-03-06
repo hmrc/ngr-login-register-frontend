@@ -41,7 +41,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 connector: NGRConnector,
                                                 mcc: MessagesControllerComponents,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
-  //TODO WE DONT'T HAVE TOWN FROM PERSON DETAILS BUT NEED IT IN MAKING A RATEPAYER
+  //TODO WE DON'T HAVE TOWN FROM PERSON DETAILS BUT NEED IT IN MAKING A RATEPAYER
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
@@ -52,7 +52,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayer, request)), name)))
+          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayer)), name)))
 
         case None =>
           citizenDetailsConnector.getPersonDetails(nino).flatMap {
@@ -92,7 +92,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     personDetails.person.lastName
   ).flatten.mkString(" ")
 
-  private[controllers] def createSummaryRowsFromRatePayer(ratepayerRegistrationValuation: RatepayerRegistrationValuation, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
+  private[controllers] def createSummaryRowsFromRatePayer(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): Seq[SummaryListRow] = {
       val address = ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.address).map { address => {
         Seq(
           address.line1,
@@ -104,21 +104,24 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
     val contactNumber = ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.contactNumber).map(number => number.value).getOrElse("")
 
-    def getValue[T](extract: RatepayerRegistration => Option[T], default: String = ""): String =
-      ratepayerRegistrationValuation.ratepayerRegistration.flatMap(extract).map(_.toString).getOrElse(default)
+    def getValue[T](extract: RatepayerRegistration => Option[T]): Seq[String] =
+      ratepayerRegistrationValuation.ratepayerRegistration.flatMap(extract).map(_.toString) match {
+        case Some(value) => Seq(value)
+        case None => Seq.empty
+      }
 
     def getUrl(route: String, linkId: String, messageKey: String): Option[Link] = {
       Some(Link(Call("GET", route), linkId, messageKey))
     }
 
     Seq(
-      NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, Seq(getValue(_.name.map(_.value))),
+      NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, getValue(_.name.map(_.value)),
         getUrl(routes.NameController.show.url, "name-linkid", "confirmContactDetails.change")),
 
-      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, Seq(getValue(_.email.map(_.value))),
+      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, getValue(_.email.map(_.value)),
         getUrl(routes.EmailController.show.url, "email-linkid", "confirmContactDetails.change")),
 
-      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, Seq(getValue(_.contactNumber.map(_.value))),
+      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, getValue(_.contactNumber.map(_.value)),
         getUrl(routes.PhoneNumberController.show.url, "number-linkid",
           if (contactNumber.isEmpty) "confirmContactDetails.add" else "confirmContactDetails.change")),
 
