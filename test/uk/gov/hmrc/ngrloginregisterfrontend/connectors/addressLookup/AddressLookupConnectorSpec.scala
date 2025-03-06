@@ -18,7 +18,6 @@ package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup.AddressLookupConnector
@@ -55,7 +54,7 @@ class AddressLookupConnectorSpec extends MockHttpV2 with TestData {
     }
     "a 400-499 response is returned" should{
       "return an ErrorResponse" in {
-        val errorResponse =HttpResponse(status = NOT_FOUND, """No address found for this post code""", headers = Map.empty)
+        val errorResponse = HttpResponse(status = NOT_FOUND, body="""No address found for this post code""", headers = Map.empty)
         setupMockHttpV2Post(s"${mockConfig.addressLookupUrl}/address-lookup/lookup")(errorResponse)
         val result = testAlfConnector.findAddressByPostcode(testAddressLookupRequest)
         result.futureValue mustBe Left(ErrorResponse(NOT_FOUND, "No address found for this post code"))

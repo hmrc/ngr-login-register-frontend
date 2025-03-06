@@ -41,7 +41,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 connector: NGRConnector,
                                                 mcc: MessagesControllerComponents,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
-  //TODO WE DONT'T HAVE TOWN FROM PERSON DETAILS BUT NEED IT IN MAKING A RATEPAYER
+  //TODO WE DON'T HAVE TOWN FROM PERSON DETAILS BUT NEED IT IN MAKING A RATEPAYER
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
@@ -52,7 +52,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayer, request)), name)))
+          Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayer)), name)))
 
         case None =>
           citizenDetailsConnector.getPersonDetails(nino).flatMap {
@@ -92,7 +92,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     personDetails.person.lastName
   ).flatten.mkString(" ")
 
-  private[controllers] def createSummaryRowsFromRatePayer(ratepayerRegistrationValuation: RatepayerRegistrationValuation, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
+  private[controllers] def createSummaryRowsFromRatePayer(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): Seq[SummaryListRow] = {
       val address = ratepayerRegistrationValuation.ratepayerRegistration.flatMap(_.address).map { address => {
         Seq(
           address.line1,
