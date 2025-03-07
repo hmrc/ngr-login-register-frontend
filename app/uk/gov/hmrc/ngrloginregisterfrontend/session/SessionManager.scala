@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.session
 
 import play.api.libs.json.Json
 import play.api.mvc._
-
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 
 import java.util.UUID
@@ -27,9 +27,10 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class SessionManager @Inject()(mcc: MessagesControllerComponents) {
 
-  private val journeyIdKey      : String = "NGR-JourneyId"
-  private val ChosenAddressIdKey: String = "NGR-ChosenAddressIdKey"
-  private val addressLookupResponseKey: String = "Address-Lookup-Response"
+   private val journeyIdKey      : String = "NGR-JourneyId"
+   val ChosenAddressIdKey: String = "NGR-ChosenAddressIdKey"
+   val addressLookupResponseKey: String = "Address-Lookup-Response"
+   val postcodeKey: String = "Postcode-Key"
 
   def getSessionValue(session: Session, key: String): Option[String] =
     session.get(key)
@@ -49,7 +50,12 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
   }
 
   def setAddressLookupResponse(session: Session, addresses: Seq[Address]): Session = {
+    println(Console.CYAN + s"address length: ${addresses.length}" + Console.RESET)
     updateSession(session, addressLookupResponseKey, Json.prettyPrint(Json.toJson(addresses)))
+  }
+
+  def setPostcode(session: Session, postcode: Postcode): Session = {
+    updateSession(session, addressLookupResponseKey, postcode.value)
   }
 
   def generateJourneyId: String = {

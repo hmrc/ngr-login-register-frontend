@@ -17,10 +17,12 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, PaginatedAddress, Postcode}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{PaginatedAddress, Postcode}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{Address, AddressLookupRequest, AddressLookupResponse, Subdivision}
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -36,53 +38,37 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   lazy val defaulPageSize = 5
 
-  val testAddressModel: Address =
-    Address(line1 = "99",
-      line2 = Some("Wibble Rd"),
-      town = "Worthing",
-      county = Some("West Sussex"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
-    )
-
-  val testAddressModel2: Address =
-    Address(line1 = "100",
-      line2 = Some("Croft Rd"),
-      town = "Uxbridge",
-      county = Some("Hillingdon"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
-    )
-
-  val testAddressModel3: Address =
-    Address(line1 = "20",
-      line2 = Some("Long Rd"),
-      town = "Bournemouth",
-      county = Some("Dorset"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
-    )
-
-  lazy val testAddressList = Seq(testAddressModel3, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel)
-  lazy val testPostcode = testAddressModel.postcode.value
-
   def show(page: Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
 
-      //TODO anna connector is needed to populate address's
+      println(Console.RED + request.session + Console.RESET)
+
+     val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
+        sessionData =>
+          println(Console.YELLOW + Json.parse(sessionData).as[Seq[Address]] + Console.RESET)
+          println(Console.GREEN + Json.parse(sessionData).as[Seq[Address]].map(address => address.toString) + Console.RESET)
+          Json.parse(sessionData).as[Seq[Address]].map(address => address.toString)
+      }.getOrElse(Seq.empty)
+
+
+
+//      val postcode: Postcode = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).map{
+//        sessionData => Json.parse(sessionData).as[Postcode]
+//      }.getOrElse(Postcode(""))
+
       val mockPaginatedAddress = PaginatedAddress(
         currentPage = page,
-        total = testAddressList.length,
+        total = address.length,
         pageSize = defaulPageSize,
-        address = PaginatedAddress.pageAddress(currentPage = page, pageSize = defaulPageSize, address = testAddressList),
-        links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = testAddressList.length, pageSize = defaulPageSize)
+        address = PaginatedAddress.pageAddress(currentPage = page, pageSize = defaulPageSize, address = address),
+        links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = address.length, pageSize = defaulPageSize)
       )
 
       Future.successful(Ok(view(
-        postcode = testPostcode,
+        postcode = "BH1001",
         paginatedData = Some(mockPaginatedAddress),
-        totalAddress = testAddressList.length,
-        pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, testAddressList.length),
+        totalAddress = address.length,
+        pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length),
         pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
       )))
     }
@@ -90,10 +76,13 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def selectedAddress(index: Int): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      //val getAddressSession: Seq[Address] = sessionManager.getAddressLookupResponse() //TODO anna's session function to grab all address's
-      val updateSession: Session = sessionManager.setChosenAddress(request.session, testAddressList.apply(index).toString)
+      val address: Seq[Address] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
+        sessionData => Json.parse(sessionData).as[Seq[Address]]
+      }.getOrElse(Seq.empty)
+
+      val updateSession: Session = sessionManager.setChosenAddress(request.session, address.apply(index).toString)
       println(s"session ${request.session}")
-      println(s"address ${testAddressList.apply(index).toString}")
+      println(s"address ${address.apply(index).toString}")
       Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
     }
   }

@@ -69,9 +69,9 @@ trait TestData {
     organisation = Some("Capgemini"),
     address =
       AlfAddress(
-        lines = Seq("99"+"Wibble Rd"),
-        town= "Worthing",
-        postcode ="BN110AA",
+        lines = Seq("99" + "Wibble Rd"),
+        town = "Worthing",
+        postcode = "BN110AA",
         subdivision = Some(Subdivision(
           code = "code",
           name = "name"

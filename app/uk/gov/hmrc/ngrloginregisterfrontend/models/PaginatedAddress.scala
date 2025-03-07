@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class PaginatedAddress(currentPage: Int, total: Int, pageSize: Int, address: Seq[Address], links: Seq[PaginateLink]) {
+case class PaginatedAddress(currentPage: Int, total: Int, pageSize: Int, address: Seq[String], links: Seq[PaginateLink]) {
   val totalPages: Int = math.ceil(total.toFloat / pageSize.toFloat).toInt
   def paginate: Seq[Int] = {
     val fixedPaginationSetNumber = 5
@@ -52,7 +52,7 @@ object PaginatedAddress {
       .and((__ \ "_links" \ "previous").readNullable[PreviousLink])
       .and((__ \ "_links" \ "next").readNullable[NextLink])
       .and((__ \ "_links" \ "last").readNullable[LastLink])
-      .and((__ \ "resources").read[Seq[Address]]) { (page, total, pageSize, self, first, prev, next, last, resources) =>
+      .and((__ \ "resources").read[Seq[String]]) { (page, total, pageSize, self, first, prev, next, last, resources) =>
         PaginatedAddress(page, total, pageSize, resources, Seq(self, first, prev, next, last).flatten)
       }
   }
@@ -74,7 +74,7 @@ object PaginatedAddress {
     (currentPage * pageSize) - pageSize
   }
 
-  def pageAddress(currentPage: Int, pageSize: Int, address: Seq[Address]):Seq[Address] = {
+  def pageAddress(currentPage: Int, pageSize: Int, address: Seq[String]):Seq[String] = {
     address.slice(pageBottom(currentPage, pageSize), pageTop(currentPage, pageSize, address.length))
   }
 
