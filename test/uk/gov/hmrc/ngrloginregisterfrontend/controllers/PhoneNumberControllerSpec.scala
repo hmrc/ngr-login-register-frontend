@@ -81,7 +81,7 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
-        content must include("Enter your Phone number")
+        content must include("Enter your phone number")
       }
 
       "Submit incorrect phone number format and display error message" in {
