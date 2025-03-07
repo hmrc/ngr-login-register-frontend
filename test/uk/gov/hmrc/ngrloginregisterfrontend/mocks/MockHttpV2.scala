@@ -61,8 +61,31 @@ trait MockHttpV2  extends TestSupport with BeforeAndAfterEach {
     when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.execute[T](any(), any())).thenReturn(Future.successful(response))
   }
+
+  def setupMockHttpV2PostWithHeaderCarrier[T](url: String, headers: Seq[(String, String)])(response: T): OngoingStubbing[Future[T]] = {
+    when(mockHttpClientV2.post(ArgumentMatchers.eq(url"$url"))(any()))
+      .thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.setHeader(headers: _*))
+      .thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.withBody(any())(any(), any(), any()))
+      .thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.transform(any()))
+      .thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.execute[T](any(), any()))
+      .thenReturn(Future.successful(response))
+  }
+
+
   def setupMockHttpV2FailedPost(url: String): OngoingStubbing[Future[Nothing]] = {
     when(mockHttpClientV2.post(ArgumentMatchers.eq(url"$url"))(any())).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.execute(any(), any())).thenReturn(Future.failed(new RuntimeException("Request Failed")))
+  }
+
+  def setupMockHttpV2FailedPostWithHeaderCarrier(url: String, headers: Seq[(String, String)]): OngoingStubbing[Future[Nothing]] = {
+    when(mockHttpClientV2.post(ArgumentMatchers.eq(url"$url"))(any())).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.setHeader(headers: _*))
+      .thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.execute(any(), any())).thenReturn(Future.failed(new RuntimeException("Request Failed")))
   }

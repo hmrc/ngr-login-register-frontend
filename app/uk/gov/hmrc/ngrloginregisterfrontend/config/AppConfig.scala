@@ -28,6 +28,7 @@ trait AppConfig {
   val nextGenerationRatesUrl: String
   def getString(key: String): String
   val addressLookupUrl: String
+  val centralAuthServerUrl: String
 }
 
 @Singleton
@@ -37,6 +38,7 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   override val citizenDetailsUrl: String = sc.baseUrl("citizen-details")
   override val nextGenerationRatesUrl: String = sc.baseUrl("next-generation-rates")
   override val addressLookupUrl: String = sc.baseUrl("address-lookup")
+  override val centralAuthServerUrl: String = sc.baseUrl("centralised-authorisation-server")
 
   def getString(key: String): String =
     config.getOptional[String](key).getOrElse(throwConfigNotFoundError(key))

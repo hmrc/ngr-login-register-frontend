@@ -40,7 +40,9 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
     "microservice.services.citizen-details.host" -> mockHost,
     "microservice.services.citizen-details.port" -> mockPort,
     "microservice.services.address-lookup.host" -> mockHost,
-    "microservice.services.address-lookup.port" -> mockPort
+    "microservice.services.address-lookup.port" -> mockPort,
+    "microservice.services.centralised-authorisation-server.host" -> mockHost,
+    "microservice.services.centralised-authorisation-server.port" -> mockPort
   )
 
   override implicit lazy val app: Application =
