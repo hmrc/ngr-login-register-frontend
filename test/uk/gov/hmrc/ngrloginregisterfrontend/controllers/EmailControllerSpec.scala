@@ -36,7 +36,7 @@ class EmailControllerSpec extends ControllerSpecSupport {
   lazy val emailRoute: String = routes.EmailController.submit.url
   lazy val emailView: EmailView = inject[EmailView]
 
-  val pageTitle = "Email"
+  val pageTitle = "Enter email address"
 
   def controller() = new EmailController(
     emailView,
