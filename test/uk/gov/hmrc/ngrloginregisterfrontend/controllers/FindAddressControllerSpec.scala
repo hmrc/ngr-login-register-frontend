@@ -16,25 +16,35 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
+import play.api.libs.json.Json
+import play.api.mvc.Session
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
 
-class FindAddressControllerSpec extends ControllerSpecSupport {
+import scala.concurrent.Future
+
+class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
   lazy val submitUrl: String = routes.FindAddressController.submit.url
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "Find the contact address"
 
   def controller() = new FindAddressController(
     view,
+    mockAddressLookupConnector,
+    mockSessionManager,
+    mockNGRLogger,
     mockAuthJourney,
     mcc
-  )
+  )(ec, mockConfig)
 
   "FindAddressController" must {
     "method show" must {
@@ -47,13 +57,49 @@ class FindAddressControllerSpec extends ControllerSpecSupport {
     }
 
     "method submit" must {
-      "Successfully submit valid postcode and redirect to confirm contact details" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit).withFormUrlEncodedBody(("postcode-value", "W126WA")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+      "Successfully submit valid postcode and property name and redirect to confirm contact details" in {
+        val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+        val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(Session(Map("Address-Lookup-Response" -> expectAddressesJsonString)))
+        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
+          .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          mockSessionManager.getSessionValue(result.session, "Address-Lookup-Response") mustBe expectAddressesJsonString
+        })
         status(result) mustBe SEE_OTHER
       }
 
+      "Successfully submit only valid postcode and redirect to confirm contact details" in {
+        val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+        val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(Session(Map("Address-Lookup-Response" -> expectAddressesJsonString)))
+        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
+          .withFormUrlEncodedBody(("postcode-value", "W126WA"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          mockSessionManager.getSessionValue(result.session, "Address-Lookup-Response") mustBe expectAddressesJsonString
+        })
+        status(result) mustBe SEE_OTHER
+      }
+
+      "Successfully submit valid postcode but AddressLookup throws an error" in {
+        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(500, "INTERNAL_SERVER_ERROR"))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
+          .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        val errorResponse: ErrorResponse = contentAsJson(result).as[ErrorResponse]
+        errorResponse.message mustBe "INTERNAL_SERVER_ERROR"
+      }
+
       "Submit with no postcode and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit).withFormUrlEncodedBody(("postcode-value", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
+          .withFormUrlEncodedBody(("postcode-value", ""))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)

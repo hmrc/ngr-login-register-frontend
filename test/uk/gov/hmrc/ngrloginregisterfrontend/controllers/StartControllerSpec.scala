@@ -20,13 +20,11 @@ import org.mockito.Mockito.when
 import play.api.http.Status.OK
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 
 class StartControllerSpec extends ControllerSpecSupport {
   lazy val startView: StartView = inject[StartView]
   lazy val controller: StartController = inject[StartController]
-  val mockSessionManager: SessionManager = mock[SessionManager]
   val testUUID = "00ce4ed2-a446-444b-905f-3cc148a1f831"
 
 
