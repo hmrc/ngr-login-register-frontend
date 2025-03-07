@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Enrolment(service:      String,
+final case class Enrolment(service:      String,
                      identifiers:  Seq[Identifier],
                      friendlyName: String,
                      state:        String)

@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.domain.Nino
 
-case class Identity(provider: String,
+final case class Identity(provider: String,
                     nino: Option[Nino],
                     level: Option[String])
 

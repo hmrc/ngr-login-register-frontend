@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth
 
 import play.api.libs.json.{Format, Json}
 
-case class TokenAttributesRequest (value: String)
+final case class TokenAttributesRequest (value: String)
 
 object TokenAttributesRequest {
   implicit val format:Format[TokenAttributesRequest] = Json.format[TokenAttributesRequest]

@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth
 
 import play.api.libs.json.{Format, Json}
 
-case class TokenAttributesResponse(authenticationProvider: String,
+final case class TokenAttributesResponse(authenticationProvider: String,
                                    name: Option[String],
                                    email: Option[String] = None,
                                    identity: Option[Identity] = None,
