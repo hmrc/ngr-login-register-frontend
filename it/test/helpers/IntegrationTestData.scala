@@ -19,6 +19,7 @@ package helpers
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, AddressLookupResponse, LocalCustodian, Subdivision, Address => AlfAddress}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 
 import java.time.LocalDate
@@ -176,5 +177,42 @@ trait IntegrationTestData {
       |  "poBox": "PO321"
       |}
       |""".stripMargin
+
+  val gnapToken = "i16lTUCYVVcwAEDOtbZNyly2wwgJ"
+
+  val tokenAttributesResponseJson: String =
+    """{
+      | "authenticationProvider": "One Login",
+      | "name": "John Ferguson",
+      | "email": "test@testUser.com",
+      | "identity": {
+      |    "provider": "MDTP",
+      |    "level": "50",
+      |    "nino": "AB666666A"
+      | },
+      | "enrolments": [{
+      |			"service": "IR-SA",
+      |			"identifiers": [{
+      |				"key": "UTR",
+      |				"value": "1234567890"
+      |			}],
+      |   "state": "Activated",
+      |			"friendlyName": "My SA"
+      |		}],
+      | "credId": "12345",
+      | "eacdGroupId": "12345",
+      | "caUserId": "12345"
+      |}""".stripMargin
+
+  val tokenAttributesResponse: TokenAttributesResponse = TokenAttributesResponse(
+    authenticationProvider = "One Login",
+    name = Some("John Ferguson"),
+    email = Some("test@testUser.com"),
+    identity = Some(Identity("MDTP",Some(Nino("AB666666A")),Some("50"))),
+    enrolments = Set(Enrolment("IR-SA",Seq(Identifier("UTR","1234567890")),"My SA","Activated")),
+    credId = "12345",
+    eacdGroupId = Some("12345"),
+    caUserId = Some("12345")
+  )
 
 }
