@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.Mockito.when
 import play.api.http.Status.OK
-import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 
@@ -36,7 +36,7 @@ class StartControllerSpec extends ControllerSpecSupport {
 
     "redirect when start button pressed" in {
       val result = controller.submit()(authenticatedFakeRequest)
-      redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show.url)
+      redirectLocation(routes.ConfirmContactDetailsController.show.url)
       status(result) mustBe 303
     }
 

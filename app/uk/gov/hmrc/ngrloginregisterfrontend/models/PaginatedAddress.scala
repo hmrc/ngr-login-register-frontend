@@ -66,8 +66,8 @@ object PaginatedAddress {
     }
   }
 
-   def pageTop (currentPage: Int, pageSize: Int): Int= {
-    currentPage * pageSize
+   def pageTop (currentPage: Int, pageSize: Int, totalAddress: Int): Int= {
+    if(currentPage * pageSize > totalAddress) totalAddress else currentPage * pageSize
   }
 
    def pageBottom (currentPage: Int, pageSize: Int): Int = {
@@ -75,7 +75,7 @@ object PaginatedAddress {
   }
 
   def pageAddress(currentPage: Int, pageSize: Int, address: Seq[Address]):Seq[Address] = {
-    address.slice(pageBottom(currentPage, pageSize), pageTop(currentPage, pageSize))
+    address.slice(pageBottom(currentPage, pageSize), pageTop(currentPage, pageSize, address.length))
   }
 
 }

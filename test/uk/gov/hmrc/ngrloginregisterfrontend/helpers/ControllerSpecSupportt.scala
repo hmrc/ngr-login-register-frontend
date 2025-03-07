@@ -17,7 +17,9 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import org.mockito.Mockito.when
+import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.libs.ws.WSResponse
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -50,5 +52,16 @@ trait ControllerSpecSupport extends TestSupport{
     override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
     override protected def executionContext: ExecutionContext = ec
   }
+
+  def redirectLocation(expectedValue: String): HavePropertyMatcher[WSResponse, Option[String]] =
+    new HavePropertyMatcher[WSResponse, Option[String]] {
+      def apply(response: WSResponse) =
+        HavePropertyMatchResult(
+          response.header("Location").contains(expectedValue),
+          "headerLocation",
+          Some(expectedValue),
+          response.header("Location")
+        )
+    }
 
 }

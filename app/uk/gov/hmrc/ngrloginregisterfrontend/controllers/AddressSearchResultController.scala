@@ -17,10 +17,11 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, PaginatedAddress, Postcode}
+import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -30,7 +31,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               authenticate: AuthJourney,
                                               mcc: MessagesControllerComponents,
-                                             )(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+                                              sessionManager: SessionManager
+                                             )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   lazy val defaulPageSize = 5
 
@@ -64,27 +66,37 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   lazy val testAddressList = Seq(testAddressModel3, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel)
   lazy val testPostcode = testAddressModel.postcode.value
 
-  def show(page:Int = 1): Action[AnyContent] = {
+  def show(page: Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
 
-     val mockAddressTotal = testAddressList.length
+      //TODO anna connector is needed to populate address's
 
-      val mockPaginatedAddress =  PaginatedAddress(
+
+      val mockPaginatedAddress = PaginatedAddress(
         currentPage = page,
         total = testAddressList.length,
         pageSize = defaulPageSize,
-        address = PaginatedAddress.pageAddress(currentPage = page,  pageSize = defaulPageSize, address = testAddressList),
-        links =   PaginatedAddress.displayPaginateLinks(currentPage = page, total = testAddressList.length, pageSize = defaulPageSize)
+        address = PaginatedAddress.pageAddress(currentPage = page, pageSize = defaulPageSize, address = testAddressList),
+        links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = testAddressList.length, pageSize = defaulPageSize)
       )
 
       Future.successful(Ok(view(
-        testPostcode,
-        Some(mockPaginatedAddress),
-        mockAddressTotal,
-        if(PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize)> testAddressList.length){testAddressList.length}
-        else{PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize)},
-        PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
+        postcode = testPostcode,
+        paginatedData = Some(mockPaginatedAddress),
+        totalAddress = testAddressList.length,
+        pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, testAddressList.length),
+        pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
       )))
+    }
+  }
+
+  def selectedAddress(index: Int): Action[AnyContent] = {
+    authenticate.authWithUserDetails.async { implicit request =>
+      //val getAddressSession: Seq[Address] = sessionManager.getAddressLookupResponse() //TODO anna's session function to grab all address's
+      val updateSession: Session = sessionManager.setChosenAddress(request.session, testAddressList.apply(index).toString)
+      println(s"session ${request.session}")
+      println(s"address ${testAddressList.apply(index).toString}")
+      Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
     }
   }
 }

@@ -15,3 +15,4 @@ GET        /name                            uk.gov.hmrc.ngrloginregisterfrontend
 POST       /name                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.submit
 GET        /confirm-your-contact-details    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
 GET        /address-search-results/:page    uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.show(page:Int)
+GET        /select-address/:index           uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.selectedAddress(index:Int)

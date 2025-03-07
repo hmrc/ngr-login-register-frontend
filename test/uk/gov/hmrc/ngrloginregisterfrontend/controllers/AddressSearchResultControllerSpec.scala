@@ -16,66 +16,69 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import play.api.test.FakeRequest
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.mvc.Session
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
-import uk.gov.hmrc.auth.core.Nino
-import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, AuthenticatedUserRequest, Postcode}
+import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
-import play.api.http.Status.{OK}
 
 class AddressSearchResultControllerSpec extends ControllerSpecSupport {
 
   lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1).url
   lazy val addressSearchResultView: AddressSearchResultView = inject[AddressSearchResultView]
-
-
-  val testAddressModel: Address =
-    Address(line1 = "99",
-      line2 = Some("Wibble Rd"),
-      town = "Worthing",
-      county = Some("West Sussex"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
-    )
-
-  val testAddressModel2: Address =
-    Address(line1 = "100",
-      line2 = Some("Croft Rd"),
-      town = "Uxbridge",
-      county = Some("Hillingdon"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
-    )
-
-  val testAddressModel3: Address =
-    Address(line1 = "20",
-      line2 = Some("Long Rd"),
-      town = "Bournemouth",
-      county = Some("Dorset"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
-    )
-
-  lazy val testAddressList = Seq(testAddressModel3, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel)
-  lazy val testPostcode = testAddressModel.postcode.value
-
-  val pageTitle = s"Search results for ${testPostcode}"
+  val mockSessionManager: SessionManager = mock[SessionManager]
+  val session: Session = Session()
+  val pageTitle = s"Search results for BN110AA"
 
   def controller() = new AddressSearchResultController(
     addressSearchResultView,
     mockAuthJourney,
-    mcc
+    mcc,
+    mockSessionManager
   )
 
   "Address Search Result Controller" must {
     "method show" must {
-      "Return OK and the correct view when theirs 10 address" in {
-        val result = controller().show()(authenticatedFakeRequest)
+      "Return OK and the correct view when theirs 10 address on page 1" in {
+        val result = controller().show(page = 1)(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must include(pageTitle)
+        content must       include(pageTitle)
+        content must       include("Showing 1 to 5 of 14 items.")
+        content must       include("Next")
+        content mustNot    include("Previous")
+      }
+
+      "Correctly display page number and number of address's on page 2" in {
+        val result = controller().show(page = 2)(authenticatedFakeRequest)
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must    include(pageTitle)
+        content must    include("Previous")
+        content must    include ("Showing 6 to 10 of 14 items.")
+        content must include("Next")
+      }
+
+      "Correctly display page number and number of address's on page 3" in {
+        val result = controller().show(page = 3)(authenticatedFakeRequest)
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must    include(pageTitle)
+        content must    include("Previous")
+        content must    include ("Showing 11 to 14 of 14 items.")
+        content mustNot include("Next")
+      }
+    }
+
+    "method selectedAddress" must {
+      "Return SEE OTHER and correctly store address to the session" in {
+        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
+        val result = controller().selectedAddress(1)(authenticatedFakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(routes.NameController.show.url)
       }
     }
   }

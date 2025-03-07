@@ -44,7 +44,6 @@ class NameController  @Inject()(
           .flatMap(_.name)
           .map(name => form().fill(Name(name.value)))
           .getOrElse(form())
-
         Ok(nameView(nameForm))
       }
     }
