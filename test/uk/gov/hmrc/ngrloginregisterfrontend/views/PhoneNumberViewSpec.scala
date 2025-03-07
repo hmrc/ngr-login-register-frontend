@@ -29,7 +29,7 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
   lazy val backLink = "Back"
   lazy val content = "Register for the business rates valuation service"
   lazy val heading = "Enter phone number"
-  lazy val label = "Phone Number"
+  lazy val label = "UK phone number"
   lazy val continueButton = "Continue"
   lazy val emptyErrorMessage = "Error: Enter your phone number"
   lazy val invalidErrorMessage = "Error: Please enter a valid phone number"

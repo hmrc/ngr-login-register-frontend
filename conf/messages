@@ -19,7 +19,7 @@ checkYourAnswers.address = Address
 phoneNumber.pageTitle                = Phone Number
 phoneNumber.caption                  = Register for the business rates valuation service
 phoneNumber.heading                  = Enter phone number
-phoneNumber.label                    = Phone Number
+phoneNumber.label                    = UK phone number
 phoneNumber.empty.error              = Enter your phone number
 phoneNumber.invalidFormat.error      = Please enter a valid phone number
 phoneNumber.missingCountryCode.error = Please include the country code for international numbers
@@ -34,7 +34,7 @@ email.empty.error = Enter your email address
 name.pageTitle                = Contact name
 name.caption                  = Register for the business rates valuation service
 name.heading                  = Contact name
-name.label                    = UK phone number
+name.label                    = Contact name
 name.empty.error              = Enter your Contact name
 name.invalidFormat.error      = Enter a contact name in the correct format
 
