@@ -18,6 +18,12 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup
 
 import play.api.libs.json.{Format, Json}
 
+final case class AddressLookupResponses(addressLookupResponses: Seq[AddressLookupResponse])
+
+object AddressLookupResponses {
+  implicit val format: Format[AddressLookupResponses] = Json.format[AddressLookupResponses]
+}
+
 final case class AddressLookupResponse (
                                    id: String,
                                    uprn: Int,

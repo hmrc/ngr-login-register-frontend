@@ -41,7 +41,8 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   override val centralAuthServerUrl: String = sc.baseUrl("centralised-authorisation-server")
 
   def getString(key: String): String =
-    config.getOptional[String](key).getOrElse(throwConfigNotFoundError(key))
+    config.getOptional[String](key)
+      .getOrElse(throwConfigNotFoundError(key))
 
   private def throwConfigNotFoundError(key: String): String =
     throw new RuntimeException(s"Could not find config key '$key'")
