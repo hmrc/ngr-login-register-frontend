@@ -36,6 +36,10 @@ class EmailSpec extends TestSupport with TestData{
       val email = Email("test@digital.hmrc.gov.uk").isValidEmail
       email mustBe true
     }
+    "return false if the email does not contain the domain" in {
+      val email = Email("aaaa@aaaa").isValidEmail
+      email mustBe false
+    }
     "return false if the email contains special characters" in {
       val email = Email("test@digital.hmrc.gov.uk/.;'';[;").isValidEmail
       email mustBe false

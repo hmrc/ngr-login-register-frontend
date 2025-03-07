@@ -31,6 +31,7 @@ class EmailViewSpec  extends ViewBaseSpec {
   lazy val continueButton = "Continue"
   lazy val emptyErrorMessage = "Error: Enter your email address"
   lazy val invalidErrorMessage = "Error: Enter a valid email address"
+  lazy val emailLabel = "Email address"
 
   object Selectors {
     val backLink = "#content > a"
@@ -38,6 +39,7 @@ class EmailViewSpec  extends ViewBaseSpec {
     val heading = "#content > form > h1"
     val continueButton   = "#continue"
     val errorMessage = "#email-value-error"
+    val emailLabel = "#content > form > div > label"
   }
 
   "EmailView" must {
@@ -63,6 +65,7 @@ class EmailViewSpec  extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
       elementText(Selectors.continueButton) mustBe continueButton
+      elementText(Selectors.emailLabel) mustBe emailLabel
     }
 
     "show missing contact email error correctly " in {
@@ -78,6 +81,7 @@ class EmailViewSpec  extends ViewBaseSpec {
       elementText(Selectors.heading)   mustBe heading
       elementText(Selectors.errorMessage) mustBe emptyErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
+      elementText(Selectors.emailLabel) mustBe emailLabel
     }
     "show invalid contact email error correctly " in {
       val form = Email
@@ -92,6 +96,7 @@ class EmailViewSpec  extends ViewBaseSpec {
       elementText(Selectors.heading)   mustBe heading
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
+      elementText(Selectors.emailLabel) mustBe emailLabel
     }
   }
 }

@@ -23,7 +23,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
 
 final case class Email(value: String) {
   override def toString: String = value
-  private val emailRegex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"
+  private val emailRegex = """[a-zA-Z0-9]+([-+.'][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*\.[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*"""
   def isValidEmail: Boolean = value.matches(emailRegex)
 }
 

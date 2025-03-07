@@ -24,7 +24,7 @@ phoneNumber.empty.error              = Enter your phone number
 phoneNumber.invalidFormat.error      = Please enter a valid phone number
 phoneNumber.missingCountryCode.error = Please include the country code for international numbers
 
-email.pageTitle = Email
+email.pageTitle = Enter email address
 email.heading = Enter email address
 email.subheading = This will be the email we will contact regarding your business rates.
 email.label = Email address
