@@ -26,19 +26,21 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
 
 import scala.concurrent.Future
 
-class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
+class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport with TestData {
   lazy val submitUrl: String = routes.FindAddressController.submit.url
   lazy val addressResponseKey: String = mockSessionManager.addressLookupResponseKey
   lazy val postcodeKey: String = mockSessionManager.postcodeKey
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "Find the contact address"
+  lazy val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+  lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
 
   def controller() = new FindAddressController(
     view,
@@ -61,11 +63,9 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
 
     "method submit" must {
       "Successfully submit valid postcode and property name and redirect to confirm contact details" in {
-        val session: Session = Session()
-        val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
-        val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (addressResponseKey -> expectAddressesJsonString))
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session + (postcodeKey -> "BN110AA"))
+        val session: Session = Session(Map(postcodeKey -> "BN110AA", addressResponseKey -> expectAddressesJsonString))
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
+        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
         when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
           .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
@@ -78,11 +78,9 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
       }
 
       "Successfully submit only valid postcode and redirect to confirm contact details" in {
-        val session: Session = Session()
-        val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
-        val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (addressResponseKey -> expectAddressesJsonString))
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session + (postcodeKey -> "BN110AA"))
+        val session: Session = Session(Map(postcodeKey -> "BN110AA", addressResponseKey -> expectAddressesJsonString))
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
+        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
         when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
           .withFormUrlEncodedBody(("postcode-value", "W126WA"))
