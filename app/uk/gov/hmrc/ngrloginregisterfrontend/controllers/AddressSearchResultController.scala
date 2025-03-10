@@ -21,8 +21,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{PaginatedAddress, Postcode}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{Address, AddressLookupRequest, AddressLookupResponse, Subdivision}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginatedAddress
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -41,20 +41,12 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   def show(page: Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
 
-      println(Console.RED + request.session + Console.RESET)
-
-     val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
+     val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map {
         sessionData =>
-          println(Console.YELLOW + Json.parse(sessionData).as[Seq[Address]] + Console.RESET)
-          println(Console.GREEN + Json.parse(sessionData).as[Seq[Address]].map(address => address.toString) + Console.RESET)
-          Json.parse(sessionData).as[Seq[Address]].map(address => address.toString)
+          Json.parse(sessionData).as[Seq[Address]].map(address => s"${address.lines.mkString(",")} ${address.town}, ${address.postcode}")
       }.getOrElse(Seq.empty)
 
-
-
-//      val postcode: Postcode = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).map{
-//        sessionData => Json.parse(sessionData).as[Postcode]
-//      }.getOrElse(Postcode(""))
+      val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
 
       val mockPaginatedAddress = PaginatedAddress(
         currentPage = page,
@@ -65,7 +57,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
       )
 
       Future.successful(Ok(view(
-        postcode = "BH1001",
+        postcode = postcode,
         paginatedData = Some(mockPaginatedAddress),
         totalAddress = address.length,
         pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length),
@@ -81,8 +73,6 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
       }.getOrElse(Seq.empty)
 
       val updateSession: Session = sessionManager.setChosenAddress(request.session, address.apply(index).toString)
-      println(s"session ${request.session}")
-      println(s"address ${address.apply(index).toString}")
       Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
     }
   }

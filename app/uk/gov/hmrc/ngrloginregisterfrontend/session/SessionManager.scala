@@ -50,12 +50,11 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
   }
 
   def setAddressLookupResponse(session: Session, addresses: Seq[Address]): Session = {
-    println(Console.CYAN + s"address length: ${addresses.length}" + Console.RESET)
-    updateSession(session, addressLookupResponseKey, Json.prettyPrint(Json.toJson(addresses)))
+    updateSession(session, addressLookupResponseKey, Json.toJson(addresses).toString())
   }
 
   def setPostcode(session: Session, postcode: Postcode): Session = {
-    updateSession(session, addressLookupResponseKey, postcode.value)
+    updateSession(session, postcodeKey, postcode.value)
   }
 
   def generateJourneyId: String = {

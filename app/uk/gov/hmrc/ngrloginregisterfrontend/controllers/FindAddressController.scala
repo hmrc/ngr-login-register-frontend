@@ -24,12 +24,12 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup.AddressLook
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, Postcode}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{Address, AddressLookupRequest, AddressLookupResponse, Subdivision}
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress.form
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,9 +45,9 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
   extends FrontendController(mcc) with I18nSupport {
 
 
-  val testAddressModel: Address =
+  val testAddressModel: (Int) => Address = (number) =>
     Address(
-      lines = Seq("99" + "Wibble Rd"),
+      lines = Seq(s"$number Wibble Rd"),
       town = "Worthing",
       postcode = "HA49EY",
       subdivision = Some(Subdivision(
@@ -60,38 +60,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
       )
     )
 
-  val testAddressModel2: Address =
-    Address(
-      lines = Seq("99" + "Wibble Rd"),
-      town = "Worthing",
-      postcode = "HA49EY",
-      subdivision = Some(Subdivision(
-        code = "code",
-        name = "name"
-      )),
-      country = Subdivision(
-        code = "GB",
-        name = "Great Britain"
-      )
-    )
-
-  val testAddressModel3: Address =
-    Address(
-      lines = Seq("99" + "Wibble Rd"),
-      town = "Worthing",
-      postcode = "HA49EY",
-      subdivision = Some(Subdivision(
-        code = "code",
-        name = "name"
-      )),
-      country = Subdivision(
-        code = "GB",
-        name = "Great Britain"
-      )
-    )
-
-  lazy val testAddressList: Seq[Address] = Seq(testAddressModel3, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel2, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel)
-  lazy val testPostcode: String = testAddressModel.postcode
+  lazy val testAddressList: Seq[Address] = for (i <- 1 to 8) yield testAddressModel(i)
 
   def show: Action[AnyContent]  = {
     authenticate.authWithUserDetails.async { implicit request =>
@@ -110,15 +79,21 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
               case "false" =>
                 val addresses: Seq[Address] = testAddressList
                 val addressLookupResponseSession: Session = sessionManager.setAddressLookupResponse(request.session, addresses)
-               // val addAddressLookupPostcodeSession = sessionManager.setPostcode(addressLookupResponseSession, Postcode(testPostcode))
-                Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressLookupResponseSession))
+                val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
+                Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession))
               case _ =>
                 addressLookupConnector.findAddressByPostcode(AddressLookupRequest(findAddress.postcode.value, findAddress.propertyName))
                   .flatMap {
                     case Right(responses: Seq[AddressLookupResponse]) =>
                       val addresses: Seq[Address] = responses.map(_.address)
+                      val session: Session = request.session
+                      sessionManager.removeSessionKey(session, sessionManager.addressLookupResponseKey)
+                      sessionManager.removeSessionKey(session, sessionManager.postcodeKey)
+                      println(Console.GREEN + session + Console.RESET)
                       val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, addresses)
-                      Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressLookupResponseSession))
+                      val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
+                      println(Console.RED + session + Console.RESET)
+                      Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession))
                     case Left(errorResponse: ErrorResponse) =>
                       logger.error(s"AddressLookup has returned an error: status ${errorResponse.code}, ${errorResponse.message}")
                       Future.successful(InternalServerError(Json.toJson(errorResponse)))

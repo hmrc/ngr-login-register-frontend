@@ -19,17 +19,17 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.libs.json.Json
 import play.api.mvc.Session
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
-class AddressSearchResultControllerSpec extends ControllerSpecSupport {
+class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestData {
 
   lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1).url
   lazy val addressSearchResultView: AddressSearchResultView = inject[AddressSearchResultView]
-  val mockSessionManager: SessionManager = mock[SessionManager]
   val session: Session = Session()
   val pageTitle = s"Search results for BN110AA"
 
@@ -43,6 +43,9 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport {
   "Address Search Result Controller" must {
     "method show" must {
       "Return OK and the correct view when theirs 10 address on page 1" in {
+        val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+        val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (mockSessionManager.addressLookupResponseKey -> expectAddressesJsonString))
         val result = controller().show(page = 1)(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)

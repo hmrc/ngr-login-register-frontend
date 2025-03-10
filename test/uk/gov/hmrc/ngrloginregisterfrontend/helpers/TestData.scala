@@ -39,6 +39,9 @@ trait TestData {
       country = "UK",
     )
 
+  val testAddressString: String =
+    "99 Wibble Rd, Worthing, West Sussex BN110AA"
+
   val testRegistrationModel: RatepayerRegistration =
     RatepayerRegistration(
       userType = Some(Individual),

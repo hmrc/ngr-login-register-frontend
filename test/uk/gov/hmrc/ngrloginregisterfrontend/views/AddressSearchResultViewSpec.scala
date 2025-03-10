@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, PaginatedAddress}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginatedAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
 class AddressSearchResultViewSpec extends ViewBaseSpec {
@@ -41,7 +41,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val nextButton = "#content > nav > div.govuk-pagination__next > a"
   }
 
-  def mockPaginatedAddress(page: Int, testpageSize: Int, testAddressList: Seq[Address]) = PaginatedAddress(
+  def mockPaginatedAddress(page: Int, testpageSize: Int, testAddressList: Seq[String]) = PaginatedAddress(
     currentPage = page,
     total = testAddressList.length,
     pageSize = testpageSize,
@@ -50,7 +50,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
   )
 
   "Rendering the AddressSearchResultView on page 1 with 10 address's and 5 a page" should {
-    val returnedAddressList = Seq(testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel)
+    val returnedAddressList = Seq(testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString)
     val currentPage:Int = 1
     val pageSize:Int = 5
     lazy val view = addressSearchResultView(
@@ -88,7 +88,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     }
   }
   "Rendering the AddressSearchResultView on page 2 with 10 address's and 5 a page" should {
-    val returnedAddressList = Seq(testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel, testAddressModel)
+    val returnedAddressList = Seq(testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString)
     val currentPage:Int = 2
     val pageSize:Int = 5
     lazy val view = addressSearchResultView(

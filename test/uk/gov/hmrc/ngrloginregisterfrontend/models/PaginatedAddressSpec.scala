@@ -19,23 +19,15 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 
-class PaginatedAddressSpec extends AnyWordSpecLike with Matchers with OptionValues {
-
-  val testAddressModel: Address =
-    Address(line1 = "99",
-      line2 = Some("Wibble Rd"),
-      town = "Worthing",
-      county = Some("West Sussex"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
-    )
+class PaginatedAddressSpec extends AnyWordSpecLike with Matchers with OptionValues with TestData {
 
     val paginatedAddress = PaginatedAddress(
       currentPage = 1,
       total = 102,
       pageSize = 5,
-      address = (1 to 5).map(x => testAddressModel),
+      address = (1 to 5).map(x => testAddressString),
       links = Seq.empty[PaginateLink]
     )
 
@@ -48,7 +40,7 @@ class PaginatedAddressSpec extends AnyWordSpecLike with Matchers with OptionValu
         paginatedAddress.copy(currentPage = 19).paginate shouldBe Seq(17, 18, 19, 20, 21)
         paginatedAddress.copy(currentPage = 20).paginate shouldBe Seq(17, 18, 19, 20, 21)
         paginatedAddress
-          .copy(currentPage = 21, address = (1 to 2).map(x => testAddressModel))
+          .copy(currentPage = 21, address = (1 to 2).map(x => testAddressString))
           .paginate shouldBe Seq(17, 18, 19, 20, 21)
 
         paginatedAddress.copy(currentPage = 0).paginate shouldBe Seq.empty
@@ -90,10 +82,10 @@ class PaginatedAddressSpec extends AnyWordSpecLike with Matchers with OptionValu
         paginatedAddress.copy(currentPage = 20).resourcesTo shouldBe 100
 
         paginatedAddress
-          .copy(currentPage = 21, address = (1 to 2).map(x => testAddressModel))
+          .copy(currentPage = 21, address = (1 to 2).map(x => testAddressString))
           .resourcesFrom shouldBe 101
         paginatedAddress
-          .copy(currentPage = 21, address = (1 to 2).map(x => testAddressModel))
+          .copy(currentPage = 21, address = (1 to 2).map(x => testAddressString))
           .resourcesTo shouldBe 102
       }
     }
