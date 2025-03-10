@@ -32,7 +32,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
   lazy val label = "Postcode"
   lazy val propertyNameLabel = "Property name or number (optional)"
   lazy val continueButton = "Find address"
-  lazy val emptyErrorMessage = "Error: Empty postcode error"
+  lazy val emptyErrorMessage = "Error: Enter a full UK postcode"
   lazy val invalidErrorMessage = "Error: Enter a full UK postcode"
   lazy val maxLengthErrorMessage = "Error: No more than 100 characters allowed"
   lazy val over100Characters = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"

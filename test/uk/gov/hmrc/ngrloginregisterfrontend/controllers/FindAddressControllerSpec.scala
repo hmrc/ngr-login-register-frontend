@@ -35,8 +35,8 @@ import scala.concurrent.Future
 
 class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
   lazy val submitUrl: String = routes.FindAddressController.submit.url
-  lazy val addressResponseKey: String = "Address-Lookup-Response"
-  lazy val postcodeKey: String = "Postcode-Key"
+  lazy val addressResponseKey: String = mockSessionManager.addressLookupResponseKey
+  lazy val postcodeKey: String = mockSessionManager.postcodeKey
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "Find the contact address"
 

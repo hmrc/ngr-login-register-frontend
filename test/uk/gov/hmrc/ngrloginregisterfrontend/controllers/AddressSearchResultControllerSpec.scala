@@ -30,8 +30,8 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
 
   lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1).url
   lazy val addressSearchResultView: AddressSearchResultView = inject[AddressSearchResultView]
-  lazy val addressResponseKey: String = "Address-Lookup-Response"
-  lazy val postcodeKey: String = "Postcode-Key"
+  lazy val addressResponseKey: String = mockSessionManager.addressLookupResponseKey
+  lazy val postcodeKey: String = mockSessionManager.postcodeKey
   val session: Session = Session()
   val pageTitle = s"Search results for CH27RH"
 
