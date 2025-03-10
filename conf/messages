@@ -60,7 +60,7 @@ findAddress.propertyName = Property name or number (optional)
 findAddress.propertyName.hint = For example, 116, The Mill, or Suite 10
 findAddress.button = Find address
 
-postcode.empty.error = Empty postcode error
+postcode.empty.error = Enter a full UK postcode
 postcode.invalid.error = Enter a full UK postcode
 maxlength.100.error = No more than {n} characters allowed
 
