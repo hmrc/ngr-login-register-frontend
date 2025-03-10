@@ -71,8 +71,8 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
           .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe expectAddressesJsonString
-          mockSessionManager.getSessionValue(result.session, postcodeKey) != null shouldBe true
+          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe Some(expectAddressesJsonString)
+          mockSessionManager.getSessionValue(result.session, postcodeKey) mustBe Some("BN110AA")
         })
         status(result) mustBe SEE_OTHER
       }
@@ -86,8 +86,8 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
           .withFormUrlEncodedBody(("postcode-value", "W126WA"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe expectAddressesJsonString
-          mockSessionManager.getSessionValue(result.session, postcodeKey) mustBe "BN110AA"
+          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe Some(expectAddressesJsonString)
+          mockSessionManager.getSessionValue(result.session, postcodeKey) mustBe Some("BN110AA")
         })
         status(result) mustBe SEE_OTHER
       }
