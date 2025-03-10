@@ -40,12 +40,10 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def show(page: Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-
      val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map {
         sessionData =>
           Json.parse(sessionData).as[Seq[Address]].map(address => s"${address.lines.mkString(",")} ${address.town}, ${address.postcode}")
       }.getOrElse(Seq.empty)
-
       val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
 
       val mockPaginatedAddress = PaginatedAddress(

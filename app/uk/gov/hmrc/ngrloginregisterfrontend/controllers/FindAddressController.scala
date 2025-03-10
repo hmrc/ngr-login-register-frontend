@@ -89,10 +89,8 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
                       val session: Session = request.session
                       sessionManager.removeSessionKey(session, sessionManager.addressLookupResponseKey)
                       sessionManager.removeSessionKey(session, sessionManager.postcodeKey)
-                      println(Console.GREEN + session + Console.RESET)
                       val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, addresses)
                       val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-                      println(Console.RED + session + Console.RESET)
                       Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession))
                     case Left(errorResponse: ErrorResponse) =>
                       logger.error(s"AddressLookup has returned an error: status ${errorResponse.code}, ${errorResponse.message}")

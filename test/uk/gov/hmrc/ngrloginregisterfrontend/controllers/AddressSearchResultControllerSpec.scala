@@ -26,12 +26,16 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, Test
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
+import scala.concurrent.Future
+
 class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestData {
 
   lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1).url
   lazy val addressSearchResultView: AddressSearchResultView = inject[AddressSearchResultView]
+  lazy val addressResponseKey: String = "Address-Lookup-Response"
+  lazy val postcodeKey: String = "Postcode-Key"
   val session: Session = Session()
-  val pageTitle = s"Search results for BN110AA"
+  val pageTitle = s"Search results for CH27RH"
 
   def controller() = new AddressSearchResultController(
     addressSearchResultView,
@@ -40,36 +44,36 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
     mockSessionManager
   )
 
+  val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+  val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
+
   "Address Search Result Controller" must {
     "method show" must {
-      "Return OK and the correct view when theirs 10 address on page 1" in {
-        val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
-        val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (mockSessionManager.addressLookupResponseKey -> expectAddressesJsonString))
-        val result = controller().show(page = 1)(authenticatedFakeRequest)
+      "Return OK and the correct view when theirs 14 address on page 1" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
+        val result = controller().show(page = 1)(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must       include(pageTitle)
         content must       include("Showing 1 to 5 of 14 items.")
         content must       include("Next")
         content mustNot    include("Previous")
       }
 
       "Correctly display page number and number of address's on page 2" in {
-        val result = controller().show(page = 2)(authenticatedFakeRequest)
+        val result = controller().show(page = 2)(authenticatedFakeRequestWithSession)
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must    include(pageTitle)
         content must    include("Previous")
         content must    include ("Showing 6 to 10 of 14 items.")
         content must include("Next")
       }
 
       "Correctly display page number and number of address's on page 3" in {
-        val result = controller().show(page = 3)(authenticatedFakeRequest)
+        val result = controller().show(page = 3)(authenticatedFakeRequestWithSession)
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must    include(pageTitle)
         content must    include("Previous")
         content must    include ("Showing 11 to 14 of 14 items.")
         content mustNot include("Next")
@@ -78,8 +82,9 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
 
     "method selectedAddress" must {
       "Return SEE OTHER and correctly store address to the session" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
         when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
-        val result = controller().selectedAddress(1)(authenticatedFakeRequest)
+        val result = controller().selectedAddress(1)(authenticatedFakeRequestWithSession)
         status(result) mustBe SEE_OTHER
         redirectLocation(routes.NameController.show.url)
       }

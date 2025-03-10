@@ -26,6 +26,7 @@ import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
@@ -35,6 +36,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.language.LanguageUtils
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -66,6 +68,118 @@ with IntegrationPatience {
   lazy val testAffinityGroup: AffinityGroup = AffinityGroup.Individual
   lazy val testName: Name = Name(name = Some("testUser"), lastName = Some("testUserLastName"))
 
+  private lazy val addressResponseKey: String = "Address-Lookup-Response"
+  private val addressLookupResponsesJson: JsValue = Json.parse(
+    """
+      |[
+      |  {
+      |    "id": "1234567890",
+      |    "uprn": 246810,
+      |    "parentUprn": 1234567890,
+      |    "usrn": 987654321,
+      |    "organisation": "Capgemini",
+      |    "address": {
+      |      "lines": [
+      |        "99 Wibble Rd"
+      |      ],
+      |      "town": "Worthing",
+      |      "postcode": "BN110AA",
+      |      "subdivision": {
+      |        "code": "code",
+      |        "name": "name"
+      |      },
+      |      "country": {
+      |        "code": "GB",
+      |        "name": "Great Britain"
+      |      }
+      |    },
+      |    "localCustodian": {
+      |      "code": 123,
+      |      "name": "LcName"
+      |    },
+      |    "location": [
+      |      1,
+      |      2,
+      |      3
+      |    ],
+      |    "language": "English",
+      |    "administrativeArea": "AdminArea",
+      |    "poBox": "PO321"
+      |  },
+      |  {
+      |    "id": "1234567890",
+      |    "uprn": 246810,
+      |    "parentUprn": 1234567890,
+      |    "usrn": 987654321,
+      |    "organisation": "Capgemini",
+      |    "address": {
+      |      "lines": [
+      |        "2 The Test Close"
+      |      ],
+      |      "town": "Worthing",
+      |      "postcode": "BN110AA",
+      |      "subdivision": {
+      |        "code": "code",
+      |        "name": "name"
+      |      },
+      |      "country": {
+      |        "code": "GB",
+      |        "name": "Great Britain"
+      |      }
+      |    },
+      |    "localCustodian": {
+      |      "code": 123,
+      |      "name": "LcName"
+      |    },
+      |    "location": [
+      |      1,
+      |      2,
+      |      3
+      |    ],
+      |    "language": "English",
+      |    "administrativeArea": "AdminArea",
+      |    "poBox": "PO321"
+      |  },
+      |  {
+      |    "id": "1234567890",
+      |    "uprn": 246810,
+      |    "parentUprn": 1234567890,
+      |    "usrn": 987654321,
+      |    "organisation": "Capgemini",
+      |    "address": {
+      |      "lines": [
+      |        "3 The Test Close"
+      |      ],
+      |      "town": "Worthing",
+      |      "postcode": "BN110AA",
+      |      "subdivision": {
+      |        "code": "code",
+      |        "name": "name"
+      |      },
+      |      "country": {
+      |        "code": "GB",
+      |        "name": "Great Britain"
+      |      }
+      |    },
+      |    "localCustodian": {
+      |      "code": 123,
+      |      "name": "LcName"
+      |    },
+      |    "location": [
+      |      1,
+      |      2,
+      |      3
+      |    ],
+      |    "language": "English",
+      |    "administrativeArea": "AdminArea",
+      |    "poBox": "PO321"
+      |  }
+      |]
+      |""".stripMargin
+  )
+  private val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+  private val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
+
   def injector: Injector = app.injector
   lazy val frontendAppConfig: AppConfig = inject[AppConfig]
   lazy val messagesApi: MessagesApi             = inject[MessagesApi]
@@ -89,6 +203,9 @@ with IntegrationPatience {
 
   lazy val authenticatedFakeRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
     AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(true, Some("")))
+
+  lazy val authenticatedFakeRequestWithSession: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
+    AuthenticatedUserRequest(fakeRequest.withSession(addressResponseKey -> expectAddressesJsonString), None, None, None, None, None, None, nino = Nino(true, Some("")))
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

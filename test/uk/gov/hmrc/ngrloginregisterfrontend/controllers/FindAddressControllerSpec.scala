@@ -35,6 +35,8 @@ import scala.concurrent.Future
 
 class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
   lazy val submitUrl: String = routes.FindAddressController.submit.url
+  lazy val addressResponseKey: String = "Address-Lookup-Response"
+  lazy val postcodeKey: String = "Postcode-Key"
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "Find the contact address"
 
@@ -62,16 +64,15 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
         val session: Session = Session()
         val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
         val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-//        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (mockSessionManager.addressLookupResponseKey -> expectAddressesJsonString))
-//        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session + (mockSessionManager.postcodeKey -> "BN110AA"))
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (addressResponseKey -> expectAddressesJsonString))
+        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session + (postcodeKey -> "BN110AA"))
         when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
           .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          println(Console.YELLOW + mockSessionManager.getSessionValue(result.session, mockSessionManager.postcodeKey) + Console.RESET)
-          mockSessionManager.getSessionValue(result.session, mockSessionManager.addressLookupResponseKey) mustBe expectAddressesJsonString
-          mockSessionManager.getSessionValue(result.session, mockSessionManager.postcodeKey) != null shouldBe true
+          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe expectAddressesJsonString
+          mockSessionManager.getSessionValue(result.session, postcodeKey) != null shouldBe true
         })
         status(result) mustBe SEE_OTHER
       }
@@ -80,15 +81,15 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestData {
         val session: Session = Session()
         val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
         val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (mockSessionManager.addressLookupResponseKey -> expectAddressesJsonString))
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session + (mockSessionManager.postcodeKey -> "BN110AA"))
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session + (addressResponseKey -> expectAddressesJsonString))
+        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session + (postcodeKey -> "BN110AA"))
         when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
           .withFormUrlEncodedBody(("postcode-value", "W126WA"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          mockSessionManager.getSessionValue(result.session, mockSessionManager.addressLookupResponseKey) mustBe expectAddressesJsonString
-          mockSessionManager.getSessionValue(result.session, mockSessionManager.postcodeKey) mustBe "BN110AA"
+          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe expectAddressesJsonString
+          mockSessionManager.getSessionValue(result.session, postcodeKey) mustBe "BN110AA"
         })
         status(result) mustBe SEE_OTHER
       }

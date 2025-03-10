@@ -58,9 +58,9 @@ govukTable : GovukTable
             @for((address, index) <- pagData.address.zipWithIndex){
             <tr class="govuk-table__row" role="row">
                 <td class="govuk-table__cell" role="cell">
-                    <p>@address</p>
+                    <a>@address</a>
                 </td>
-                <td class="govuk-table__cell cca-nowrap" role="cell">
+                <td class="govuk-table__cell" role="cell">
                     <a href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.AddressSearchResultController.selectedAddress(if(pagData.currentPage > 1){index + pagData.pageSize} else {index})" class="govuk-link">Select property</a>
                 </td>
             </tr>
