@@ -16,7 +16,7 @@ checkYourAnswers.pageTitle = Check your answers
 checkYourAnswers.name = Name
 checkYourAnswers.address = Address
 
-phoneNumber.pageTitle                = Phone Number
+phoneNumber.pageTitle                = Enter phone number
 phoneNumber.caption                  = Register for the business rates valuation service
 phoneNumber.heading                  = Enter phone number
 phoneNumber.label                    = UK phone number
