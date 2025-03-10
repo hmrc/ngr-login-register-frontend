@@ -34,7 +34,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
   lazy val nextButton = "Next page"
 
   object Selectors {
-    val backLink = "#content > a"
+    val backLink = "body > div > a"
     val caption = "#content > span"
     val heading = "#content > h1"
     val previousButton = "#content > nav > div > a"

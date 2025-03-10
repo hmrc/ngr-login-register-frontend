@@ -43,10 +43,9 @@ class FindAddressViewSpec extends ViewBaseSpec {
     val caption = "#content > form > span"
     val heading = "#content > form > h1"
     val label   = "#content > form > div > label"
-//    val propertyNameLabel = "#content > form > div:nth-child(7) > label"
     val hint   = "#hint-postcode-value"
     val continueButton   = "#continue"
-    val backLink = "#content > a"
+    val backLink = "body > div > a"
     val errorMessage = "#postcode-value-error"
     val propertyNameErrorMessage = "#property-name-value-error"
   }

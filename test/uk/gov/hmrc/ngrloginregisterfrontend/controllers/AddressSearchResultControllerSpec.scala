@@ -26,8 +26,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, Test
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
-import scala.concurrent.Future
-
 class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestData {
 
   lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1).url
