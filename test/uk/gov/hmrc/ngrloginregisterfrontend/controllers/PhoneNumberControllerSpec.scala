@@ -36,7 +36,7 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
   lazy val phoneNumberRoute: String = routes.PhoneNumberController.submit.url
   lazy val phoneNumberView: PhoneNumberView = inject[PhoneNumberView]
 
-  val pageTitle = "Phone Number"
+  val pageTitle = "Enter phone number"
 
 
   def controller() = new PhoneNumberController(
