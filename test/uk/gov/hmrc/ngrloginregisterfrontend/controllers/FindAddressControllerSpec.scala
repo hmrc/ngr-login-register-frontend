@@ -18,7 +18,6 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Session
@@ -35,12 +34,13 @@ import scala.concurrent.Future
 
 class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport with TestData {
   lazy val submitUrl: String = routes.FindAddressController.submit.url
-  lazy val addressResponseKey: String = mockSessionManager.addressLookupResponseKey
-  lazy val postcodeKey: String = mockSessionManager.postcodeKey
+  lazy val addressResponseKey: String = "Address-Lookup-Response"
+  lazy val postcodeKey: String = "Postcode-Key"
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "Find the contact address"
   lazy val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
+  val session: Session = Session(Map(addressResponseKey -> expectAddressesJsonString, postcodeKey -> "BN110AA"))
 
   def controller() = new FindAddressController(
     view,
@@ -63,7 +63,6 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
 
     "method submit" must {
       "Successfully submit valid postcode and property name and redirect to confirm contact details" in {
-        val session: Session = Session(Map(postcodeKey -> "BN110AA", addressResponseKey -> expectAddressesJsonString))
         when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
         when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
         when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
@@ -71,14 +70,13 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
           .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe Some(expectAddressesJsonString)
-          mockSessionManager.getSessionValue(result.session, postcodeKey) mustBe Some("BN110AA")
+          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
+          result.session.get(postcodeKey) mustBe Some("BN110AA")
         })
         status(result) mustBe SEE_OTHER
       }
 
       "Successfully submit only valid postcode and redirect to confirm contact details" in {
-        val session: Session = Session(Map(postcodeKey -> "BN110AA", addressResponseKey -> expectAddressesJsonString))
         when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
         when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
         when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
@@ -86,8 +84,8 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
           .withFormUrlEncodedBody(("postcode-value", "W126WA"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          mockSessionManager.getSessionValue(result.session, addressResponseKey) mustBe Some(expectAddressesJsonString)
-          mockSessionManager.getSessionValue(result.session, postcodeKey) mustBe Some("BN110AA")
+          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
+          result.session.get(postcodeKey) mustBe Some("BN110AA")
         })
         status(result) mustBe SEE_OTHER
       }
