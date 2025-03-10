@@ -20,22 +20,27 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.mappings.Constraints
 
 final case class Name(value: String)
 
-object Name extends CommonFormValidators{
+object Name extends CommonFormValidators with Constraints {
   implicit val format: OFormat[Name] = Json.format[Name]
-  lazy val contactNameInvalidFormat = "name.invalidFormat.error"
+  private lazy val contactNameInvalidFormat = "name.invalidFormat.error"
 
-  lazy val nameEmptyError    = "name.empty.error"
+  private lazy val nameEmptyError    = "name.empty.error"
   val name                   = "name-value"
 
   def form(): Form[Name] =
     Form(
       mapping(
         name -> text()
-          .verifying(nameEmptyError, isNonEmpty)
-          .verifying(contactNameInvalidFormat, isValidFullName)
+          .verifying(
+            firstError(
+              isNotEmpty(name, nameEmptyError),
+              regexp(fullNameRegexPattern.pattern(), contactNameInvalidFormat)
+            )
+          )
       )(Name.apply)(Name.unapply)
     )
 }

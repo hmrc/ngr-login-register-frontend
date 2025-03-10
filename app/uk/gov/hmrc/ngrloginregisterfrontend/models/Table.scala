@@ -16,14 +16,4 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import play.api.libs.json.{Json, Format}
-
-final case class Postcode(value: String){
-  private val postcodeRegex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$"
-  def isValidPostcode:Boolean = value.matches(postcodeRegex)
-    override def toString: String = value
-  }
-
-  object Postcode {
-    implicit val format: Format[Postcode] = Json.format[Postcode]
-  }
+final case class Table(address: Seq[Address])

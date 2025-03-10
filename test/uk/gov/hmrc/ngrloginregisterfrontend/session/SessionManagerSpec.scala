@@ -22,6 +22,7 @@ import play.api.mvc.Session
 class SessionManagerSpec extends TestSupport {
   val sessionManager: SessionManager = inject[SessionManager]
   val journeyId = "1234"
+  private val address = "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"
   val session: Session = Session()
   val testKey = "key"
   val testValue = "value"
@@ -29,6 +30,10 @@ class SessionManagerSpec extends TestSupport {
   "SessionManager" must {
     "set a journey id" in {
       sessionManager.getSessionValue(sessionManager.setJourneyId(session, journeyId), "NGR-JourneyId") mustBe Some(journeyId)
+    }
+
+    "set a address" in {
+      sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), "NGR-ChosenAddressIdKey") mustBe Some(address)
     }
 
     "delete a key" in {

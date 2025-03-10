@@ -17,14 +17,19 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import org.mockito.Mockito.when
+import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.libs.ws.WSResponse
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
+import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 import scala.concurrent.ExecutionContext
 
@@ -33,6 +38,9 @@ trait ControllerSpecSupport extends TestSupport{
   implicit lazy val msgs: Messages          = MessagesImpl(Lang("en"), inject[MessagesApi])
   val mockAuthJourney: AuthJourney          = mock[AuthJourney]
   val mockNGRConnector: NGRConnector        = mock[NGRConnector]
+  val mockSessionManager: SessionManager    = mock[SessionManager]
+  val mockNGRLogger: NGRLogger              = mock[NGRLogger]
+  val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
   val credId: CredId = CredId("1234")
 
@@ -44,5 +52,16 @@ trait ControllerSpecSupport extends TestSupport{
     override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
     override protected def executionContext: ExecutionContext = ec
   }
+
+  def redirectLocation(expectedValue: String): HavePropertyMatcher[WSResponse, Option[String]] =
+    new HavePropertyMatcher[WSResponse, Option[String]] {
+      def apply(response: WSResponse) =
+        HavePropertyMatchResult(
+          response.header("Location").contains(expectedValue),
+          "headerLocation",
+          Some(expectedValue),
+          response.header("Location")
+        )
+    }
 
 }
