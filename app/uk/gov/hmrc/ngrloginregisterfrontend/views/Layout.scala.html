@@ -33,10 +33,6 @@
   showBackLink: Boolean = true
 )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
 
-@backLink = {
-    @govukBackLink(BackLink.mimicsBrowserBackButtonViaJavaScript)
-}
-
 
 @languageSelector = {
     @hmrcLanguageSelectHelper()
@@ -46,9 +42,6 @@
 <div id="content">
     @if(appConfig.features.welshLanguageSupportEnabled()) {
     @languageSelector
-    }
-    @if(showBackLink) {
-    @backLink
     }
     @contentBlock
 </div>
@@ -62,6 +55,7 @@
     templateOverrides = TemplateOverrides(
     mainContentLayout = None
 ),
+    backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None,
     banners = Banners(
     phaseBanner = Some(standardBetaBanner("appConfig.betaFeedbackUrl")),
     ),

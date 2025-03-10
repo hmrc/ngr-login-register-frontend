@@ -42,7 +42,7 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
     val label   = "#content > form > div > label"
     val hint   = "#hint-phoneNumber_value"
     val continueButton   = "#continue"
-    val backLink = "#content > a"
+    val backLink = "body > div > a"
     val errorMessage = "#phoneNumber-value-error"
   }
 

@@ -33,7 +33,7 @@ class NameViewSpec  extends ViewBaseSpec {
   lazy val invalidErrorMessage = "Error: Enter a contact name in the correct format"
 
   object Selectors {
-    val backLink = "#content > a"
+    val backLink = "body > div > a"
     val caption = "#content > form > span"
     val heading = "#content > form > h1"
     val continueButton   = "#continue"
