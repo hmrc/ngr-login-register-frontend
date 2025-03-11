@@ -66,12 +66,15 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def selectedAddress(index: Int): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      val address: Seq[Address] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
+      sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
         sessionData => Json.parse(sessionData).as[Seq[Address]]
-      }.getOrElse(Seq.empty)
-
-      val updateSession: Session = sessionManager.setChosenAddress(request.session, address.apply(index).toString)
-      Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
+      }.getOrElse(Seq.empty) match {
+        case address if address.nonEmpty =>
+          val updateSession: Session = sessionManager.setChosenAddress(request.session, address.apply(index).toString)
+          Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
+        case _ =>
+          Future.failed(new RuntimeException("Address not found at index"))
+      }
     }
   }
 }

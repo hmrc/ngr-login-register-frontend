@@ -43,13 +43,13 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
   )
 
   val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
-  val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
+  val expectAddressesJsonString: String = Json.toJson(addressLookupResponses.map(_.address)).toString()
 
   "Address Search Result Controller" must {
     "method show" must {
       "Return OK and the correct view when theirs 14 address on page 1" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
-        val result = controller().show(page = 1)(authenticatedFakeRequestWithSession)
+        val result = controller().show()(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must       include("Showing 1 to 5 of 14 items.")
@@ -57,7 +57,16 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         content mustNot    include("Previous")
       }
 
+      "Correctly display page number and number for no address" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
+        val result = controller().show()(authenticatedFakeRequestWithSession)
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must       include("Showing 1 to 0 of 0 items.")
+      }
+
       "Correctly display page number and number of address's on page 2" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
         val result = controller().show(page = 2)(authenticatedFakeRequestWithSession)
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
         status(result) mustBe OK
@@ -85,6 +94,14 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         val result = controller().selectedAddress(1)(authenticatedFakeRequestWithSession)
         status(result) mustBe SEE_OTHER
         redirectLocation(routes.NameController.show.url)
+      }
+      "Address index out of bounds exception thrown" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
+        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
+        val exception = intercept[RuntimeException] {
+          controller().selectedAddress(1)(authenticatedFakeRequestWithSession).futureValue
+        }
+        exception.getMessage must include("Address not found at index")
       }
     }
   }

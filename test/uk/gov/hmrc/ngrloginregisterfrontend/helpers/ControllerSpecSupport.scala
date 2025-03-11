@@ -23,7 +23,7 @@ import play.api.libs.ws.WSResponse
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup.AddressLookupConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
@@ -55,7 +55,7 @@ trait ControllerSpecSupport extends TestSupport{
 
   def redirectLocation(expectedValue: String): HavePropertyMatcher[WSResponse, Option[String]] =
     new HavePropertyMatcher[WSResponse, Option[String]] {
-      def apply(response: WSResponse) =
+      def apply(response: WSResponse): HavePropertyMatchResult[Option[String]] =
         HavePropertyMatchResult(
           response.header("Location").contains(expectedValue),
           "headerLocation",

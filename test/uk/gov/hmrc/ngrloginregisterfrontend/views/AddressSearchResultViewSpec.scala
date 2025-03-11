@@ -29,7 +29,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
 
   lazy val backLink = "Back"
   lazy val caption = "Register for the business rates valuation service"
-  private def  heading(postcode: String) = s"Search results for ${postcode}"
+  private def  heading(postcode: String) = s"Search results for $postcode"
   lazy val previousButton = "Previous page"
   lazy val nextButton = "Next page"
 
@@ -41,12 +41,12 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val nextButton = "#content > nav > div.govuk-pagination__next > a"
   }
 
-  def mockPaginatedAddress(page: Int, testpageSize: Int, testAddressList: Seq[String]) = PaginatedAddress(
+  def mockPaginatedAddress(page: Int, testPageSize: Int, testAddressList: Seq[String]): PaginatedAddress = PaginatedAddress(
     currentPage = page,
     total = testAddressList.length,
-    pageSize = testpageSize,
-    address = PaginatedAddress.pageAddress(currentPage = page, pageSize = testpageSize, address = testAddressList),
-    links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = testAddressList.length, pageSize = testpageSize)
+    pageSize = testPageSize,
+    address = PaginatedAddress.pageAddress(currentPage = page, pageSize = testPageSize, address = testAddressList),
+    links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = testAddressList.length, pageSize = testPageSize)
   )
 
   "Rendering the AddressSearchResultView on page 1 with 10 address's and 5 a page" should {
@@ -55,7 +55,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val pageSize:Int = 5
     lazy val view = addressSearchResultView(
       postcode = postcode,
-      paginatedData = Some(mockPaginatedAddress(page = currentPage, testpageSize = pageSize, testAddressList = returnedAddressList)),
+      paginatedData = Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
       totalAddress = returnedAddressList.length,
       pageTop = PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       pageBottom = PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
@@ -63,14 +63,18 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
       postcode,
-      Some(mockPaginatedAddress(page = currentPage, testpageSize = pageSize, testAddressList = returnedAddressList)),
+      Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
         returnedAddressList.length,
         PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
        PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1)(request, messages, mockConfig
     )
+    lazy val htmlRender = addressSearchResultView.render(postcode = postcode, paginatedData = None, totalAddress = 0, pageTop = 0, pageBottom = 0, request = request, messages = messages, appConfig = mockConfig)
 
     "htmlF is not empty" in {
       htmlF.toString() must not be empty
+    }
+    "render produces document" in {
+      htmlRender.body must not be empty
     }
     "have the back link" in {
       elementText(Selectors.backLink) mustBe backLink
@@ -93,7 +97,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val pageSize:Int = 5
     lazy val view = addressSearchResultView(
       postcode = postcode,
-      paginatedData = Some(mockPaginatedAddress(page = currentPage, testpageSize = pageSize, testAddressList = returnedAddressList)),
+      paginatedData = Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
       totalAddress = returnedAddressList.length,
       pageTop = PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       pageBottom = PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
@@ -101,7 +105,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
       postcode,
-      Some(mockPaginatedAddress(page = currentPage, testpageSize = pageSize, testAddressList = returnedAddressList)),
+      Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
       returnedAddressList.length,
       PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
@@ -131,7 +135,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val pageSize:Int = 5
     lazy val view = addressSearchResultView(
       postcode = postcode,
-      paginatedData = Some(mockPaginatedAddress(page = currentPage, testpageSize = pageSize, testAddressList = returnedAddressList)),
+      paginatedData = Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
       totalAddress = returnedAddressList.length,
       pageTop = PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       pageBottom = PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
@@ -139,7 +143,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
       postcode,
-      Some(mockPaginatedAddress(page = currentPage, testpageSize = pageSize, testAddressList = returnedAddressList)),
+      Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
       returnedAddressList.length,
       PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1)(request, messages, mockConfig

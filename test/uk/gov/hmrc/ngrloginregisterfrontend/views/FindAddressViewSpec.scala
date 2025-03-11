@@ -51,6 +51,12 @@ class FindAddressViewSpec extends ViewBaseSpec {
   }
 
   "FindAddressView" must {
+
+    "print valid description" in {
+      val findAddress = FindAddress(Postcode("TQ5 9BW"), Some("20"))
+      findAddress.toString mustBe "Some(20),TQ5 9BW"
+    }
+
     "produce the same output for apply() and render()" in {
       val form = FindAddress
         .form()

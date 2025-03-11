@@ -20,7 +20,7 @@ import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup.AddressLookupConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, Postcode}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{Address, AddressLookupRequest, AddressLookupResponse, Subdivision}
@@ -44,8 +44,8 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
                                      )(implicit ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
 
-
-  val testAddressModel: (Int) => Address = (number) =>
+  // $COVERAGE-OFF$
+  val testAddressModel: Int => Address = number =>
     Address(
       lines = Seq(s"$number Wibble Rd"),
       town = "Worthing",
@@ -59,6 +59,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
         name = "Great Britain"
       )
     )
+  // $COVERAGE-ON$
 
   lazy val testAddressList: Seq[Address] = for (i <- 1 to 8) yield testAddressModel(i)
 
@@ -76,11 +77,13 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
           formWithErrors => Future.successful(BadRequest(findAddressView(formWithErrors))),
           findAddress => {
             appConfig.getString("addressLookup.enabled") match {
+              // $COVERAGE-OFF$
               case "false" =>
                 val addresses: Seq[Address] = testAddressList
                 val addressLookupResponseSession: Session = sessionManager.setAddressLookupResponse(request.session, addresses)
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
                 Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession))
+              // $COVERAGE-ON$
               case _ =>
                 addressLookupConnector.findAddressByPostcode(AddressLookupRequest(findAddress.postcode.value, findAddress.propertyName))
                   .flatMap {
