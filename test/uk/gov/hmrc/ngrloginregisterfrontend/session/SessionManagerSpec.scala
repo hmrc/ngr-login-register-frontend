@@ -20,7 +20,6 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import play.api.mvc.Session
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 
 class SessionManagerSpec extends TestSupport with TestData {
   val sessionManager: SessionManager = inject[SessionManager]
