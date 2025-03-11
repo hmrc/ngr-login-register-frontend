@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.connectors.AddressLookup
+package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsSuccess, Json}

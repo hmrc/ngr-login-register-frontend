@@ -20,11 +20,10 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.mappings.Constraints
 
 final case class Name(value: String)
 
-object Name extends CommonFormValidators with Constraints {
+object Name extends CommonFormValidators {
   implicit val format: OFormat[Name] = Json.format[Name]
   private lazy val contactNameInvalidFormat = "name.invalidFormat.error"
 

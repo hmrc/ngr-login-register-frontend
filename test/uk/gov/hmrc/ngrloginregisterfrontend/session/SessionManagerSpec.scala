@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.session
 
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import play.api.libs.json.Json
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import play.api.mvc.Session
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 
-class SessionManagerSpec extends TestSupport {
+class SessionManagerSpec extends TestSupport with TestData {
   val sessionManager: SessionManager = inject[SessionManager]
   val journeyId = "1234"
   private val address = "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"
@@ -34,6 +37,17 @@ class SessionManagerSpec extends TestSupport {
 
     "set a address" in {
       sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), "NGR-ChosenAddressIdKey") mustBe Some(address)
+    }
+
+    "set address lookup response" in {
+      val addresses = Seq(addressLookupAddress)
+      val json = Json.toJson(addresses).toString()
+      sessionManager.getSessionValue(sessionManager.setAddressLookupResponse(session, addresses), "Address-Lookup-Response") mustBe Some(json)
+    }
+
+    "set postcode" in {
+      val postcode = Postcode("W126WA")
+      sessionManager.getSessionValue(sessionManager.setPostcode(session, postcode), "Postcode-Key") mustBe Some(postcode.value)
     }
 
     "delete a key" in {

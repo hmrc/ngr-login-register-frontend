@@ -39,6 +39,15 @@ trait TestData {
       country = "UK",
     )
 
+  val addressLookupAddress: uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address =
+    uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address(
+      lines = Seq("100"),
+      town = "London",
+      postcode = "W126WA",
+      subdivision = None,
+      country = Subdivision("100", "UK")
+    )
+
   val testAddressString: String =
     "99 Wibble Rd, Worthing, West Sussex BN110AA"
 

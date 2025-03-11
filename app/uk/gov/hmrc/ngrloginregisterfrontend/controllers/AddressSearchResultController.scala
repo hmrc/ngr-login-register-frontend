@@ -54,24 +54,31 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
         links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = address.length, pageSize = defaulPageSize)
       )
 
+      val pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length)
+      val pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
+      println(s"pagetop: $pageTop pagebottom: $pageBottom addressLength: ${address.length}")
+
       Future.successful(Ok(view(
         postcode = postcode,
         paginatedData = Some(mockPaginatedAddress),
         totalAddress = address.length,
-        pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length),
-        pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
+        pageTop = pageTop,
+        pageBottom = pageBottom
       )))
     }
   }
 
   def selectedAddress(index: Int): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      val address: Seq[Address] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
+      sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
         sessionData => Json.parse(sessionData).as[Seq[Address]]
-      }.getOrElse(Seq.empty)
-
-      val updateSession: Session = sessionManager.setChosenAddress(request.session, address.apply(index).toString)
-      Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
+      }.getOrElse(Seq.empty) match {
+        case address if address.nonEmpty =>
+          val updateSession: Session = sessionManager.setChosenAddress(request.session, address.apply(index).toString)
+          Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
+        case _ =>
+          Future.failed(new RuntimeException("Address not found at index"))
+      }
     }
   }
 }

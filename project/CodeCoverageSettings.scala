@@ -12,8 +12,6 @@ object CodeCoverageSettings {
     ".*Routes.*",
     "testOnly.*",
     "testOnlyDoNotUseInAppConf.*",
-    ".*CheckAnswersView.*",
-    ".*CheckAnswersController.*",
     ".*InputText.*"
   )
 
