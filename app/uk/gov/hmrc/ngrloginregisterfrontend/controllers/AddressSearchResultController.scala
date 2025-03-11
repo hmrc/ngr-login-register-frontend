@@ -54,16 +54,12 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
         links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = address.length, pageSize = defaulPageSize)
       )
 
-      val pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length)
-      val pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
-      println(s"pagetop: $pageTop pagebottom: $pageBottom addressLength: ${address.length}")
-
       Future.successful(Ok(view(
         postcode = postcode,
         paginatedData = Some(mockPaginatedAddress),
         totalAddress = address.length,
-        pageTop = pageTop,
-        pageBottom = pageBottom
+        pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length),
+        pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
       )))
     }
   }
