@@ -42,9 +42,3 @@ case class TableData(headers: Seq[String], rows: Seq[Seq[String]], caption: Opti
     )
   }
 }
-
-object TableHelper {
-  def createTable(headers: Seq[String], rows: Seq[Seq[String]], caption: Option[String] = None): Table = {
-    TableData(headers, rows, caption).toTable
-  }
-}
