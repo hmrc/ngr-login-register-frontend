@@ -16,16 +16,15 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import uk.gov.hmrc.govukfrontend.views.html.components._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
 case class PaginationData(
-                           paginatedAddress: Option[PaginatedAddress],
+                           totalPages: Int,
+                           currentPage: Int,
                            baseUrl: String,
+                           pageSize: Int
                          ) {
   def toPagination: Pagination = {
-    val totalPages = paginatedAddress.map(_.totalPages).getOrElse(0)
-    val currentPage = paginatedAddress.map(_.currentPage).getOrElse(0)
 
     val items = (1 to totalPages).map { pageNumber =>
 
@@ -44,8 +43,18 @@ case class PaginationData(
   }
 }
 
-object PaginationHelper {
-  def createPagination(paginatedAddress: Option[PaginatedAddress], baseUrl: String): Pagination = {
-    PaginationData(paginatedAddress, baseUrl).toPagination
+object PaginationData {
+
+  def pageTop (currentPage: Int, pageSize: Int, totalAddress: Int): Int= {
+    if(currentPage * pageSize > totalAddress) totalAddress else currentPage * pageSize
   }
+
+  def pageBottom (currentPage: Int, pageSize: Int): Int = {
+    (currentPage * pageSize) - pageSize
+  }
+
+  def pageAddress(currentPage: Int, pageSize: Int, address: Seq[String]):Seq[String] = {
+    address.slice(pageBottom(currentPage, pageSize), pageTop(currentPage, pageSize, address.length))
+  }
+
 }
