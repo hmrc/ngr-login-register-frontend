@@ -34,41 +34,17 @@ govukTable : GovukTable
 )
 
 
-@(postcode: String, addressesPage: Seq[String], paginationData: PaginationData, totalAddress: Int, pageTop: Int, pageBottom: Int)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(postcode: String, paginationData: PaginationData, totalAddress: Int, pageTop: Int, pageBottom: Int, addressSearchResultTable: Table)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 
-@layout(pageTitle = Some(messages("phoneNumber.pageTitle"))) {
 
-    <span class="govuk-caption-l">@messages("phoneNumber.caption")</span>
+@layout(pageTitle = Some(messages("AddressSearchResult.pageTitle", postcode))) {
+    <span class="govuk-caption-l">@messages("service.caption")</span>
     <h1 class="govuk-heading-l">
         @messages("AddressSearchResult.heading", postcode)
     </h1>
 
     <p class="govuk-body">@messages("AddressSearchResult.hint", pageBottom, pageTop , totalAddress)</p>
-
-    <table class="govuk-table hmrc-responsive-table" role="table">
-        <thead class="govuk-table__head" role="rowgroup">
-        <tr class="govuk-table__row" role="row">
-            <th scope="col" class="govuk-table__header" aria-sort="ascending" role="columnheader">Address</th>
-            <th scope="col" class="govuk-table__header"></th>
-        </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-
-        @for((address, index) <- addressesPage.zipWithIndex){
-            <tr class="govuk-table__row" role="row">
-                <td class="govuk-table__cell" role="cell">
-                    <a>@address</a>
-                </td>
-                <td class="govuk-table__cell" role="cell">
-                    <a href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.AddressSearchResultController.selectedAddress(if(paginationData.currentPage > 1){index + paginationData.pageSize} else {index})" class="govuk-link">Select property</a>
-                </td>
-            </tr>
-            }
-
-        </tbody>
-    </table>
-
+    @govukTable(addressSearchResultTable)
     @govukPagination(paginationData.toPagination)
-
 }

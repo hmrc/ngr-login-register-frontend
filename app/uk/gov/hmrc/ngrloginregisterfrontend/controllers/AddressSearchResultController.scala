@@ -19,9 +19,11 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
+import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginationData
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AddressSearchResult, ColumnEntry, MessageKey, PaginatedAddress, TableHelper, TableRows}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
@@ -29,6 +31,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
 import scala.concurrent.Future
+import scala.reflect.internal.util.TableDef.Column
 
 class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               authenticate: AuthJourney,
@@ -50,13 +53,27 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
       val totalPages: Int = math.ceil(address.length.toFloat / defaultPageSize.toFloat).toInt
       val addresses = PaginationData.pageAddress(currentPage = page, pageSize = defaultPageSize, address = address)
 
+      def splitAddressByPage(currentPage: Int,pageSize: Int, address: Seq[String]): Seq[String] = {
+        PaginatedAddress.pageAddress(currentPage = currentPage, pageSize = pageSize, address = address)
+      }
+
+      def zipWithIndex(currentPage: Int,pageSize: Int, address: Seq[String]): Seq[(String, String)] =
+        splitAddressByPage(currentPage, pageSize, address).zipWithIndex.map(
+        x => (x._1, if(page > 1){routes.AddressSearchResultController.selectedAddress(x._2 + defaulPageSize).url} else {routes.AddressSearchResultController.selectedAddress(x._2).url})
+      )
+
+      def generateTable(addressList:AddressSearchResult): Table  = {
+        TableHelper.createTable(headers = Seq("Address", ""), rows = zipWithIndex(page, defaulPageSize, addressList.address).map(stringValue => Seq(stringValue._1, stringValue._2)))
+      }
+
       Future.successful(Ok(view(
         postcode = postcode,
         addressesPage = addresses,
         totalAddress = address.length,
         pageTop = PaginationData.pageTop(currentPage = page, pageSize = defaultPageSize, address.length),
         pageBottom = PaginationData.pageBottom(currentPage = page, pageSize = defaultPageSize) + 1,
-        paginationData = PaginationData(totalPages = totalPages, currentPage = page, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = defaultPageSize)
+        paginationData = PaginationData(totalPages = totalPages, currentPage = page, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = defaultPageSize),
+        addressSearchResultTable = generateTable(AddressSearchResult(address))
       )))
     }
   }

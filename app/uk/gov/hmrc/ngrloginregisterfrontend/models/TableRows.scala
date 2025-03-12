@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-@import uk.gov.hmrc.govukfrontend.views.Aliases._
-@import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-@this(layout: Layout,
-      govukSummaryList : GovukSummaryList)
-
-@(summaryList: SummaryList)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
-
-@layout(pageTitle = Some(messages("checkYourAnswers.pageTitle"))) {
-<h1 class="govuk-heading-xl">@messages("checkYourAnswers.pageTitle")</h1>
-@govukSummaryList(summaryList)
-
-}
+case class TableRows(columnEntries: AddressSearchResult)
