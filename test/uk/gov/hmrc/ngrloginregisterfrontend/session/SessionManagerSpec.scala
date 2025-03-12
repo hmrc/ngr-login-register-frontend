@@ -35,7 +35,7 @@ class SessionManagerSpec extends TestSupport with TestData {
     }
 
     "set a address" in {
-      sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), "NGR-ChosenAddressIdKey") mustBe Some(address)
+      sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), "NGR-Chosen-Address-Key") mustBe Some(address)
     }
 
     "set address lookup response" in {

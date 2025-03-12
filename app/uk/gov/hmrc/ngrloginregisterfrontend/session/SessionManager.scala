@@ -28,7 +28,7 @@ import javax.inject.{Inject, Singleton}
 class SessionManager @Inject()(mcc: MessagesControllerComponents) {
 
    private val journeyIdKey      : String = "NGR-JourneyId"
-   val ChosenAddressIdKey: String = "NGR-ChosenAddressIdKey"
+   val chosenAddressIdKey: String = "NGR-Chosen-Address-Key"
    val addressLookupResponseKey: String = "Address-Lookup-Response"
    val postcodeKey: String = "Postcode-Key"
 
@@ -45,8 +45,9 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
     updateSession(session, journeyIdKey, journeyId)
   }
 
-  def setChosenAddress(session: Session, Address: String): Session = {
-    updateSession(session, ChosenAddressIdKey, Address)
+  def setChosenAddress(session: Session, address: Address): Session = {
+    val ngrAddress = uk.gov.hmrc.ngrloginregisterfrontend.models.Address(address.lines.mkString(" "), None, address.town, None, Postcode(address.postcode), address.country.code)
+    updateSession(session, chosenAddressIdKey, Json.toJson(ngrAddress).toString())
   }
 
   def setAddressLookupResponse(session: Session, addresses: Seq[Address]): Session = {

@@ -90,7 +90,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
     "method selectedAddress" must {
       "Return SEE OTHER and correctly store address to the session" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
-        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
+        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
         val result = controller().selectedAddress(1)(authenticatedFakeRequestWithSession)
         status(result) mustBe SEE_OTHER
         redirectLocation(routes.NameController.show.url)

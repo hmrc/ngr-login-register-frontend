@@ -14,57 +14,39 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.ngrloginregisterfrontend.models.Address
 @import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.Aliases._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 @import uk.gov.hmrc.ngrloginregisterfrontend.viewmodels.govuk.all._
+@import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmAddressForm
 
 @this(
 layout: Layout,
-address : String,
-govukRadios : GovukRadios,
-govukErrorSummary: GovukErrorSummary,
 formHelper: FormWithCSRF,
-saveAndContinueButton: saveAndContinueButton)
+govukFieldset: GovukFieldset,
+govukErrorSummary: GovukErrorSummary,
+govukRadios : GovukRadios,
+saveAndContinueButton: saveAndContinueButton
+)
 
-@(confirmAddressForm: Form[Address])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(address: String, form: Form[ConfirmAddressForm], ngrRadio: Radios)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("confirmAddress.pageTitle"))) {
+
+@layout(pageTitle = Some(messages("phoneNumber.pageTitle"))) {
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmAddressController.submit, Symbol("autoComplete") -> "off") {
- @if(confirmAddressForm.errors.nonEmpty) {
-  @govukErrorSummary(ErrorSummaryViewModel(confirmAddressForm))
+@if(form.errors.nonEmpty) {
+@govukErrorSummary(ErrorSummaryViewModel(form))
 }
-
 <span class="govuk-caption-l">@messages("confirmAddress.caption")</span>
-<h1 class="govuk-heading-l">
-    @messages("confirmAddress.heading")
-</h1>
-<p class="govuk-body">5 Brixham Marina, Berry Head Road, Devon, TQ5 9BW</p>
+<h1 class="govuk-heading-l">@messages("confirmAddress.heading")</h1>
+<p class="govuk-body">@address</p>
 
-    @NGRRadio(NGRRadioName("confirmAddressRadio"), Seq(NGRRadioButtons("Yes", Yes), NGRRadioButtons("No", No))
 
-    @govukRadios(Radios(
-    name = "value",
-    items = Seq(
-    RadioItem(
-    content = Text("Yes"),
-    value = Some(YesNoOptions.YES.toString),
-    checked = formValues.value.contains(YesNoOptions.YES.toString)
-    ),
-    RadioItem(
-    content = Text("No"),
-    value = Some(YesNoOptions.NO.toString),
-    checked = formValues.value.contains(YesNoOptions.NO.toString)
-    )
-    ),
-    classes = "govuk-radios",
-    errorMessage = formValues.error.map(err => ErrorMessage(content = Text(messages(err.message)))),
-    ))
+@govukRadios(ngrRadio)
 
-<p class="govuk-body">@messages("registration.checkAnswers.contactDetails.table.address.subheading")</p>
+<p class="govuk-body">@messages("findAddress.body")</p>
 
-    @saveAndContinueButton("continue")
- }
+@saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
+}
 }

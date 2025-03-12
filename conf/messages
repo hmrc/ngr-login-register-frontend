@@ -74,4 +74,5 @@ AddressSearchResult.link    = Select property
 
 confirmAddress.pageTitle = Confirm Address
 confirmAddress.caption   = Register for the business rates valuation service
-confirmAddress.heading = Do you want to use this address?
+confirmAddress.heading   = Do you want to use this address?
+confirmAddress.radio.unselected.error = Please select "Yes" or "No" to continue
