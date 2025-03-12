@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{PaginatedAddress, PaginationHelper}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginationData
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
@@ -36,31 +36,27 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               sessionManager: SessionManager
                                              )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
-  lazy val defaulPageSize = 5
+  private lazy val defaultPageSize: Int = 5
 
   def show(page: Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
+
      val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map {
         sessionData =>
           Json.parse(sessionData).as[Seq[Address]].map(address => s"${address.lines.mkString(",")} ${address.town}, ${address.postcode}")
       }.getOrElse(Seq.empty)
-      val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
 
-      val mockPaginatedAddress = PaginatedAddress(
-        currentPage = page,
-        total = address.length,
-        pageSize = defaulPageSize,
-        address = PaginatedAddress.pageAddress(currentPage = page, pageSize = defaulPageSize, address = address),
-        links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = address.length, pageSize = defaulPageSize)
-      )
+      val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
+      val totalPages: Int = math.ceil(address.length.toFloat / defaultPageSize.toFloat).toInt
+      val addresses = PaginationData.pageAddress(currentPage = page, pageSize = defaultPageSize, address = address)
 
       Future.successful(Ok(view(
         postcode = postcode,
-        paginatedData = Some(mockPaginatedAddress),
+        addressesPage = addresses,
         totalAddress = address.length,
-        pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length),
-        pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1,
-        paginationData = PaginationHelper.createPagination(Some(mockPaginatedAddress), "/ngr-login-register-frontend/address-search-results")
+        pageTop = PaginationData.pageTop(currentPage = page, pageSize = defaultPageSize, address.length),
+        pageBottom = PaginationData.pageBottom(currentPage = page, pageSize = defaultPageSize) + 1,
+        paginationData = PaginationData(totalPages = totalPages, currentPage = page, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = defaultPageSize)
       )))
     }
   }
