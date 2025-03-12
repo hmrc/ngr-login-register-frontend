@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import org.checkerframework.checker.units.qual.A
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.Aliases.{Content, Table}
+import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 
