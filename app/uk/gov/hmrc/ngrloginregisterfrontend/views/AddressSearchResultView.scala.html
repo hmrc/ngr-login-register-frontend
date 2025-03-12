@@ -14,7 +14,8 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.ngrloginregisterfrontend.models.{PaginatedAddress}
+@import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginatedAddress
+@import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginationData
 @import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -25,6 +26,7 @@
 @this(
 layout: Layout,
 govukSummaryList : GovukSummaryList,
+govukPagination : GovukPagination,
 inputText: components.InputText,
 formHelper: FormWithCSRF,
 govukErrorSummary: GovukErrorSummary,
@@ -34,7 +36,7 @@ govukTable : GovukTable
 )
 
 
-@(postcode: String, paginatedData: Option[PaginatedAddress], totalAddress: Int, pageTop: Int, pageBottom: Int)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(postcode: String, paginatedData: Option[PaginatedAddress], paginationData: Pagination, totalAddress: Int, pageTop: Int, pageBottom: Int)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 
 
@@ -117,4 +119,8 @@ govukTable : GovukTable
         </nav>
         }
     }
+
+<h1 class = "govuk-heading-l"> New pagination component </h1>
+    @govukPagination(paginationData)
+
 }
