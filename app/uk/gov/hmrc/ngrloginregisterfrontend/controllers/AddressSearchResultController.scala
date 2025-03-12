@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginatedAddress
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{PaginatedAddress, PaginationHelper}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
@@ -59,7 +59,8 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
         paginatedData = Some(mockPaginatedAddress),
         totalAddress = address.length,
         pageTop = PaginatedAddress.pageTop(currentPage = page, pageSize = defaulPageSize, address.length),
-        pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1
+        pageBottom = PaginatedAddress.pageBottom(currentPage = page, pageSize = defaulPageSize) + 1,
+        paginationData = PaginationHelper.createPagination(Some(mockPaginatedAddress), "/ngr-login-register-frontend/address-search-results")
       )))
     }
   }
