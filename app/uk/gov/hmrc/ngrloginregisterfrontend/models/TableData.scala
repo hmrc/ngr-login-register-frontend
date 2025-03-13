@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import jdk.javadoc.internal.doclets.formats.html.markup.TableHeader
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Content, Table}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}

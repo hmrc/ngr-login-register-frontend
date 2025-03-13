@@ -34,8 +34,8 @@ class NameViewSpec  extends ViewBaseSpec {
 
   object Selectors {
     val backLink = "body > div > a"
-    val caption = "#content > form > span"
-    val heading = "#content > form > h1"
+    val caption = "#main-content > div > div > form > span"
+    val heading = "#main-content > div > div > form > h1"
     val continueButton   = "#continue"
     val errorMessage = "  #name-value-error"
   }

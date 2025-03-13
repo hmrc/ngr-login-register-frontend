@@ -41,15 +41,15 @@ class StartSpec extends ViewBaseSpec {
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
-    val languageSelector = "#content > nav > ul > li:nth-child(1) > span"
-    val headingSelector = "#content > form > h1"
+    val languageSelector = "#main-content > div > div > nav > ul > li:nth-child(1) > span"
+    val headingSelector = "#main-content > div > div > form > h1"
     val backLink = ".govuk-back-link"
     val button = "#continue"
-    val body1Selector = "#content > form > p:nth-child(2)"
-    val body2Selector = "#content > form > p:nth-child(3)"
-    val bullet1 = "#content > form > ul > li:nth-child(1)"
-    val bullet2 = "#content > form > ul > li:nth-child(2)"
-    val bullet3 = "#content > form > ul > li:nth-child(3)"
+    val body1Selector = "#main-content > div > div > form > p:nth-child(2)"
+    val body2Selector = "#main-content > div > div > form > p:nth-child(3)"
+    val bullet1 = "#main-content > div > div > form > ul > li:nth-child(1)"
+    val bullet2 = "#main-content > div > div > form > ul > li:nth-child(2)"
+    val bullet3 = "#main-content > div > div > form > ul > li:nth-child(3)"
   }
 
   override def beforeEach(): Unit = {

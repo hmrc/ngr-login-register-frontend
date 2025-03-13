@@ -37,11 +37,11 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
 
   object Selectors {
     val backLink = "body > div > a"
-    val caption = "#content > span"
-    val heading = "#content > h1"
-    val previousButton = "#content > nav > div > a"
-    val nextButton = "#content > nav > div.govuk-pagination__next > a"
-    val searchAgain = "#content > p > a"
+    val caption = "#main-content > div > div > span"
+    val heading = "#main-content > div > div > h1"
+    val previousButton = "#main-content > div > div > nav > div > a"
+    val nextButton = "#main-content > div > div > nav > div.govuk-pagination__next > a"
+    val searchAgain = "#main-content > div > div > p > a"
   }
 
   "Rendering the AddressSearchResultView on page 1 with 10 address's and 5 a page" should {
