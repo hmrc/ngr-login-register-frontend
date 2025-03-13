@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import uk.gov.hmrc.govukfrontend.views.Aliases.Table
+import uk.gov.hmrc.govukfrontend.views.Aliases.{Content, Table}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 
-sealed trait TableRowData
+sealed trait TableRowData {
+  def html: Content
+}
 case class TableRowText(value: String) extends TableRowData {
-  def html: Text = Text(value)
+  override def html: Text = Text(value)
 }
 case class TableRowLink(value: String, label: String) extends TableRowData {
-  def html: HtmlContent = {
+  override def html: HtmlContent = {
     HtmlContent(s"""<a href="$value" class="govuk-link">$label</a>""")
   }
 }
@@ -37,10 +39,8 @@ final case class TableData(headers: Seq[String], rows: Seq[Seq[TableRowData]], c
       rows = rows.map(
         row => row.map(
           cell => TableRow(
-            cell match {
-              case text: TableRowText => text.html
-              case link: TableRowLink => link.html
-            })
+            cell.html
+          )
         )
       ),
       caption = caption,
