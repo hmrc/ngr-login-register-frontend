@@ -59,7 +59,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
       )
 
       def generateTable(addressList:AddressSearchResult): Table  = {
-        TableData(headers = Seq("Address", ""), rows = zipWithIndex(page, defaultPageSize, addressList.address).map(stringValue => Seq(TableRowText(stringValue._1), TableRowLink(stringValue._2)))).toTable
+        TableData(headers = Seq("Address", ""), rows = zipWithIndex(page, defaultPageSize, addressList.address).map(stringValue => Seq(TableRowText(stringValue._1), TableRowLink(stringValue._2, "Select Property")))).toTable
       }
 
       Future.successful(Ok(view(

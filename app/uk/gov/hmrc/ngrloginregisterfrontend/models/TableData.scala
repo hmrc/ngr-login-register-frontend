@@ -21,8 +21,14 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 
 sealed trait TableRowData
-case class TableRowText(value: String) extends TableRowData
-case class TableRowLink(value: String) extends TableRowData
+case class TableRowText(value: String) extends TableRowData {
+  def html: Text = Text(value)
+}
+case class TableRowLink(value: String, label: String) extends TableRowData {
+  def html: HtmlContent = {
+    HtmlContent(s"""<a href="$value" class="govuk-link">$label</a>""")
+  }
+}
 
 final case class TableData(headers: Seq[String], rows: Seq[Seq[TableRowData]], caption: Option[String] = None, captionClasses: String = "govuk-table__caption--m") {
   def toTable: Table = {
@@ -32,8 +38,8 @@ final case class TableData(headers: Seq[String], rows: Seq[Seq[TableRowData]], c
         row => row.map(
           cell => TableRow(
             cell match {
-              case text: TableRowText => Text(text.value)
-              case link: TableRowLink => HtmlContent(s"""<a href="${link.value}" class="govuk-link">Select property</a>""")
+              case text: TableRowText => text.html
+              case link: TableRowLink => link.html
             })
         )
       ),
