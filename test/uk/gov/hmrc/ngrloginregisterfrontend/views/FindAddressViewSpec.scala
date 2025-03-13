@@ -32,6 +32,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
   lazy val label = "Postcode"
   lazy val propertyNameLabel = "Property name or number (optional)"
   lazy val continueButton = "Find address"
+  lazy val hint = "For example, 116, The Mill, or Suite 10"
   lazy val emptyErrorMessage = "Error: Enter a full UK postcode"
   lazy val invalidErrorMessage = "Error: Enter a full UK postcode"
   lazy val maxLengthErrorMessage = "Error: No more than 100 characters allowed"
@@ -43,7 +44,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
     val caption = "#content > form > span"
     val heading = "#content > form > h1"
     val label   = "#content > form > div > label"
-    val hint   = "#hint-postcode-value"
+    val hint   = "#property-name-value-hint"
     val continueButton   = "#continue"
     val backLink = "body > div > a"
     val errorMessage = "#postcode-value-error"
@@ -71,7 +72,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-//      elementText(Selectors.propertyNameLabel) mustBe propertyNameLabel
+      elementText(Selectors.hint)   mustBe hint
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
@@ -89,7 +90,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-//      elementText(Selectors.propertyNameLabel) mustBe propertyNameLabel
+      elementText(Selectors.hint)   mustBe hint
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
@@ -107,7 +108,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-//      elementText(Selectors.propertyNameLabel) mustBe propertyNameLabel
+      elementText(Selectors.hint)   mustBe hint
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
@@ -123,7 +124,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-//      elementText(Selectors.propertyNameLabel) mustBe propertyNameLabel
+      elementText(Selectors.hint)   mustBe hint
       elementText(Selectors.errorMessage) mustBe emptyErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
@@ -140,7 +141,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-//      elementText(Selectors.propertyNameLabel) mustBe propertyNameLabel
+      elementText(Selectors.hint)   mustBe hint
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
@@ -157,7 +158,7 @@ class FindAddressViewSpec extends ViewBaseSpec {
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
-      //      elementText(Selectors.propertyNameLabel) mustBe propertyNameLabel
+      elementText(Selectors.hint)   mustBe hint
       elementText(Selectors.propertyNameErrorMessage) mustBe maxLengthErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }

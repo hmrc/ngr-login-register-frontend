@@ -16,7 +16,6 @@
 
 @import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@import uk.gov.hmrc.govukfrontend.views.Aliases._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 @import uk.gov.hmrc.ngrloginregisterfrontend.viewmodels.govuk.all._
 @import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
@@ -58,6 +57,7 @@ form  =   form,
 id    =  "property-name-value",
 name  =  "property-name-value",
 label =   messages("findAddress.propertyName"),
+hint  =   Some(Hint(content = Text(messages("findAddress.propertyName.hint")))),
 isVisible = true,
 classes = Some("govuk-!-width-two-thirds")
 )
