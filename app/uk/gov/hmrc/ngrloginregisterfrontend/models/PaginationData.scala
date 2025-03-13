@@ -45,8 +45,8 @@ case class PaginationData(
 
 object PaginationData {
 
-  def pageTop (currentPage: Int, pageSize: Int, totalAddress: Int): Int= {
-    if(currentPage * pageSize > totalAddress) totalAddress else currentPage * pageSize
+  def pageTop (currentPage: Int, pageSize: Int, totalLength: Int): Int= {
+    if(currentPage * pageSize > totalLength) totalLength else currentPage * pageSize
   }
 
   def pageBottom (currentPage: Int, pageSize: Int): Int = {
