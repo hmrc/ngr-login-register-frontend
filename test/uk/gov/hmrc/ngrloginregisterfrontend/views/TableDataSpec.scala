@@ -16,20 +16,23 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.views
 
-import uk.gov.hmrc.govukfrontend.views.Aliases
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HeadCell, HtmlContent, Table, TableRow, Text}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.TableData
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{TableData, TableRowText}
 
 class TableDataSpec extends ViewBaseSpec{
 
   "TableData" when {
     "To table produces table" in {
-      val mockTableData = TableData(headers = Seq("header 1"),rows = Seq(Seq("Address 1")),caption = Some("Caption"))
-      mockTableData.toTable mustBe(Table(
-        rows = List(List(TableRow(HtmlContent("Address 1"), None, "", None, None, Map()))),
-        head = Some(List(HeadCell(Text("header 1"), None, "", None, None, Map()))),
-        caption = Some("Caption"), "govuk-table__caption--m", false, "", Map()))
+      val mockTableData = TableData(headers = Seq("header 1"),rows = Seq(Seq(TableRowText("Address 1"))),caption = Some("Caption"))
+      mockTableData.toTable mustBe Table(
+        rows = List(List(TableRow(Text("Address 1")))),
+        head = Some(List(HeadCell(Text("header 1")))),
+        caption = Some("Caption"),
+        captionClasses = "govuk-table__caption--m",
+        firstCellIsHeader = false,
+        classes = "",
+        attributes = Map())
     }
   }
 }

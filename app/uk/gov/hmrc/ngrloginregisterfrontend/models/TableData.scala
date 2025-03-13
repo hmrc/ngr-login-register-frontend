@@ -20,19 +20,20 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 
+sealed trait TableRowData
+case class TableRowText(value: String) extends TableRowData
+case class TableRowLink(value: String) extends TableRowData
 
-
-case class TableData(headers: Seq[String], rows: Seq[Seq[String]], caption: Option[String] = None, captionClasses: String = "govuk-table__caption--m") {
+final case class TableData(headers: Seq[String], rows: Seq[Seq[TableRowData]], caption: Option[String] = None, captionClasses: String = "govuk-table__caption--m") {
   def toTable: Table = {
     Table(
       head = Some(headers.map(header => HeadCell(content = Text(header)))),
       rows = rows.map(
         row => row.map(
           cell => TableRow(
-            content = if(cell.contains("/ngr-login-register-frontend")){
-              HtmlContent(s"""<a href="$cell" class="govuk-link">Select property</a>""")
-            }else{
-              HtmlContent(cell)
+            cell match {
+              case text: TableRowText => Text(text.value)
+              case link: TableRowLink => HtmlContent(s"""<a href="${link.value}" class="govuk-link">Select property</a>""")
             })
         )
       ),

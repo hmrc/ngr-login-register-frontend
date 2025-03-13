@@ -23,7 +23,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AddressSearchResult, PaginationData, TableData}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AddressSearchResult, PaginationData, TableData, TableRowLink, TableRowText}
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -59,7 +59,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
       )
 
       def generateTable(addressList:AddressSearchResult): Table  = {
-        TableData(headers = Seq("Address", ""), rows = zipWithIndex(page, defaultPageSize, addressList.address).map(stringValue => Seq(stringValue._1, stringValue._2))).toTable
+        TableData(headers = Seq("Address", ""), rows = zipWithIndex(page, defaultPageSize, addressList.address).map(stringValue => Seq(TableRowText(stringValue._1), TableRowLink(stringValue._2)))).toTable
       }
 
       Future.successful(Ok(view(
