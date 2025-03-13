@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
+import jdk.javadoc.internal.doclets.formats.html.markup.TableHeader
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Content, Table}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
@@ -32,10 +33,16 @@ case class TableRowLink(value: String, label: String) extends TableRowData {
   }
 }
 
-final case class TableData(headers: Seq[String], rows: Seq[Seq[TableRowData]], caption: Option[String] = None, captionClasses: String = "govuk-table__caption--m") {
+case class TableHeader(header:String, classes: String) {
+  def htmlContent(): HeadCell = {
+    HeadCell(content = Text(header), classes = classes)
+  }
+}
+
+final case class TableData(headers: Seq[TableHeader], rows: Seq[Seq[TableRowData]], caption: Option[String] = None, captionClasses: String = "govuk-table__caption--m") {
   def toTable: Table = {
     Table(
-      head = Some(headers.map(header => HeadCell(content = Text(header)))),
+      head = Some(headers.map(header => header.htmlContent())),
       rows = rows.map(
         row => row.map(
           cell => TableRow(
@@ -45,7 +52,8 @@ final case class TableData(headers: Seq[String], rows: Seq[Seq[TableRowData]], c
       ),
       caption = caption,
       captionClasses = captionClasses,
-      firstCellIsHeader = false
+      firstCellIsHeader = false,
+      classes = "govuk-!-width-full"
     )
   }
 }
