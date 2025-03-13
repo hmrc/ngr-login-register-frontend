@@ -53,8 +53,8 @@ object PaginationData {
     (currentPage * pageSize) - pageSize
   }
 
-  def pageAddress(currentPage: Int, pageSize: Int, address: Seq[String]):Seq[String] = {
-    address.slice(pageBottom(currentPage, pageSize), pageTop(currentPage, pageSize, address.length))
+  def getPage[T](currentPage: Int, pageSize: Int, list: Seq[T]):Seq[T] = {
+    list.slice(pageBottom(currentPage, pageSize), pageTop(currentPage, pageSize, list.length))
   }
 
 }

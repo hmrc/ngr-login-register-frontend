@@ -50,7 +50,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
       val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
       val totalPages: Int = math.ceil(address.length.toFloat / defaultPageSize.toFloat).toInt
       def splitAddressByPage(currentPage: Int,pageSize: Int, address: Seq[String]): Seq[String] = {
-        PaginationData.pageAddress(currentPage = currentPage, pageSize = pageSize, address = address)
+        PaginationData.getPage(currentPage = currentPage, pageSize = pageSize, list = address)
       }
 
       def zipWithIndex(currentPage: Int,pageSize: Int, address: Seq[String]): Seq[(String, String)] =
