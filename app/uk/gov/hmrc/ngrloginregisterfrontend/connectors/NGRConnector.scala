@@ -44,7 +44,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
-        logger.info("Upsert Ratepayer" + response.body)
+        logger.info("Upsert Ratepayer" + model)
         response.status match {
           case CREATED => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
