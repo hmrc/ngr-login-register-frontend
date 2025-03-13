@@ -44,7 +44,12 @@ govukTable : GovukTable
         @messages("AddressSearchResult.heading", postcode)
     </h1>
 
-    <p class="govuk-body">@messages("AddressSearchResult.hint", pageBottom, pageTop , totalAddress)</p>
+    <p class="govuk-body">
+        @messages("AddressSearchResult.hint", pageBottom, pageTop , totalAddress)
+        <a href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.FindAddressController.show" class="govuk-link">
+            @messages("AddressSearchResult.search")
+        </a>
+    </p>
     @govukTable(addressSearchResultTable)
     @govukPagination(paginationData.toPagination)
 }

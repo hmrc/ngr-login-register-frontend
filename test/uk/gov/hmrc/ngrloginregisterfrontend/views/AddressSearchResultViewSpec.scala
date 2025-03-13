@@ -33,6 +33,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
   private def  heading(postcode: String) = s"Search results for $postcode"
   lazy val previousButton = "Previous page"
   lazy val nextButton = "Next page"
+  lazy val searchAgain = "Search again"
 
   object Selectors {
     val backLink = "body > div > a"
@@ -40,6 +41,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val heading = "#content > h1"
     val previousButton = "#content > nav > div > a"
     val nextButton = "#content > nav > div.govuk-pagination__next > a"
+    val searchAgain = "#content > p > a"
   }
 
   "Rendering the AddressSearchResultView on page 1 with 10 address's and 5 a page" should {
@@ -84,6 +86,10 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     }
     "have the back link" in {
       elementText(Selectors.backLink) mustBe backLink
+    }
+
+    "contain the Search again link" in {
+      elementText(Selectors.searchAgain) mustBe searchAgain
     }
 
     "have the correct caption and heading" in {

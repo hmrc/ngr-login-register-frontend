@@ -69,4 +69,5 @@ AddressSearchResult.table.heading = Address
 AddressSearchResult.pageTitle = Search results for {0}
 AddressSearchResult.heading = Search results for {0}
 AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
+AddressSearchResult.search  = Search again
 AddressSearchResult.link    = Select property
