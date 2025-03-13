@@ -76,6 +76,13 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
       }
     }
 
+  def submit(): Action[AnyContent] = {
+    //TODO: form validation ?
+    Action.async {
+      Future.successful(Redirect(routes.ConfirmUTRController.show))
+    }
+  }
+
   private def buildAddress(personDetails: PersonDetails): Address =
     Address(
       line1 = personDetails.address.line1.getOrElse(""),
