@@ -53,9 +53,9 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(confirmAddressView(getAddressFromSession(request.session), formWithErrors, buildRadios(formWithErrors, ngrRadio)))),
+          formWithErrors =>
+            Future.successful(BadRequest(confirmAddressView(getAddressFromSession(request.session), formWithErrors, buildRadios(formWithErrors, ngrRadio)))),
           confirmAddressForm => {
-            println(Console.GREEN + confirmAddressForm.toString + Console.RESET)
             if (confirmAddressForm.radioValue.equals("Yes")) {
               sessionManager.getSessionValue(request.session, sessionManager.chosenAddressIdKey)
                 .map(Json.parse(_).as[Address])

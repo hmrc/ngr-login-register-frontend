@@ -17,42 +17,41 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Session
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
-
-import scala.concurrent.Future
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
 
 class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSupport with TestData {
   lazy val submitUrl: String = routes.ConfirmAddressController.submit.url
   lazy val chosenAddressIdKey: String = "NGR-Chosen-Address-Key"
-  lazy val view: FindAddressView = inject[FindAddressView]
-  val pageTitle = "Find the contact address"
+  lazy val view: ConfirmAddressView = inject[ConfirmAddressView]
+  val pageTitle = "Confirm Address"
   lazy val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-  val session: Session = Session(Map(chosenAddressIdKey -> "BN110AA"))
+  val session: Session = Session(Map(chosenAddressIdKey -> addressJsonResponse.toString()))
 
-  def controller() = new FindAddressController(
+  def controller() = new ConfirmAddressController(
     view,
-    mockAddressLookupConnector,
-    mockSessionManager,
-    mockNGRLogger,
     mockAuthJourney,
+    mockSessionManager,
+    mockNGRConnector,
     mcc
-  )(ec, mockConfig)
+  )(mockConfig)
 
-  "FindAddressController" must {
+  "ConfirmAddressController" must {
     "method show" must {
       "Return OK and the correct view" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -61,50 +60,49 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
     }
 
     "method submit" must {
-      "Successfully submit valid postcode and property name and redirect to confirm contact details" in {
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
-        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
-          .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
+      "Successfully submit when selected no" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+          .withFormUrlEncodedBody(("confirm-address-radio", "No"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          result.session.get(chosenAddressIdKey) mustBe Some(expectAddressesJsonString)
+          result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
         })
         status(result) mustBe SEE_OTHER
+        verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
       }
 
-      "Successfully submit only valid postcode and redirect to confirm contact details" in {
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
-        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
-          .withFormUrlEncodedBody(("postcode-value", "W126WA"))
+      "Direct to confirm your contact details when the chosen address doesn't exist" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+          .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
-          result.session.get(chosenAddressIdKey) mustBe Some(expectAddressesJsonString)
+          result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
         })
         status(result) mustBe SEE_OTHER
+        verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
       }
 
-      "Successfully submit valid postcode but AddressLookup throws an error" in {
-        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(500, "INTERNAL_SERVER_ERROR"))))
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
-          .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
-          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-
-        status(result) mustBe INTERNAL_SERVER_ERROR
-        val errorResponse: ErrorResponse = contentAsJson(result).as[ErrorResponse]
-        errorResponse.message mustBe "INTERNAL_SERVER_ERROR"
-      }
-
-      "Submit with no postcode and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
-          .withFormUrlEncodedBody(("postcode-value", ""))
+      "Submit with radio buttons unselected and display error message" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+          .withFormUrlEncodedBody(("confirm-address-radio", ""))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
+      }
+      "Successfully submit when selected yes" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+          .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
+        })
+        status(result) mustBe SEE_OTHER
+        verify(mockNGRConnector, times(1)).changeAddress(any(), any())(any())
       }
     }
   }

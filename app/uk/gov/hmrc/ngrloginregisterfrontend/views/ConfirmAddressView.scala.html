@@ -33,7 +33,7 @@ saveAndContinueButton: saveAndContinueButton
 @(address: String, form: Form[ConfirmAddressForm], ngrRadio: Radios)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 
-@layout(pageTitle = Some(messages("phoneNumber.pageTitle"))) {
+@layout(pageTitle = Some(messages("confirmAddress.pageTitle"))) {
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmAddressController.submit, Symbol("autoComplete") -> "off") {
 @if(form.errors.nonEmpty) {
 @govukErrorSummary(ErrorSummaryViewModel(form))

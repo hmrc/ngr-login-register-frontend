@@ -123,7 +123,6 @@ class NGRConnector @Inject()(http: HttpClientV2,
 
   def changeAddress(credId: CredId, address: Address)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(address = Some(address))
-    logger.info("Change address Ratepayer: " + ratepayer.toString)
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-address"))
       .withBody(Json.toJson(model))

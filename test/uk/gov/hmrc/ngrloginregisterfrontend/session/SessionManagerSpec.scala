@@ -20,11 +20,13 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import play.api.mvc.Session
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{Address, Subdivision}
 
 class SessionManagerSpec extends TestSupport with TestData {
   val sessionManager: SessionManager = inject[SessionManager]
   val journeyId = "1234"
-  private val address = "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"
+  private val address = Address(Seq("20 Long Rd"), "Bournemouth", "BN110AA", None, Subdivision("GB", "Great Britain"))
+  private val expectedAddressStr = """{"line1":"20 Long Rd","town":"Bournemouth","postcode":{"value":"BN110AA"},"country":"GB"}"""
   val session: Session = Session()
   val testKey = "key"
   val testValue = "value"
@@ -35,7 +37,7 @@ class SessionManagerSpec extends TestSupport with TestData {
     }
 
     "set a address" in {
-      sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), "NGR-Chosen-Address-Key") mustBe Some(address)
+      sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), "NGR-Chosen-Address-Key") mustBe Some(expectedAddressStr)
     }
 
     "set address lookup response" in {
