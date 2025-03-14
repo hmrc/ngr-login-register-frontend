@@ -25,6 +25,8 @@ trait CommonFormValidators {
 
   val fullNameRegexPattern: Pattern     = Pattern.compile("^[A-Za-z .'-]{1,160}$")
   val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9() ]{9,16}$")
+  val ninoRegexPattern: Pattern  = Pattern.compile("^([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|" +
+    "G[ACEGHJ-NPR-TW-Z]|[KT][A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6}[A-D]$")
   val postcodeRegexPattern: Pattern = Pattern.compile("^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$")
   val maxLengthErrorMessage: Int => String = maxLength => s"No more than $maxLength characters allowed"
   val isNonEmpty: String => Boolean = value => !Strings.isNullOrEmpty(value) && value.trim.nonEmpty

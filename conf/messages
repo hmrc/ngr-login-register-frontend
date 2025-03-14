@@ -71,3 +71,11 @@ AddressSearchResult.heading = Search results for {0}
 AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
 AddressSearchResult.search  = Search again
 AddressSearchResult.link    = Select property
+
+nino.pageTitle =              = Provide your National Insurance number
+nino.caption                  = Register for the business rates valuation service
+nino.heading                  = Provide your National Insurance number
+nino.label                    = National Insurance number
+nino.hint                     = It’s on your National Insurance card, benefit letter, payslip or P60. For example, ‘QQ 12 34 56 C’
+nino.empty.error              = Enter your National Insurance number
+nino.invalidFormat.error      = Enter a National Insurance number in the correct format
