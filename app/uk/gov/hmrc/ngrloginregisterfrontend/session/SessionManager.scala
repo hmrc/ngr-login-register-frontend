@@ -46,7 +46,8 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
   }
 
   def setChosenAddress(session: Session, address: Address): Session = {
-    val ngrAddress = uk.gov.hmrc.ngrloginregisterfrontend.models.Address(address.lines.mkString(" "), None, address.town, None, Postcode(address.postcode), address.country.code)
+    val ngrAddress = uk.gov.hmrc.ngrloginregisterfrontend.models.Address(
+      address.lines.mkString(" "), None, address.town, None, Postcode(address.postcode), address.country.code)
     updateSession(session, chosenAddressIdKey, Json.toJson(ngrAddress).toString())
   }
 
