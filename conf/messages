@@ -52,6 +52,7 @@ confirmContactDetails.address.caption = We will send letters to this address
 confirmContactDetails.change = Change
 confirmContactDetails.add = Add
 
+findAddress.pageTitle = Find the contact address
 findAddress.heading = Find the contact address
 findAddress.caption = Register for the business rates valuation service
 findAddress.body = We will use this address to send letters via post
@@ -71,3 +72,8 @@ AddressSearchResult.heading = Search results for {0}
 AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
 AddressSearchResult.search  = Search again
 AddressSearchResult.link    = Select property
+
+confirmAddress.pageTitle = Confirm Address
+confirmAddress.caption   = Register for the business rates valuation service
+confirmAddress.heading   = Do you want to use this address?
+confirmAddress.radio.unselected.error = This field is required

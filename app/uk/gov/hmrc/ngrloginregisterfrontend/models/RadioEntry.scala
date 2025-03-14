@@ -17,3 +17,8 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 trait RadioEntry
+
+sealed trait YesNoItem extends RadioEntry
+
+case object Yes extends YesNoItem
+case object No extends YesNoItem

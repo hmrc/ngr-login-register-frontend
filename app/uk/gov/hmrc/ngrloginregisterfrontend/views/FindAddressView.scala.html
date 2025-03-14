@@ -32,7 +32,7 @@ saveAndContinueButton: saveAndContinueButton
 @(form: Form[FindAddress])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 
-@layout(pageTitle = Some(messages("phoneNumber.pageTitle"))) {
+@layout(pageTitle = Some(messages("findAddress.pageTitle"))) {
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.FindAddressController.submit, Symbol("autoComplete") -> "off") {
 @if(form.errors.nonEmpty) {
 @govukErrorSummary(ErrorSummaryViewModel(form))

@@ -22,10 +22,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
 import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
 import uk.gov.hmrc.ngrloginregisterfrontend.forms.UniqueTaxReferenceForm
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.mocks.{No, Yes}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.UTROptions.{ProvideNino, ProvideUTR, ProvideUTRLater}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.enumsforforms.UtrOptionFormValue
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioHeader, NGRRadioName}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioHeader, NGRRadioName, No, Yes}
 
 class NGRRadioSpec extends TestSupport {
 
