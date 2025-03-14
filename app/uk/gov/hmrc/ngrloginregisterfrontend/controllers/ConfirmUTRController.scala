@@ -57,7 +57,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
       }
     }
 
-  private def summaryList(utr: String)(implicit messages: Messages): SummaryList = {
+  private[controllers] def summaryList(utr: String)(implicit messages: Messages): SummaryList = {
     SummaryList(Seq(
       NGRSummaryListRow.summarise(
         NGRSummaryListRow(
@@ -70,7 +70,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     ))
   }
 
-  private def radios()(implicit  messages: Messages): Radios = {
+  private[controllers] def radios()(implicit  messages: Messages): Radios = {
     NGRRadio.buildRadios(form = form(), NGRRadios = NGRRadio(
       radioGroupName = NGRRadioName("confirmUTR"),
       NGRRadioButtons = Seq(
