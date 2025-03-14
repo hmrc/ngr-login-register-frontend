@@ -16,4 +16,4 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-case class AddressSearchResult(address: Seq[String])
+final case class AddressSearchResult(address: Seq[String])

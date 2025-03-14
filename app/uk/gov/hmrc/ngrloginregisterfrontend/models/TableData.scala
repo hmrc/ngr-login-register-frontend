@@ -23,16 +23,16 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 sealed trait TableRowData {
   def html: Content
 }
-case class TableRowText(value: String) extends TableRowData {
+final case class TableRowText(value: String) extends TableRowData {
   override def html: Text = Text(value)
 }
-case class TableRowLink(value: String, label: String) extends TableRowData {
+final case class TableRowLink(value: String, label: String) extends TableRowData {
   override def html: HtmlContent = {
     HtmlContent(s"""<a href="$value" class="govuk-link">$label</a>""")
   }
 }
 
-case class TableHeader(header:String, classes: String) {
+final case class TableHeader(header:String, classes: String) {
   def htmlContent(): HeadCell = {
     HeadCell(content = Text(header), classes = classes)
   }

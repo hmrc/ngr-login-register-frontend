@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.libs.json.{Json, Reads}
 
-case class AddressSearch(addressList: Seq[Address], count: Int)
+final case class AddressSearch(addressList: Seq[Address], count: Int)
 
 object AddressSearch {
   implicit val reads: Reads[AddressSearch] = Json.reads

@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
-case class PaginationData(
+final case class PaginationData(
                            totalPages: Int,
                            currentPage: Int,
                            baseUrl: String,

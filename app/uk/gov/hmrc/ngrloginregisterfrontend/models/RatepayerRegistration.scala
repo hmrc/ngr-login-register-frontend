@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, ReferenceNumber, UserType}
 
-case class RatepayerRegistration(userType: Option[UserType] = None,
+final case class RatepayerRegistration(userType: Option[UserType] = None,
                                  agentStatus: Option[AgentStatus] = None,
                                  name: Option[Name] = None,
                                  tradingName: Option[TradingName] = None,
