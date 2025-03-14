@@ -118,6 +118,35 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
     }
   }
 
+  "changeNino" when {
+    "return HttpResponse when the response is OK" in {
+      val response: HttpResponse = HttpResponse(200, "Nino changed")
+      setupMockHttpV2Post(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/change-nino")(response)
+      val result: Future[HttpResponse] = ngrConnector.changeNino(credId, ninoModel)
+      result.futureValue.status mustBe 200
+    }
+
+    "throw an exception when response is not 200" in {
+      val response: HttpResponse = HttpResponse(400, "Bad Request")
+
+      setupMockHttpV2Post(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/change-nino")(response)
+
+      val exception = intercept[Exception] {
+        ngrConnector.changeNino(credId, ninoModel).futureValue
+      }
+      exception.getMessage must include("400: Bad Request")
+    }
+
+    "propagate exception when the request fails" in {
+
+      setupMockHttpV2FailedPost(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/change-nino")
+      val exception = intercept[RuntimeException] {
+        ngrConnector.changeNino(credId, ninoModel).futureValue
+      }
+      exception.getMessage must include("Request Failed")
+    }
+  }
+
   "changeName" when {
     "return HttpResponse when the response is OK" in {
       val response: HttpResponse = HttpResponse(200, "Name changed")
