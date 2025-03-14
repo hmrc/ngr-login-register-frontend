@@ -48,11 +48,11 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
   val radio: Radios = buildRadios(form, ngrRadio)
 
   object Selectors {
-    val caption = "#content > form > span"
-    val heading = "#content > form > h1"
-    val yesLabel = "#content > form > div > div > div:nth-child(1) > label"
-    val noLabel  = "#content > form > div > div > div:nth-child(2) > label"
-    val chosenAddress  = "#content > form > p"
+    val caption = "#main-content > div > div > form > span"
+    val heading = "#main-content > div > div > form > h1"
+    val yesLabel = "#main-content > div > div > form > div > div > div:nth-child(1) > label"
+    val noLabel  = "#main-content > div > div > form > div > div > div:nth-child(2) > label"
+    val chosenAddress  = "#main-content > div > div > form > p"
     val continueButton   = "#continue"
     val backLink = "body > div > a"
   }
