@@ -41,9 +41,9 @@ class FindAddressViewSpec extends ViewBaseSpec {
   val caption = "Register for the business rates valuation service"
 
   object Selectors {
-    val caption = "#content > form > span"
-    val heading = "#content > form > h1"
-    val label   = "#content > form > div > label"
+    val caption = "#main-content > div > div > form > span"
+    val heading = "#main-content > div > div > form > h1"
+    val label   = "#main-content > div > div > form > div > label"
     val hint   = "#property-name-value-hint"
     val continueButton   = "#continue"
     val backLink = "body > div > a"

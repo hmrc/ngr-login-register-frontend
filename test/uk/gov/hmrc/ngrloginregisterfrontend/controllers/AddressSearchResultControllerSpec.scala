@@ -52,7 +52,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         val result = controller().show()(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must       include("Showing 1 to 5 of 14 items.")
+        content must       include("Showing <strong>1</strong> to <strong>5</strong> of <strong>14</strong> items.")
         content must       include("Next")
         content mustNot    include("Previous")
       }
@@ -62,7 +62,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         val result = controller().show()(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must       include("Showing 1 to 0 of 0 items.")
+        content must       include("Showing <strong>1</strong> to <strong>0</strong> of <strong>0</strong> items.")
       }
 
       "Correctly display page number and number of address's on page 2" in {
@@ -72,7 +72,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         status(result) mustBe OK
         val content = contentAsString(result)
         content must    include("Previous")
-        content must    include ("Showing 6 to 10 of 14 items.")
+        content must    include ("Showing <strong>6</strong> to <strong>10</strong> of <strong>14</strong> items.")
         content must include("Next")
       }
 
@@ -82,7 +82,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         status(result) mustBe OK
         val content = contentAsString(result)
         content must    include("Previous")
-        content must    include ("Showing 11 to 14 of 14 items.")
+        content must    include ("Showing <strong>11</strong> to <strong>14</strong> of <strong>14</strong> items.")
         content mustNot include("Next")
       }
     }

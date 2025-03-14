@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.{Json, OFormat}
 
-final case class AddressSearch(addressList: Seq[Address], count: Int)
 
-object AddressSearch {
-  implicit val reads: Reads[AddressSearch] = Json.reads
+final case class MessageKey(key: String)
+object MessageKey {
+  implicit val format: OFormat[MessageKey] = Json.format[MessageKey]
 }

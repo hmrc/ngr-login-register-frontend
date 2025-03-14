@@ -30,7 +30,7 @@ class LayoutSpec extends ViewBaseSpec {
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
-    val languageSelector = "#content > nav > ul > li:nth-child(1) > span"
+    val languageSelector = "#main-content > div > div > nav > ul > li:nth-child(1) > span"
     val backLink = ".govuk-back-link"
   }
 
@@ -43,7 +43,7 @@ class LayoutSpec extends ViewBaseSpec {
   "The Layout template" when {
 
     "produce the same output for apply() and render()" in {
-      val htmlApply = injectedView.apply(pageTitle = Some("Title of page"),showBackLink = false)(Html("Test")).body
+      val htmlApply = injectedView.apply(pageTitle = Some("Title of page"), showBackLink = false)(Html("Test")).body
       val htmlRender = injectedView.render(pageTitle = Some("Title of page"), showBackLink = false, contentBlock = Html("Test"), request = request, messages = messages, appConfig = mockConfig).body
       val htmlF = injectedView.f(Some("Title of page"), false)(Html("Test"))(request, messages, mockConfig).body
       htmlApply mustBe htmlRender

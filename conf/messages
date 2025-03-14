@@ -3,6 +3,7 @@ service.navTitle = Manage your business rates valuation
 service.text = This is your new service
 service.continue = Continue
 service.base.title = {0} - GOV.UK
+service.caption = Register for the business rates valuation service
 
 startView.heading = Register for the business rates valuation service
 startView.body.1 = Use this service to meet your obligations as the ratepayer of a non-domestic property.
@@ -64,6 +65,9 @@ postcode.empty.error = Enter a full UK postcode
 postcode.invalid.error = Enter a full UK postcode
 maxlength.100.error = No more than {n} characters allowed
 
+AddressSearchResult.table.heading = Address
+AddressSearchResult.pageTitle = Search results for {0}
 AddressSearchResult.heading = Search results for {0}
 AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
+AddressSearchResult.search  = Search again
 AddressSearchResult.link    = Select property

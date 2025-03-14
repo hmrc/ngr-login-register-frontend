@@ -14,17 +14,17 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.ngrloginregisterfrontend.models.{PaginatedAddress}
+@import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginationData
 @import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 @import uk.gov.hmrc.ngrloginregisterfrontend.viewmodels.govuk.all._
 
 
-
 @this(
 layout: Layout,
 govukSummaryList : GovukSummaryList,
+govukPagination : GovukPagination,
 inputText: components.InputText,
 formHelper: FormWithCSRF,
 govukErrorSummary: GovukErrorSummary,
@@ -34,87 +34,22 @@ govukTable : GovukTable
 )
 
 
-@(postcode: String, paginatedData: Option[PaginatedAddress], totalAddress: Int, pageTop: Int, pageBottom: Int)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(postcode: String, paginationData: PaginationData, totalAddress: Int, pageTop: Int, pageBottom: Int, addressSearchResultTable: Table)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 
 
-@layout(pageTitle = Some(messages("phoneNumber.pageTitle"))) {
-    <span class="govuk-caption-l">@messages("phoneNumber.caption")</span>
+@layout(pageTitle = Some(messages("AddressSearchResult.pageTitle", postcode))) {
+    <span class="govuk-caption-l">@messages("service.caption")</span>
     <h1 class="govuk-heading-l">
         @messages("AddressSearchResult.heading", postcode)
     </h1>
 
-    <p class="govuk-body">@messages("AddressSearchResult.hint", pageBottom, pageTop , totalAddress)</p>
-
-    <table class="govuk-table hmrc-responsive-table" role="table">
-        <thead class="govuk-table__head" role="rowgroup">
-        <tr class="govuk-table__row" role="row">
-            <th scope="col" class="govuk-table__header" aria-sort="ascending" role="columnheader">Address</th>
-            <th scope="col" class="govuk-table__header"></th>
-        </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-        @paginatedData.map { pagData =>
-            @for((address, index) <- pagData.address.zipWithIndex){
-            <tr class="govuk-table__row" role="row">
-                <td class="govuk-table__cell" role="cell">
-                    <a>@address</a>
-                </td>
-                <td class="govuk-table__cell" role="cell">
-                    <a href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.AddressSearchResultController.selectedAddress(if(pagData.currentPage > 1){index + pagData.pageSize} else {index})" class="govuk-link">Select property</a>
-                </td>
-            </tr>
-            }
-        }
-        </tbody>
-    </table>
-
-    @paginatedData.map { pagData =>
-    @if(pagData.total > pagData.pageSize) {
-        <nav class="govuk-pagination" aria-label="Pagination">
-            @if(pagData.links.map(_.rel).exists(_ == "previous")) {
-                <div class="govuk-pagination__prev">
-                    <a class="govuk-link govuk-pagination__link" rel="prev" href="@pagData.links.find(_.rel == "previous").get.href">
-                    <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                        <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
-                    </svg>
-                    <span class="govuk-pagination__link-title">
-                         Previous<span class="govuk-visually-hidden"> page</span>
-                       </span>
-                    </a>
-                </div>
-            }
-            @for(pageNumber <- pagData.paginate) {
-            <ul class="govuk-pagination__list">
-                @if(pageNumber == pagData.currentPage) {
-                <li class="govuk-pagination__item govuk-pagination__item--current">
-                    <a class="govuk-link govuk-pagination__link" href="#" aria-current="page">
-                        @pagData.currentPage
-                    </a>
-                </li>
-                } else {
-                <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.AddressSearchResultController.show(pageNumber)" aria-label=@pageNumber>
-                        @pageNumber
-                    </a>
-                </li>
-                }
-            </ul>
-            }
-            @if(pagData.links.map(_.rel).exists(_ == "next")) {
-            <div class="govuk-pagination__next">
-                <a class="govuk-link govuk-pagination__link" href="@pagData.links.find(_.rel == "next").get.href" rel="next">
-                <span class="govuk-pagination__link-title">
-                        Next
-                        <span class="govuk-visually-hidden">page</span>
-                        </span>
-                <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                    <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
-                </svg>
-                </a>
-            </div>
-            }
-        </nav>
-        }
-    }
+    <p class="govuk-body">
+        Showing <strong>@pageBottom</strong> to <strong>@pageTop</strong> of <strong>@totalAddress</strong> items.
+        <a href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.FindAddressController.show" class="govuk-link">
+            @messages("AddressSearchResult.search")
+        </a>
+    </p>
+    @govukTable(addressSearchResultTable)
+    @govukPagination(paginationData.toPagination)
 }

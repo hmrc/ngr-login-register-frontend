@@ -125,9 +125,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
         getUrl(routes.PhoneNumberController.show.url, "number-linkid",
           if (contactNumber.isEmpty) "confirmContactDetails.add" else "confirmContactDetails.change")),
 
-      NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")),
-        address, getUrl("url", "address-linkid", "confirmContactDetails.change")),
-
+      NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")), address, Some(Link(Call("GET", routes.FindAddressController.show.url), "address-linkid", "Change")))
     ).map(summarise)
 
     }

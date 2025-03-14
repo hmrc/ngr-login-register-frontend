@@ -18,8 +18,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginatedAddress
+import uk.gov.hmrc.ngrloginregisterfrontend.models.PaginationData
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
 class AddressSearchResultViewSpec extends ViewBaseSpec {
@@ -32,43 +33,50 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
   private def  heading(postcode: String) = s"Search results for $postcode"
   lazy val previousButton = "Previous page"
   lazy val nextButton = "Next page"
+  lazy val searchAgain = "Search again"
 
   object Selectors {
     val backLink = "body > div > a"
-    val caption = "#content > span"
-    val heading = "#content > h1"
-    val previousButton = "#content > nav > div > a"
-    val nextButton = "#content > nav > div.govuk-pagination__next > a"
+    val caption = "#main-content > div > div > span"
+    val heading = "#main-content > div > div > h1"
+    val previousButton = "#main-content > div > div > nav > div > a"
+    val nextButton = "#main-content > div > div > nav > div.govuk-pagination__next > a"
+    val searchAgain = "#main-content > div > div > p > a"
   }
-
-  def mockPaginatedAddress(page: Int, testPageSize: Int, testAddressList: Seq[String]): PaginatedAddress = PaginatedAddress(
-    currentPage = page,
-    total = testAddressList.length,
-    pageSize = testPageSize,
-    address = PaginatedAddress.pageAddress(currentPage = page, pageSize = testPageSize, address = testAddressList),
-    links = PaginatedAddress.displayPaginateLinks(currentPage = page, total = testAddressList.length, pageSize = testPageSize)
-  )
 
   "Rendering the AddressSearchResultView on page 1 with 10 address's and 5 a page" should {
     val returnedAddressList = Seq(testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString)
     val currentPage:Int = 1
     val pageSize:Int = 5
+    val totalPages: Int = math.ceil(returnedAddressList.length.toFloat / pageSize.toFloat).toInt
     lazy val view = addressSearchResultView(
       postcode = postcode,
-      paginatedData = Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
+      paginationData = PaginationData(totalPages = totalPages, currentPage = currentPage, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = pageSize),
       totalAddress = returnedAddressList.length,
-      pageTop = PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
-      pageBottom = PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
+      pageTop = PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
+      pageBottom = PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
+      addressSearchResultTable = Table()
     )
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
       postcode,
-      Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
-        returnedAddressList.length,
-        PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
-       PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1)(request, messages, mockConfig
+      PaginationData(totalPages = totalPages, currentPage = currentPage, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = pageSize),
+      returnedAddressList.length,
+      PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
+      PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
+      Table())(request, messages, mockConfig
     )
-    lazy val htmlRender = addressSearchResultView.render(postcode = postcode, paginatedData = None, totalAddress = 0, pageTop = 0, pageBottom = 0, request = request, messages = messages, appConfig = mockConfig)
+    lazy val htmlRender = addressSearchResultView.render(
+      postcode = postcode,
+      paginationData = PaginationData(totalPages = totalPages, currentPage = currentPage, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = pageSize),
+      totalAddress = 0,
+      pageTop = 0,
+      pageBottom = 0,
+      request = request,
+      messages = messages,
+      appConfig = mockConfig,
+      addressSearchResultTable = Table()
+    )
 
     "htmlF is not empty" in {
       htmlF.toString() must not be empty
@@ -78,6 +86,10 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     }
     "have the back link" in {
       elementText(Selectors.backLink) mustBe backLink
+    }
+
+    "contain the Search again link" in {
+      elementText(Selectors.searchAgain) mustBe searchAgain
     }
 
     "have the correct caption and heading" in {
@@ -95,20 +107,23 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val returnedAddressList = Seq(testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString, testAddressString)
     val currentPage:Int = 2
     val pageSize:Int = 5
+    val totalPages: Int = math.ceil(returnedAddressList.length.toFloat / pageSize.toFloat).toInt
     lazy val view = addressSearchResultView(
       postcode = postcode,
-      paginatedData = Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
+      paginationData = PaginationData(totalPages = totalPages, currentPage = currentPage, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = pageSize),
       totalAddress = returnedAddressList.length,
-      pageTop = PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
-      pageBottom = PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
+      pageTop = PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
+      pageBottom = PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
+        addressSearchResultTable = Table()
     )
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
       postcode,
-      Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
+      PaginationData(totalPages = totalPages, currentPage = currentPage, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = pageSize),
       returnedAddressList.length,
-      PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
-      PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
+      PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
+      PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
+      Table()
     )(request, messages, mockConfig)
 
     "htmlF is not empty" in {
@@ -133,20 +148,23 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
     val returnedAddressList = Seq()
     val currentPage:Int = 1
     val pageSize:Int = 5
+    val totalPages: Int = math.ceil(returnedAddressList.length.toFloat / pageSize.toFloat).toInt
     lazy val view = addressSearchResultView(
       postcode = postcode,
-      paginatedData = Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
+      PaginationData(totalPages = totalPages, currentPage = currentPage, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = pageSize),
       totalAddress = returnedAddressList.length,
-      pageTop = PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
-      pageBottom = PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1
+      pageTop = PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
+      pageBottom = PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
+      addressSearchResultTable = Table()
     )
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
       postcode,
-      Some(mockPaginatedAddress(page = currentPage, testPageSize = pageSize, testAddressList = returnedAddressList)),
+      PaginationData(totalPages = totalPages, currentPage = currentPage, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = pageSize),
       returnedAddressList.length,
-      PaginatedAddress.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
-      PaginatedAddress.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1)(request, messages, mockConfig
+      PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
+      PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
+      Table())(request, messages, mockConfig
     )
 
     "htmlF is not empty" in {
