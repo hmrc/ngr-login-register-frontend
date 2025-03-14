@@ -17,17 +17,35 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 @import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
+@import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ConfirmUTR
+@import uk.gov.hmrc.ngrloginregisterfrontend.viewmodels.govuk.all._
 
 @this(
 layout: Layout,
 saveAndContinueButton: saveAndContinueButton,
-govukRadios : GovukRadios
+govukRadios : GovukRadios,
+govukSummaryList : GovukSummaryList,
+govukErrorSummary: GovukErrorSummary,
+formHelper: FormWithCSRF
 )
 
-@(obfuscatedUTR: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(form: Form[ConfirmUTR], summaryList: SummaryList, radios: Radios)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("confirmContactDetails.pageTitle")), showBackLink = false) {
+@layout(pageTitle = Some(messages("confirmContactDetails.pageTitle")), showBackLink = true) {
 
-<h1>obfuscatedUTR</h1>
+  @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmUTRController.submit, Symbol("autoComplete") -> "off") {
+  @if(form.errors.nonEmpty) {
+    @govukErrorSummary(ErrorSummaryViewModel(form))
+  }
+
+   <span class="govuk-caption-l">@messages("startView.heading")</span>
+   <h1 class="govuk-heading-l">@messages("confirmUtr.pageTitle")</h1>
+   <p class="govuk-body">@messages("confirmUtr.body")</p>
+
+   @govukSummaryList(summaryList)
+   @govukRadios(radios)
+   @saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
+
+  }
 
 }
