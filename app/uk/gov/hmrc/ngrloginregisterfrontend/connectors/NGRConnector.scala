@@ -25,7 +25,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, Nino, RatepayerRegistration}
 
 import java.net.URL
 import javax.inject.{Inject, Singleton}
@@ -69,6 +69,21 @@ class NGRConnector @Inject()(http: HttpClientV2,
       .execute[HttpResponse]
       .map { response =>
         logger.info("Change name" + response.body)
+        response.status match {
+          case OK => response
+          case _ => throw new Exception(s"${response.status}: ${response.body}")
+        }
+      }
+  }
+
+  def changeNino(credId: CredId, nino: Nino)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val ratepayer: RatepayerRegistration = RatepayerRegistration(nino = Some(nino))
+    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+    http.post(url("change-nino"))
+      .withBody(Json.toJson(model))
+      .execute[HttpResponse]
+      .map { response =>
+        logger.info("Change nino" + response.body)
         response.status match {
           case OK => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
