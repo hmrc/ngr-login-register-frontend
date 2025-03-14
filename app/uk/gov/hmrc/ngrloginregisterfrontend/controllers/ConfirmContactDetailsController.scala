@@ -96,7 +96,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     val address = ratepayerRegistrationValuation.ratepayerRegistration
       .flatMap(_.address)
       .map(address => {
-        Seq(address.line1, address.line2.getOrElse(""), address.postcode.value, address.town, address.country)
+        Seq(address.line1, address.line2.getOrElse(""), address.town, address.postcode.value, address.country)
           .filter(_.nonEmpty)
       }).getOrElse(Seq.empty)
 
