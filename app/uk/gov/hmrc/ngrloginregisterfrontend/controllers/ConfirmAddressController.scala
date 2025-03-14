@@ -70,7 +70,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
   private def getAddressFromSession(session: Session): String =
     sessionManager.getSessionValue(session, sessionManager.chosenAddressIdKey)
     .map(Json.parse(_).as[Address])
-    .map(address => s"${address.line1}, ${address.town} ${address.postcode}")
+    .map(address => s"${address.line1}, ${if (address.line2.isDefined) address.line2.get + "," else ""} ${address.town} ${address.postcode}")
     .getOrElse("")
 
 }

@@ -47,7 +47,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
   // $COVERAGE-OFF$
   val testAddressModel: Int => Address = number =>
     Address(
-      lines = Seq(s"$number Wibble Rd"),
+      lines = Seq(s"$number Wibble Rd", "Berry Head Road"),
       town = "Worthing",
       postcode = "HA49EY",
       subdivision = Some(Subdivision(
@@ -61,7 +61,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
     )
   // $COVERAGE-ON$
 
-  lazy val testAddressList: Seq[Address] = for (i <- 1 to 8) yield testAddressModel(i)
+  lazy val testAddressList: Seq[Address] = for (i <- 1 to 7) yield testAddressModel(i)
 
   def show: Action[AnyContent]  = {
     authenticate.authWithUserDetails.async { implicit request =>

@@ -46,8 +46,12 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
   }
 
   def setChosenAddress(session: Session, address: Address): Session = {
+    val splitIndex = if (address.lines.size > 2) address.lines.size / 2 else 1
+    val lineSeq = address.lines.splitAt(splitIndex)
+    val line1 = lineSeq._1.mkString(", ")
+    val line2 = if (lineSeq._2.isEmpty) None else Some(lineSeq._2.mkString(", "))
     val ngrAddress = uk.gov.hmrc.ngrloginregisterfrontend.models.Address(
-      address.lines.mkString(" "), None, address.town, None, Postcode(address.postcode), address.country.code)
+      line1, line2, address.town, None, Postcode(address.postcode), address.country.code)
     updateSession(session, chosenAddressIdKey, Json.toJson(ngrAddress).toString())
   }
 
