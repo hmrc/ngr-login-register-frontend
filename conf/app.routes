@@ -22,3 +22,4 @@ GET        /select-address/:index              uk.gov.hmrc.ngrloginregisterfront
 GET        /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.show()
 POST       /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.submit()
 GET        /confirm-utr                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.show
+POST       /confirm-utr                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.submit
