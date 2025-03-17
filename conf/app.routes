@@ -23,3 +23,4 @@ GET        /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfront
 POST       /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.submit()
 GET        /confirm-utr                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.show
 POST       /confirm-utr                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.submit
+GET        /feature-not-implemented        uk.gov.hmrc.ngrloginregisterfrontend.controllers.FeatureNotImplementedController.show(journeyId:Option[String])
