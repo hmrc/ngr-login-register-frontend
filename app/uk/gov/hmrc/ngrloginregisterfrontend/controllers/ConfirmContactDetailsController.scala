@@ -137,4 +137,9 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     ).map(summarise)
   }
 
+  def submit(): Action[AnyContent] = {
+    authenticate.authWithUserDetails.async {
+        Future.successful(Redirect(routes.ProvideTRNController.show()))
+    }
+  }
 }

@@ -22,7 +22,7 @@
 
 @()(implicit messages: Messages, appConfig: AppConfig, request: RequestHeader)
 
-@layout(pageTitle = Some(messages("startView.heading")), showBackLink = true) {
+@layout(pageTitle = Some(messages("provide.TRN.heading")), showBackLink = true) {
 
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ProvideTRNController.submit, Symbol("autoComplete") -> "off") {
 

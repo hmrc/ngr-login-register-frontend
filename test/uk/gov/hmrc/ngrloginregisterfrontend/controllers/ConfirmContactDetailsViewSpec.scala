@@ -95,7 +95,6 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
         elementText(Selectors.address) mustBe address
         elementText(Selectors.continue) mustBe continue
       }
-
     }
 
   }
