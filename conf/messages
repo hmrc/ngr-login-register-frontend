@@ -62,6 +62,15 @@ findAddress.propertyName = Property name or number (optional)
 findAddress.propertyName.hint = For example, 116, The Mill, or Suite 10
 findAddress.button = Find address
 
+provide.TRN.heading = Provide your Tax Reference Number
+provide.TRN.content = Your Tax Reference Number (TRN) is used to match your tax data with your property data. This information helps the government provide targeted support and improve business rates compliance.
+provide.TRN.types.heading = Types of Tax Reference Numbers
+provide.TRN.types.content = The type of TRN you provide will depend on whether you are paying business rates as an individual or organisation.
+provide.TRN.bullet.content = Individual rate payers can provide either:
+provide.TRN.bullet.firstBullet = Self-assessment Unique Tax Reference (UTR)
+provide.TRN.bullet.secondBullet = National Insurance number (NINO)
+provide.TRN.disclaimer = It is a legal requirement to provide a TRN. While you can provide one later, we advise you to do so as soon as possible.
+
 postcode.empty.error = Enter a full UK postcode
 postcode.invalid.error = Enter a full UK postcode
 maxlength.100.error = No more than {n} characters allowed
