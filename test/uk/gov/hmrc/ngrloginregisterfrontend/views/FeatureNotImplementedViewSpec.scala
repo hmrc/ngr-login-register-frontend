@@ -34,26 +34,24 @@ class FeatureNotImplementedViewSpec  extends ViewBaseSpec {
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
-    val languageSelector = "#content > nav > ul > li:nth-child(1) > span"
     val headingSelector = "#content > h1"
     val body1Selector = "#content > p:nth-child(0)"
     val backLink = ".govuk-back-link"
-    val button = "#continue"
 
     "The FeatureNotImplemented view" should {
-        "REnder a page with the appropriate message" when {
+        "Render a page with the appropriate message" when {
           "a journey ID is present" in {
             lazy implicit val document: Document = Jsoup.parse(testView(Some("12345"))(request, messages, mockConfig).body)
             elementText(Selectors.navTitle) mustBe title
             elementText(Selectors.backLink) mustBe backLink
-            elementText(Selectors.headingSelector)   mustBe heading
+            elementText(Selectors.headingSelector) mustBe heading
             elementText(Selectors. body1Selector) mustBe body1Id
           }
           "A journey ID is not present" in {
             lazy implicit val document: Document = Jsoup.parse(testView(None)(request, messages, mockConfig).body)
             elementText(Selectors.navTitle) mustBe title
             elementText(Selectors.backLink) mustBe backLink
-            elementText(Selectors.headingSelector)   mustBe heading
+            elementText(Selectors.headingSelector) mustBe heading
             elementText(Selectors. body1Selector) mustBe body1NoId
           }
         }
