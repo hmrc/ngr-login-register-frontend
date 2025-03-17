@@ -44,7 +44,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
      val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
        .map(
          Json.parse(_).as[Seq[Address]]
-         .map(address => s"${address.lines.mkString(",")}, ${address.town}, ${address.postcode}")
+         .map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
        )
        .getOrElse(Seq.empty)
 

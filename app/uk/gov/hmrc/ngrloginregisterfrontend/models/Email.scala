@@ -38,8 +38,12 @@ object Email extends CommonFormValidators {
     Form(
       mapping(
         email -> text()
-          .verifying(emailEmptyError, isNonEmpty)
-          .verifying(emailInvalidFormat, isValidEmail)
+          .verifying(
+            firstError(
+              isNotEmpty(email, emailEmptyError),
+              regexp(emailPattern.pattern(), emailInvalidFormat)
+            )
+          )
       )(Email.apply)(Email.unapply)
     )
 }

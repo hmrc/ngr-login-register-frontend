@@ -47,7 +47,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
   // $COVERAGE-OFF$
   val testAddressModel: Int => Address = number =>
     Address(
-      lines = Seq(s"$number Wibble Rd", "Berry Head Road"),
+      lines = Seq(s"Unit $number", s"7 Wibble Rd"),
       town = "Worthing",
       postcode = "HA49EY",
       subdivision = Some(Subdivision(
