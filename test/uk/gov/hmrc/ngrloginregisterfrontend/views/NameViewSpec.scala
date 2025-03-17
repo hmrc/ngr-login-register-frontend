@@ -31,6 +31,7 @@ class NameViewSpec  extends ViewBaseSpec {
   lazy val continueButton = "Continue"
   lazy val emptyErrorMessage = "Error: Enter your Contact name"
   lazy val invalidErrorMessage = "Error: Enter a contact name in the correct format"
+  lazy val maxLengthErrorMessage = "Error: Contact name must be 250 characters or less"
 
   object Selectors {
     val backLink = "body > div > a"
@@ -95,10 +96,10 @@ class NameViewSpec  extends ViewBaseSpec {
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
-    "show invalid contact name error correctly when too many characters have been added" in {
+    "show invalid contact name error correctly when exceeds 250 characters have been added" in {
       val form = Name
         .form()
-        .fillAndValidate(Name("namenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamenamename"))
+        .fillAndValidate(Name("Scala source code can be compiled to Java bytecode and run on a Java virtual machine JVM. Scala can also be transpiled to JavaScript to run in a browser or compiled directly to a native executable. When running on the JVM Scala provides language interoperability"))
       val htmlApply = nameView.apply(form).body
       val htmlRender = nameView.render(form, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
@@ -106,7 +107,7 @@ class NameViewSpec  extends ViewBaseSpec {
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
-      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.errorMessage) mustBe maxLengthErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
   }
