@@ -29,9 +29,6 @@ formHelper: FormWithCSRF
 @(summaryList: SummaryList, name: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = Some(messages("confirmContactDetails.pageTitle")), showBackLink = false) {
-
-@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmContactDetailsController.submit, Symbol("autoComplete") -> "off") {
-
 <span class="govuk-caption-l">@messages("startView.heading")</span>
 <h1 class="govuk-heading-l">@messages("confirmContactDetails.pageTitle")</h1>
 <p class="govuk-body">@messages("confirmContactDetails.body.1")</p>
