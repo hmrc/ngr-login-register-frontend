@@ -18,12 +18,12 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AddressSearchResult, PaginationData, TableData, TableHeader, TableRowLink, TableRowText}
+import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -41,11 +41,12 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def show(page: Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-
-     val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map {
-        sessionData =>
-          Json.parse(sessionData).as[Seq[Address]].map(address => s"${address.lines.mkString(",")} ${address.town}, ${address.postcode}")
-      }.getOrElse(Seq.empty)
+     val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
+       .map(
+         Json.parse(_).as[Seq[Address]]
+         .map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
+       )
+       .getOrElse(Seq.empty)
 
       val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
       val totalPages: Int = math.ceil(address.length.toFloat / defaultPageSize.toFloat).toInt
@@ -76,15 +77,15 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def selectedAddress(index: Int): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey).map{
-        sessionData => Json.parse(sessionData).as[Seq[Address]]
-      }.getOrElse(Seq.empty) match {
-        case address if address.nonEmpty =>
-          val updateSession: Session = sessionManager.setChosenAddress(request.session, address.apply(index).toString)
-          Future.successful(Redirect(routes.NameController.show).withSession(updateSession))
-        case _ =>
-          Future.failed(new RuntimeException("Address not found at index"))
-      }
+      sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
+        .map(Json.parse(_).as[Seq[Address]])
+        .map(_.apply(index))
+        .map(address =>
+          Future.successful(
+            Redirect(routes.ConfirmAddressController.show).withSession(sessionManager.setChosenAddress(request.session, address))
+          )
+        )
+        .getOrElse(Future.failed(new RuntimeException("Address not found at index")))
     }
   }
 }

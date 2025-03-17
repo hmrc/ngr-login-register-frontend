@@ -16,18 +16,22 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.session
 
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import play.api.mvc.Session
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{Address, Subdivision}
 
 class SessionManagerSpec extends TestSupport with TestData {
   val sessionManager: SessionManager = inject[SessionManager]
   val journeyId = "1234"
-  private val address = "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"
-  val session: Session = Session()
-  val testKey = "key"
-  val testValue = "value"
+  private val address = Address(Seq("20 Long Rd"), "Bournemouth", "BN110AA", None, Subdivision("GB", "Great Britain"))
+  private val expectedAddressStr = """{"line1":"20 Long Rd","town":"Bournemouth","postcode":{"value":"BN110AA"},"country":"GB"}"""
+  private val session: Session = Session()
+  private val testKey = "key"
+  private val testValue = "value"
+  private val chosenAddressKeyId = "NGR-Chosen-Address-Key"
 
   "SessionManager" must {
     "set a journey id" in {
@@ -35,7 +39,21 @@ class SessionManagerSpec extends TestSupport with TestData {
     }
 
     "set a address" in {
-      sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), "NGR-ChosenAddressIdKey") mustBe Some(address)
+      sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), chosenAddressKeyId) mustBe Some(expectedAddressStr)
+    }
+
+    "set a chosen address correctly when addressLookup gives 2 address lines" in {
+      val addressLookup: Address = Address(Seq("Line1", "Line2"), "town", "SW12 6RE", None, Subdivision("GB", "Great Britain"))
+      val actual = sessionManager.getSessionValue(sessionManager.setChosenAddress(session, addressLookup), chosenAddressKeyId)
+      actual.isDefined shouldBe true
+      actual.get shouldBe """{"line1":"Line1","line2":"Line2","town":"town","postcode":{"value":"SW12 6RE"},"country":"GB"}"""
+    }
+
+    "set a chosen address correctly when addressLookup gives 5 address lines" in {
+      val addressLookup: Address = Address(Seq("Line1", "Line2", "Line3", "Line4", "Line5"), "town", "SW12 6RE", None, Subdivision("GB", "Great Britain"))
+      val actual = sessionManager.getSessionValue(sessionManager.setChosenAddress(session, addressLookup), chosenAddressKeyId)
+      actual.isDefined shouldBe true
+      actual.get shouldBe """{"line1":"Line1, Line2","line2":"Line3, Line4, Line5","town":"town","postcode":{"value":"SW12 6RE"},"country":"GB"}"""
     }
 
     "set address lookup response" in {

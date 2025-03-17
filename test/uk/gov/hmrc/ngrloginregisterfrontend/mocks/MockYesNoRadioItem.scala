@@ -18,12 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.mocks
 
 
 import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Reads, Writes}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.RadioEntry
-
-sealed trait YesNoItem extends RadioEntry
-
-case object Yes extends YesNoItem
-case object No extends YesNoItem
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{No, RadioEntry, Yes}
 
 object MockYesNoRadioItem {
 
