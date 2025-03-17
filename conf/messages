@@ -38,6 +38,7 @@ name.heading                  = Contact name
 name.label                    = Contact name
 name.empty.error              = Enter your Contact name
 name.invalidFormat.error      = Enter a contact name in the correct format
+name.maxlength.error          = Contact name must be 250 characters or less
 
 confirmContactDetails.pageTitle = Confirm your contact details
 confirmContactDetails.body.1 = The Valuation Office Agency (VOA) will use these details to:
