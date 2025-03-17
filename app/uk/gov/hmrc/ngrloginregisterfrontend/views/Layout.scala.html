@@ -54,7 +54,7 @@
     HmrcStandardPageParams(
     pageTitle = pageTitle.map(title => messages("service.base.title", title)),
     templateOverrides = TemplateOverrides(
-    mainContentLayout = if(fullWidth)Some(fullWidthLayout(_)) else None
+    mainContentLayout = if(fullWidth) Some(fullWidthLayout(_)) else None
 ),
     backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None,
     banners = Banners(
