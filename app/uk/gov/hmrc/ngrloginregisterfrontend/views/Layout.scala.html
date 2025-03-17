@@ -32,7 +32,8 @@
 )
 
 @(pageTitle: Option[String] = None,
-  showBackLink: Boolean = true
+  showBackLink: Boolean = true,
+  fullWidth: Boolean = false
 )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
 
 
@@ -53,7 +54,7 @@
     HmrcStandardPageParams(
     pageTitle = pageTitle.map(title => messages("service.base.title", title)),
     templateOverrides = TemplateOverrides(
-    mainContentLayout = Some(fullWidthLayout(_))
+    mainContentLayout = if(fullWidth)Some(fullWidthLayout(_)) else None
 ),
     backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None,
     banners = Banners(
