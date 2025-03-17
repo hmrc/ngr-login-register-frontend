@@ -18,6 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import play.api.data.format.Formatter
 import play.api.http.Status._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
@@ -27,6 +28,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse, SaUtr}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.MatchingDetails
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
 import scala.concurrent.Future
@@ -66,16 +68,24 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
       exception.getMessage must include("call to citizen details failed: 404 help")
     }
     "method submit" must {
-//      "Successfully submit valid selection and redirect" in {
-//        val result = controller.submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("ConfirmUTR", "yes")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
-//        status(result) mustBe SEE_OTHER
-//      }
+      "Successfully submit valid selection and redirect" in {
+        val result = controller.submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("confirmUTR", "yes")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+        status(result) mustBe SEE_OTHER
+      }
       "no selection" in {
-          val result = controller.submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("ConfirmUTR", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+          val result = controller.submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("confirmUTR", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
           status(result) mustBe BAD_REQUEST
           val content = contentAsString(result)
           content must include(pageTitle)
           content must include("Please select an option")
+      }
+    }
+
+    "unbind a ConfirmUTR value correctly" in {
+      val formatter: Formatter[ConfirmUTR] = ConfirmUTR.confirmUTRFormatter
+
+      ConfirmUTR.values.foreach { confirmUTR =>
+        formatter.unbind("confirmUTR", confirmUTR) mustBe Map("confirmUTR" -> confirmUTR.toString)
       }
     }
   }

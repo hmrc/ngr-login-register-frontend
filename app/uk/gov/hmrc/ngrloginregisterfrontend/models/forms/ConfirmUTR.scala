@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
+package uk.gov.hmrc.ngrloginregisterfrontend.models.forms
 
-import play.api.data.{Form, FormError}
 import play.api.data.Forms.single
 import play.api.data.format.Formatter
+import play.api.data.{Form, FormError}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.RadioEntry
 
 sealed trait ConfirmUTR extends RadioEntry

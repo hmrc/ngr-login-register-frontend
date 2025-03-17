@@ -20,7 +20,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.models.SaUtr
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ConfirmUTR
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
 class ConfirmUTRViewSpec extends ViewBaseSpec {

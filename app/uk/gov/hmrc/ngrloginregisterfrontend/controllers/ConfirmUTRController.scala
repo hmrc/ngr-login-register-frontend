@@ -24,11 +24,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, noLater, noNI, yes}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{ConfirmUTR, noLater, noNI, yes}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ConfirmUTR.form
+import ConfirmUTR.form
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -84,8 +84,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
 
   private def maskString(input: String): String = {
     val length = input.length
-    if (length <= 3) input
-    else "*".repeat(length - 3) + input.takeRight(3)
+    "*".repeat(length - 3) + input.takeRight(3)
   }
 
   def submit(): Action[AnyContent] =
