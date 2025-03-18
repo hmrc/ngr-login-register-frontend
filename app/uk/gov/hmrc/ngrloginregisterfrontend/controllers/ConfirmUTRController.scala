@@ -49,9 +49,8 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
             case Right(details) =>
               details.saUtr
                 .map(utr => {
-                  savedUTR = utr.value
-                  val obfuscatedUtr = maskString(utr.value)
-                  Future.successful(Ok(view(form(), summaryList(obfuscatedUtr), radios())))
+                  savedUTR = maskString(utr.value)
+                  Future.successful(Ok(view(form(), summaryList(savedUTR), radios())))
                 })
                 .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
           }
