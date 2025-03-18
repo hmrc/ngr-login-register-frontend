@@ -92,7 +92,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     personDetails.person.lastName
   ).flatten.mkString(" ")
 
-  private[controllers] def createSummaryRowsFromRatePayer(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): Seq[SummaryListRow] = {
+   def createSummaryRowsFromRatePayer(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): Seq[SummaryListRow] = {
     val address = ratepayerRegistrationValuation.ratepayerRegistration
       .flatMap(_.address)
       .map(address => {
@@ -110,7 +110,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
   }
 
 
-  private[controllers] def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
+    def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): Seq[SummaryListRow] = {
     val address: Seq[String] = Seq(
       personDetails.address.line1.getOrElse(""),
       personDetails.address.line2.getOrElse(""),

@@ -16,36 +16,32 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import org.mockito.Mockito.when
-import play.api.http.Status.OK
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{ConfirmContactDetailsView, ProvideTRNView}
 
-class StartControllerSpec extends ControllerSpecSupport {
-  lazy val startView: StartView = inject[StartView]
-  lazy val controller: StartController = inject[StartController]
-  val testUUID = "00ce4ed2-a446-444b-905f-3cc148a1f831"
+class ProvideTRNControllerSpec extends ControllerSpecSupport{
 
+  lazy val view: ProvideTRNView = inject[ProvideTRNView]
 
-  "Start Controller" must {
+  def controller() =
+    new ProvideTRNController(
+      view = view, authenticate = mockAuthJourney, mcc = mcc
+    )
+
+  "ProvideTRNController" must {
     "return OK and the correct view for a GET" in {
       val result = controller.show()(authenticatedFakeRequest)
       status(result) mustBe OK
     }
 
-    "redirect when start button pressed" in {
+    "Calling the submit function return a 303 and the correct redirect location" in {
       val result = controller.submit()(authenticatedFakeRequest)
+      status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show.url)
-      status(result) mustBe 303
-    }
-
-    "should store a new journey ID" in {
-      when(mockSessionManager.generateJourneyId).thenReturn(testUUID)
-      val result = controller.show()(authenticatedFakeRequest)
-      result.map(result => {
-        mockSessionManager.getSessionValue(result.session, "NGR-JourneyId") mustBe testUUID
-      })
     }
   }
+
+
 }

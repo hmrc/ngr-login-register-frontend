@@ -21,7 +21,7 @@ import org.mockito.Mockito.when
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Session
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
@@ -91,7 +91,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
         val result = controller().selectedAddress(1)(authenticatedFakeRequestWithSession)
         status(result) mustBe SEE_OTHER
-        redirectLocation(routes.NameController.show.url)
+        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show.url)
       }
       "Address index out of bounds exception thrown" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)

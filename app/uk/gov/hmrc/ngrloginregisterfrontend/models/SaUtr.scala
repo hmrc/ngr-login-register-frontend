@@ -32,5 +32,4 @@ object SaUtr {
 
   def isValid(saUtr: String): Boolean = saUtr.matches(validSaUtrFormat)
 
-
 }

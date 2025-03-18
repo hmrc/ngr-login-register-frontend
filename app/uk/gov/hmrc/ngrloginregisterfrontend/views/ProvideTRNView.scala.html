@@ -24,28 +24,18 @@
 
 @layout(pageTitle = Some(messages("provide.TRN.heading")), showBackLink = true) {
 
-@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ProvideTRNController.submit, Symbol("autoComplete") -> "off") {
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ProvideTRNController.submit(), Symbol("autoComplete") -> "off") {
 
 <span class="govuk-caption-l">@messages("name.caption")</span>
-<h1 class="govuk-heading-l">
- @messages("provide.TRN.heading")
-</h1>
-
+<h1 class="govuk-heading-l">@messages("provide.TRN.heading")</h1>
 <p class="govuk-body">@messages("provide.TRN.content")</p>
-
-<h2 class="govuk-heading-m">
- @messages("provide.TRN.types.heading")
-</h2>
-
+<h2 class="govuk-heading-m">@messages("provide.TRN.types.heading")</h2>
 <p class="govuk-body">@messages("provide.TRN.types.content")</p>
-
 <p class="govuk-body">@messages("provide.TRN.bullet.content")</p>
-
 <ul class="govuk-list govuk-list--bullet">
  <li>@messages("provide.TRN.bullet.firstBullet")</li>
  <li>@messages("provide.TRN.bullet.secondBullet")</li>
 </ul>
-
 <p class="govuk-body">@messages("provide.TRN.disclaimer")</p>
 
 @saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
