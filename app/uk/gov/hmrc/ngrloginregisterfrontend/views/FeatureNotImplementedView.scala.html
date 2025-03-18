@@ -26,11 +26,6 @@
 
 <h1 class="govuk-heading-xl">@messages("featureNotAvailable.title")</h1>
 
-@journeyId match (
- case Some(journeyId) =>
   <p class="govuk-body">@messages("featureNotAvailable.idTrue", journeyId)</p>
- case None =>
-  <p class="govuk-body">@messages("featureNotAvailable.idFalse")</p>
- )
 
 }

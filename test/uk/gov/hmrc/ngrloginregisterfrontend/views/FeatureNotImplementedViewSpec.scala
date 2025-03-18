@@ -30,7 +30,7 @@ class FeatureNotImplementedViewSpec  extends ViewBaseSpec {
     val title = "This part of the online service is not available yet"
     val heading = "This part of the online service is not available yet"
     val body1Id = "The Journey ID is 12345"
-    val body1NoId = "The Journey ID is unavailable"
+    val body1NoId = "The Journey ID is None"
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
