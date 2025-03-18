@@ -38,7 +38,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
-  private var savedUTR: String = ""
+  private var obfuscatedUtr: String = ""
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
@@ -49,8 +49,8 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
             case Right(details) =>
               details.saUtr
                 .map(utr => {
-                  savedUTR = maskString(utr.value)
-                  Future.successful(Ok(view(form(), summaryList(savedUTR), radios())))
+                  obfuscatedUtr = maskString(utr.value)
+                  Future.successful(Ok(view(form(), summaryList(obfuscatedUtr), radios())))
                 })
                 .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
           }
@@ -93,7 +93,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(savedUTR), radios()))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(obfuscatedUtr), radios()))),
           utrChoice => {
             //TODO: next page
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
