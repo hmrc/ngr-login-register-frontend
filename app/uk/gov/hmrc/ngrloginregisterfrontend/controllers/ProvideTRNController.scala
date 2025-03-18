@@ -24,10 +24,10 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ProvideTRNView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
-class ProvideTRNController @Inject()(view: ProvideTRNView, authenticate: AuthJourney, mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+class ProvideTRNController @Inject()(view: ProvideTRNView, authenticate: AuthJourney, mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
@@ -36,8 +36,7 @@ class ProvideTRNController @Inject()(view: ProvideTRNView, authenticate: AuthJou
 
   def submit() : Action[AnyContent] =
     Action.async {
-      //TODO This needs to be changed to the correct page once its been merged in
-      Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+      Future.successful(Redirect(routes.ConfirmUTRController.show))
     }
 
 }

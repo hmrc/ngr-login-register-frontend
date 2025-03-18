@@ -17,9 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import org.mockito.Mockito.when
-import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.libs.ws.WSResponse
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
