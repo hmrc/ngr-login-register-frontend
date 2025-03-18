@@ -42,18 +42,20 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      val nino = Nino(request.nino.nino.getOrElse(""))
-      citizenDetailsConnector.getMatchingResponse(nino).flatMap {
-        case Left(error) => Future.failed(new RuntimeException(s"call to citizen details failed: ${error.code} ${error.message}"))
-        case Right(details) =>
-          details.saUtr
-            .map(_.value)
-            .map(utr => {
-              savedUTR = maskString(utr)
-              savedUTR
-            })
-            .map(obfuscatedUtr => Future.successful(Ok(view(form(), summaryList(obfuscatedUtr), radios()))))
-            .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
+      request.nino.nino match {
+        case Some(nino) =>
+          citizenDetailsConnector.getMatchingResponse(Nino(nino)).flatMap {
+            case Left(error) => Future.failed(new RuntimeException(s"call to citizen details failed: ${error.code} ${error.message}"))
+            case Right(details) =>
+              details.saUtr
+                .map(utr => {
+                  savedUTR = utr.value
+                  val obfuscatedUtr = maskString(utr.value)
+                  Future.successful(Ok(view(form(), summaryList(obfuscatedUtr), radios())))
+                })
+                .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
+          }
+        case None => Future.failed(new RuntimeException("No NINO found in request"))
       }
     }
 

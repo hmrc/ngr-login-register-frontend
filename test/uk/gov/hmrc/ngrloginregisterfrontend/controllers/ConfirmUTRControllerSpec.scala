@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.data.format.Formatter
 import play.api.http.Status._
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
@@ -31,7 +32,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.MatchingDetails
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmUTRControllerSpec extends ControllerSpecSupport {
 
@@ -59,13 +60,29 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
       }
       exception.getMessage must include("No SAUTR found")
     }
-    "error" in {
+    "CID call failed" in {
       when(mockCIDConnector.getMatchingResponse(any())(any()))
         .thenReturn(Future.successful(Left(ErrorResponse(404, "help"))))
       val exception = intercept[RuntimeException] {
         controller.show()(authenticatedFakeRequest).futureValue
       }
       exception.getMessage must include("call to citizen details failed: 404 help")
+    }
+    "no nino in request" in {
+      when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
+        override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
+          val authRequest = AuthenticatedUserRequest(request, None, None, None, None, None, None, nino = Nino(hasNino = false, None))
+          block(authRequest)
+        }
+        override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+        override protected def executionContext: ExecutionContext = ec
+      }
+      when(mockCIDConnector.getMatchingResponse(any())(any()))
+        .thenReturn(Future.successful(Right(matchingDetails)))
+      val exception = intercept[RuntimeException] {
+        controller.show()(authenticatedFakeRequest).futureValue
+      }
+      exception.getMessage must include("No NINO found in request")
     }
     "method submit" must {
       "Successfully submit valid selection and redirect" in {
