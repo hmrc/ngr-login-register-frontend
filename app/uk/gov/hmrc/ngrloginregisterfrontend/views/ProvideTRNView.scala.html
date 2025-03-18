@@ -1,0 +1,46 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
+@import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(layout: Layout, saveAndContinueButton: saveAndContinueButton, formHelper: FormWithCSRF)
+
+@()(implicit messages: Messages, appConfig: AppConfig, request: RequestHeader)
+
+@layout(pageTitle = Some(messages("provide.TRN.heading")), showBackLink = true) {
+
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ProvideTRNController.submit(), Symbol("autoComplete") -> "off") {
+
+<span class="govuk-caption-l">@messages("name.caption")</span>
+<h1 class="govuk-heading-l">@messages("provide.TRN.heading")</h1>
+<p class="govuk-body">@messages("provide.TRN.content")</p>
+<h2 class="govuk-heading-m">@messages("provide.TRN.types.heading")</h2>
+<p class="govuk-body">@messages("provide.TRN.types.content")</p>
+<p class="govuk-body">@messages("provide.TRN.bullet.content")</p>
+<ul class="govuk-list govuk-list--bullet">
+ <li>@messages("provide.TRN.bullet.firstBullet")</li>
+ <li>@messages("provide.TRN.bullet.secondBullet")</li>
+</ul>
+<p class="govuk-body">@messages("provide.TRN.disclaimer")</p>
+
+@saveAndContinueButton(msg = messages("service.continue"), isStartButton = false)
+
+
+}
+
+}

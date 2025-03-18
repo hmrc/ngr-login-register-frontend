@@ -53,15 +53,4 @@ trait ControllerSpecSupport extends TestSupport{
     override protected def executionContext: ExecutionContext = ec
   }
 
-  def redirectLocation(expectedValue: String): HavePropertyMatcher[WSResponse, Option[String]] =
-    new HavePropertyMatcher[WSResponse, Option[String]] {
-      def apply(response: WSResponse): HavePropertyMatchResult[Option[String]] =
-        HavePropertyMatchResult(
-          response.header("Location").contains(expectedValue),
-          "headerLocation",
-          Some(expectedValue),
-          response.header("Location")
-        )
-    }
-
 }

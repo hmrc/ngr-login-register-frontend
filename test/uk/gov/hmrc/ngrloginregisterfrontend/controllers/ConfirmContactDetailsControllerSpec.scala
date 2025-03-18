@@ -19,9 +19,10 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.http.Status.{CREATED, OK}
+import play.api.http.Status.{CREATED, OK, SEE_OTHER}
+import play.api.mvc.Results.Status
 import play.api.mvc.{AnyContent, AnyContentAsEmpty}
-import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HttpResponse
@@ -127,7 +128,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
           country = Some("UK")
         )
       )
-      val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None,None,None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
+      val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None, None, None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
       val rows = controller().createSummaryRows(personDetails, authRequest)
       rows.length shouldBe 4
     }
@@ -138,7 +139,10 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       val rows = controller().createSummaryRowsFromRatePayer(ratepayer)
       rows.length shouldBe 4
     }
-
+    "Calling the submit function return a 303 and the correct redirect location" in {
+      val result = controller().submit()(authenticatedFakeRequest)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) shouldBe Some(routes.ProvideTRNController.show().url)
+    }
   }
-
 }

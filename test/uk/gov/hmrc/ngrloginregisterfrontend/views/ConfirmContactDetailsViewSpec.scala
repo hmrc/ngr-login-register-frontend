@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.controllers
+package uk.gov.hmrc.ngrloginregisterfrontend.views
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -22,6 +22,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, ViewBaseSpec}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
@@ -51,15 +52,15 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
-    val pageTitle = "#main-content > div > div > h1"
-    val body1 = "#main-content > div > div > p:nth-child(3)"
-    val body2 = "#main-content > div > div > p:nth-child(5)"
-    val bullet1 = "#main-content > div > div > ul > li:nth-child(1)"
-    val bullet2 = "#main-content > div > div > ul > li:nth-child(2)"
-    val contactName = "#main-content > div > div > dl > div:nth-child(1) > dt"
-    val email = "#main-content > div > div > dl > div:nth-child(2) > dt"
-    val phone = "#main-content > div > div > dl > div.govuk-summary-list__row.govuk-summary-list__row--no-actions > dt"
-    val address = "#main-content > div > div > dl > div:nth-child(4) > dt"
+    val pageTitle = "#main-content > div > div > form > h1"
+    val body1 = "#main-content > div > div > form > p:nth-child(3)"
+    val body2 = "#main-content > div > div > form > p:nth-child(5)"
+    val bullet1 = "#main-content > div > div > form > ul > li:nth-child(1)"
+    val bullet2 = "#main-content > div > div > form > ul > li:nth-child(2)"
+    val contactName = "#main-content > div > div > form > dl > div:nth-child(1) > dt"
+    val email = "#main-content > div > div > form > dl > div:nth-child(2) > dt"
+    val phone = "#main-content > div > div > form > dl > div.govuk-summary-list__row.govuk-summary-list__row--no-actions > dt"
+    val address = "#main-content > div > div > form > dl > div:nth-child(4) > dt"
     val continue = "#continue"
   }
 
@@ -95,7 +96,6 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
         elementText(Selectors.address) mustBe address
         elementText(Selectors.continue) mustBe continue
       }
-
     }
 
   }
