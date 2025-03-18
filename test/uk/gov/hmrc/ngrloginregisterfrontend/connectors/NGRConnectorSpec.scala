@@ -27,7 +27,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, RatepayerRegistration}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import scala.concurrent.Future
 
@@ -36,7 +36,7 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
   val ngrConnector: NGRConnector = new NGRConnector(mockHttpClientV2, mockConfig, logger)
   val credId: CredId = CredId("1234")
   val email: Email = Email("hello@me.com")
-  val trn: ReferenceNumber = ReferenceNumber(TRN, "1234")
+  val trn: TRNReferenceNumber = TRNReferenceNumber(TRN, "1234")
 
     "upsertRatepayer" when {
       "return HttpResponse when the response is 201 CREATED" in {

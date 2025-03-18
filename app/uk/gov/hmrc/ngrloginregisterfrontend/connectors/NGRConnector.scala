@@ -18,14 +18,13 @@ package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
 import play.api.http.Status.{CREATED, OK}
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
-import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
-import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, Nino, RatepayerRegistration}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 import java.net.URL
 import javax.inject.{Inject, Singleton}
@@ -121,8 +120,8 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def changeTrn(credId: CredId, trn: ReferenceNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(referenceNumber = Some(trn))
+  def changeTrn(credId: CredId, trn: TRNReferenceNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val ratepayer: RatepayerRegistration = RatepayerRegistration(trnReferenceNumber = Some(trn))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-trn"))
       .withBody(Json.toJson(model))

@@ -18,9 +18,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
 import play.api.libs.json.{Json, OFormat}
 
-case class ReferenceNumber(referenceType: ReferenceType,
-                           value: String)
+case class TRNReferenceNumber(referenceType: ReferenceType,
+                              value: String)
 
-object ReferenceNumber {
-  implicit val format: OFormat[ReferenceNumber] = Json.format[ReferenceNumber]
+object TRNReferenceNumber {
+  implicit val format: OFormat[TRNReferenceNumber] = Json.format[TRNReferenceNumber]
 }

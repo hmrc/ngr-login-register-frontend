@@ -25,8 +25,8 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Email, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Email, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 
 import scala.concurrent.Future
