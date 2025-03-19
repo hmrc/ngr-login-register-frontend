@@ -54,6 +54,14 @@ confirmContactDetails.change = Change
 confirmContactDetails.add = Add
 
 findAddress.pageTitle = Find the contact address
+confirmUtr.pageTitle = Confirm your Self Assessment Unique Taxpayer Reference
+confirmUtr.body = We will display the last 3 digits of your Unique Taxpayer Reference (UTR). You can provide this UTR to join up the accounts you use to pay tax.
+confirmUtr.sautr = Self Assessment Unique Taxpayer Reference
+confirmUtr.yesProvide = Yes, I want to provide this UTR
+confirmUtr.noNI = No, I want to provide my National Insurance number
+confirmUtr.noLater = No, I will provide a tax reference number later
+confirmUtr.noSelectionError = Please select an option
+
 findAddress.heading = Find the contact address
 findAddress.caption = Register for the business rates valuation service
 findAddress.body = We will use this address to send letters via post

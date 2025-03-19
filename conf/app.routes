@@ -16,8 +16,10 @@ POST       /name                               uk.gov.hmrc.ngrloginregisterfront
 GET        /confirm-your-contact-details       uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
 GET        /confirm-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.show
 POST       /confirm-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.submit
-POST        /confirm-your-contact-details      uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.submit
+POST       /confirm-your-contact-details      uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.submit
 GET        /address-search-results/:page       uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.show(page:Int)
 GET        /select-address/:index              uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.selectedAddress(index:Int)
 GET        /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.show()
 POST       /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.submit()
+GET        /confirm-utr                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.show
+POST       /confirm-utr                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.submit

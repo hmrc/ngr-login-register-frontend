@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{ConfirmContactDetailsView, ProvideTRNView}
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ProvideTRNView
 
 class ProvideTRNControllerSpec extends ControllerSpecSupport{
 
@@ -32,14 +32,14 @@ class ProvideTRNControllerSpec extends ControllerSpecSupport{
 
   "ProvideTRNController" must {
     "return OK and the correct view for a GET" in {
-      val result = controller.show()(authenticatedFakeRequest)
+      val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe OK
     }
 
     "Calling the submit function return a 303 and the correct redirect location" in {
-      val result = controller.submit()(authenticatedFakeRequest)
+      val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show.url)
+      redirectLocation(result) mustBe Some(routes.ConfirmUTRController.show.url)
     }
   }
 
