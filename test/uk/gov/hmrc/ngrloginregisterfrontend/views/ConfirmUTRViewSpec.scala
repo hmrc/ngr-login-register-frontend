@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.controllers
+package uk.gov.hmrc.ngrloginregisterfrontend.views
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.SaUtr
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow, SaUtr}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
 class ConfirmUTRViewSpec extends ViewBaseSpec {
@@ -47,16 +52,41 @@ class ConfirmUTRViewSpec extends ViewBaseSpec {
     val errorMessage: String = "#main-content > div > div > form > div.govuk-error-summary > div > div > ul > li > a"
   }
 
+  val utr = "*******333"
+
+  private def makeSummaryList(utr: String)(implicit messages: Messages): SummaryList = {
+    SummaryList(Seq(
+      NGRSummaryListRow.summarise(
+        NGRSummaryListRow(
+          titleMessageKey = Messages("confirmUtr.sautr"),
+          captionKey = None,
+          value = Seq(utr),
+          changeLink = None
+        )
+      )
+    ))
+  }
+
+  private def makeRadios()(implicit  messages: Messages): Radios = {
+    NGRRadio.buildRadios(form = ConfirmUTR.form(), NGRRadios = NGRRadio(
+      radioGroupName = NGRRadioName(ConfirmUTR.formName),
+      NGRRadioButtons = Seq(
+        NGRRadioButtons(radioContent = messages("confirmUtr.yesProvide"), radioValue = Yes(utr)),
+        NGRRadioButtons(radioContent = messages("confirmUtr.noNI"), radioValue = NoNI),
+        NGRRadioButtons(radioContent = messages("confirmUtr.noLater"), radioValue = NoLater)
+      ),
+      ngrTitle = None
+    ))
+  }
+
   "ConfirmUTRView" must {
     "produce the same output for apply() and render()" in {
       val form = ConfirmUTR
         .form()
 
-      val utr: SaUtr = SaUtr("1234567890")
+      val summaryList = makeSummaryList(utr)
 
-      val summaryList = controller.summaryList(utr.value)
-
-      val radios = controller.radios()
+      val radios = makeRadios()
 
       val htmlApply = view.apply(form, summaryList, radios).body
 

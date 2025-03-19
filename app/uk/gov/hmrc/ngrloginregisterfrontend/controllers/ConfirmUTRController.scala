@@ -22,7 +22,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
@@ -30,6 +30,9 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, N
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import ConfirmUTR.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, ReferenceNumber}
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,6 +40,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      authenticate: AuthJourney,
                                      citizenDetailsConnector: CitizenDetailsConnector,
+                                     NGRConnector: NGRConnector,
                                      mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   private var savedUtr: String = ""
@@ -59,7 +63,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
       }
     }
 
-  private[controllers] def summaryList(utr: String)(implicit messages: Messages): SummaryList = {
+  private def summaryList(utr: String)(implicit messages: Messages): SummaryList = {
     SummaryList(Seq(
       NGRSummaryListRow.summarise(
         NGRSummaryListRow(
@@ -72,7 +76,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     ))
   }
 
-  private[controllers] def radios()(implicit  messages: Messages): Radios = {
+  private def radios()(implicit  messages: Messages): Radios = {
     NGRRadio.buildRadios(form = form(), NGRRadios = NGRRadio(
       radioGroupName = NGRRadioName(ConfirmUTR.formName),
       NGRRadioButtons = Seq(
@@ -95,13 +99,20 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskString(savedUtr)), radios()))),
           utrChoice => {
-            utrChoice match {
-              case ConfirmUTR.Yes(utr) => println(s"Yes selected, UTR: $utr")
-              case ConfirmUTR.NoNI => println("No, will provide NINO")
-              case ConfirmUTR.NoLater => println("No, will provide TRN later")
+            request.credId match {
+              case Some(credId) =>
+                utrChoice match {
+                  case ConfirmUTR.Yes(utr) =>
+                    println(s"Yes selected, UTR: $utr")
+                    NGRConnector.changeTrn(CredId(credId), ReferenceNumber(SAUTR, utr))
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                  case ConfirmUTR.NoNI => println("No, will provide NINO")
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                  case ConfirmUTR.NoLater => println("No, will provide TRN later")
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                }
+              case None => Future.failed(new RuntimeException("No Cred ID found in request"))
             }
-            //TODO: next page
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }
