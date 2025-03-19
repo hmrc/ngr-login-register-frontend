@@ -26,6 +26,9 @@
 
 <h1 class="govuk-heading-xl">@messages("featureNotAvailable.title")</h1>
 
-  <p class="govuk-body">@messages("featureNotAvailable.idTrue", journeyId)</p>
-
+ @if(journeyId.isDefined) {
+    <p class="govuk-body">@messages("featureNotAvailable.idTrue", journeyId.getOrElse(""))</p>
+  } else {
+    <p class="govuk-body">@messages("featureNotAvailable.idFalse")</p>
+ }
 }
