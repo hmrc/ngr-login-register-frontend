@@ -22,11 +22,13 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.RadioEntry
 
 sealed trait ConfirmUTR extends RadioEntry
-case object yes extends ConfirmUTR
-case object noNI extends ConfirmUTR
-case object noLater extends ConfirmUTR
 
 object ConfirmUTR {
+
+  case object yes extends ConfirmUTR
+  case object noNI extends ConfirmUTR
+  case object noLater extends ConfirmUTR
+
   val values: Seq[ConfirmUTR] = Seq(yes, noNI, noLater)
 
   private def fromString(value: String): Option[ConfirmUTR] = values.find(_.toString == value)
