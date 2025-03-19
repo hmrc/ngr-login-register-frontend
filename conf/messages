@@ -95,3 +95,6 @@ confirmAddress.pageTitle = Confirm Address
 confirmAddress.caption   = Register for the business rates valuation service
 confirmAddress.heading   = Do you want to use this address?
 confirmAddress.radio.unselected.error = This field is required
+featureNotAvailable.title = This part of the online service is not available yet
+featureNotAvailable.idTrue = The Journey ID is {0}
+featureNotAvailable.idFalse = The Journey ID is unavailable

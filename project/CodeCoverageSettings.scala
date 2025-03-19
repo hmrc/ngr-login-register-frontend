@@ -12,7 +12,9 @@ object CodeCoverageSettings {
     ".*Routes.*",
     "testOnly.*",
     "testOnlyDoNotUseInAppConf.*",
-    ".*InputText.*"
+    ".*InputText.*",
+    ".*FeatureNotImplementedController.*",
+    ".*FeatureNotImplementedView.*"
   )
 
   val settings: Seq[Setting[?]] = Seq(
