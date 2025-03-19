@@ -63,7 +63,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
       }
     }
 
-  private[controllers] def summaryList(utr: String)(implicit messages: Messages): SummaryList = {
+  private def summaryList(utr: String)(implicit messages: Messages): SummaryList = {
     SummaryList(Seq(
       NGRSummaryListRow.summarise(
         NGRSummaryListRow(
@@ -76,7 +76,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     ))
   }
 
-  private[controllers] def radios()(implicit  messages: Messages): Radios = {
+  private def radios()(implicit  messages: Messages): Radios = {
     NGRRadio.buildRadios(form = form(), NGRRadios = NGRRadio(
       radioGroupName = NGRRadioName(ConfirmUTR.formName),
       NGRRadioButtons = Seq(
@@ -105,13 +105,14 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                   case ConfirmUTR.Yes(utr) =>
                     println(s"Yes selected, UTR: $utr")
                     NGRConnector.changeTrn(CredId(credId), ReferenceNumber(SAUTR, utr))
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
                   case ConfirmUTR.NoNI => println("No, will provide NINO")
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
                   case ConfirmUTR.NoLater => println("No, will provide TRN later")
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
                 }
               case None => Future.failed(new RuntimeException("No Cred ID found in request"))
             }
-            //TODO: next page
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }
