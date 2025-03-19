@@ -29,8 +29,6 @@ object ConfirmUTR {
   case object NoNI extends ConfirmUTR
   case object NoLater extends ConfirmUTR
 
-  val values: Seq[ConfirmUTR] = Seq(NoNI, NoLater)
-
   private def fromString(value: String): Option[ConfirmUTR] = value match {
     case s"Yes($utr)" => Some(Yes(utr))
     case "NoNI"      => Some(NoNI)

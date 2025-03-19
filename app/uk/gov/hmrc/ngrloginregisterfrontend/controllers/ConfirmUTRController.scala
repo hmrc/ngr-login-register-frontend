@@ -84,10 +84,9 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     ))
   }
 
-  private def maskString(input: String): String = {
-    val length = input.length
-    "*".repeat(length - 3) + input.takeRight(3)
-  }
+  private def maskString(input: String): String =
+    if (input.length < 3) input
+    else "*".repeat(input.length - 3) + input.takeRight(3)
 
   def submit(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>

@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.data.format.Formatter
 import play.api.http.Status._
-import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
+import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsFormUrlEncoded, BodyParser, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
@@ -30,6 +30,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse, SaUtr}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.MatchingDetails
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,6 +43,8 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
   val matchingDetails: MatchingDetails = MatchingDetails("bob", "jones", Some(SaUtr("1234567890")))
   val matchingDetailsNoUTR: MatchingDetails = MatchingDetails("bob", "jones", None)
   val pageTitle: String = "Confirm your Self Assessment Unique Taxpayer Reference"
+
+  def requestWithFormValue(value: String): AuthenticatedUserRequest[AnyContentAsFormUrlEncoded] = AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("confirmUTR", value)).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some("")))
 
   "ConfirmUTRController" must {
     "Return OK and the correct view" in {
@@ -85,12 +88,20 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
       exception.getMessage must include("No NINO found in request")
     }
     "method submit" must {
-      "Successfully submit valid selection and redirect" in {
-        val result = controller.submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("confirmUTR", "yes")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+      "Successfully submit valid selection and redirect, YES" in {
+        val result = controller.submit()(requestWithFormValue("Yes(1234567890)"))
+        status(result) mustBe SEE_OTHER
+      }
+      "Successfully submit valid selection and redirect, NoNI" in {
+        val result = controller.submit()(requestWithFormValue("NoNI"))
+        status(result) mustBe SEE_OTHER
+      }
+      "Successfully submit valid selection and redirect, NoLater" in {
+        val result = controller.submit()(requestWithFormValue("NoLater"))
         status(result) mustBe SEE_OTHER
       }
       "no selection" in {
-          val result = controller.submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("confirmUTR", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+          val result = controller.submit()(requestWithFormValue(""))
           status(result) mustBe BAD_REQUEST
           val content = contentAsString(result)
           content must include(pageTitle)
@@ -100,10 +111,10 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
 
     "unbind a ConfirmUTR value correctly" in {
       val formatter: Formatter[ConfirmUTR] = ConfirmUTR.confirmUTRFormatter
-
-      ConfirmUTR.values.foreach { confirmUTR =>
-        formatter.unbind("confirmUTR", confirmUTR) mustBe Map("confirmUTR" -> confirmUTR.toString)
-      }
+      val yes = Yes("1234567890")
+      formatter.unbind("confirmUTR", yes) mustBe Map("confirmUTR" -> yes.toString)
+      formatter.unbind("confirmUTR", NoNI) mustBe Map("confirmUTR" -> NoNI.toString)
+      formatter.unbind("confirmUTR", NoLater) mustBe Map("confirmUTR" -> NoLater.toString)
     }
   }
 }
