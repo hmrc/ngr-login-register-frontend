@@ -47,15 +47,16 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer), createTRNSummaryRows(ratepayer), name)))
+          Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "govuk-!-margin-bottom-9"), createTRNSummaryRows(ratepayer), name)))
         case None =>
           Future.failed(new RuntimeException(s"Can not find CredId: $credId in the database"))
       }
     }
 
-//  def submit(): Action[AnyContent] =
-//    Action.async { implicit request =>
-//    }
+  def submit(): Action[AnyContent] =
+    authenticate.authWithUserDetails.async {
+      Future.successful(Redirect(routes.ProvideTRNController.show()))
+    }
 
   private def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
     def getUrl(route: String, linkId: String, messageKey: String): Option[Link] =
@@ -70,6 +71,6 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
       })
       .getOrElse(NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq.empty, getUrl(routes.PhoneNumberController.show.url, "sautr-linkid", "checkYourAnswers.add")))
 
-      SummaryList(Seq(summarise(ngrSummaryListRow)))
+      SummaryList(rows = Seq(summarise(ngrSummaryListRow)), classes = "govuk-!-margin-bottom-9")
   }
 }

@@ -29,6 +29,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, N
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import ConfirmUTR.form
+import org.apache.commons.lang3.StringUtils
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 
@@ -87,9 +88,9 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     ))
   }
 
-  private def maskString(input: String): String =
-    if (input.length < 3) input
-    else "*".repeat(input.length - 3) + input.takeRight(3)
+  private def maskString(input: String): String = {
+    StringUtils.overlay(input, StringUtils.repeat("*", input.length - 3), 0, input.length - 3)
+  }
 
   def submit(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>

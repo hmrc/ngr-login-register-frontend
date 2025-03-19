@@ -26,7 +26,10 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 
 trait SummaryListHelper {
-  def createContactDetailSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
+  def createContactDetailSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList =
+    createContactDetailSummaryRows(ratepayerRegistrationValuation, "")
+
+  def createContactDetailSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation, classes: String)(implicit messages: Messages): SummaryList = {
     val address = ratepayerRegistrationValuation.ratepayerRegistration
       .flatMap(_.address)
       .map(address => {
@@ -40,7 +43,8 @@ trait SummaryListHelper {
         .map(value => Seq(value.toString))
         .getOrElse(Seq.empty)
 
-    SummaryList(deriveNGRSummaryRows(getValue(_.name.map(_.value)), getValue(_.email.map(_.value)), getValue(_.contactNumber.map(_.value)), address))
+    SummaryList(rows = deriveNGRSummaryRows(getValue(_.name.map(_.value)), getValue(_.email.map(_.value)), getValue(_.contactNumber.map(_.value)), address),
+      classes = classes)
   }
 
   def deriveNGRSummaryRows(name: Seq[String], email: Seq[String], phone: Seq[String], address: Seq[String])(implicit messages: Messages): Seq[SummaryListRow] = {

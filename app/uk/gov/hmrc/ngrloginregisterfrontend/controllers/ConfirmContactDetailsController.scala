@@ -104,4 +104,10 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
     SummaryList(deriveNGRSummaryRows(Seq(name(personDetails)), Seq(request.email.getOrElse("")), Seq.empty, address))
   }
+
+  def submit(): Action[AnyContent] = {
+    authenticate.authWithUserDetails.async {
+      Future.successful(Redirect(routes.ProvideTRNController.show()))
+    }
+  }
 }

@@ -107,6 +107,7 @@ nino.invalidFormat.error      = Enter a National Insurance number in the correct
 
 checkYourAnswers.pageTitle = Check your answers
 checkYourAnswers.body.1 = Contact details
+checkYourAnswers.body.1.2 = This account is registered to
 checkYourAnswers.body.2 = Tax reference number
 checkYourAnswers.body.3 = Register to use this service
 checkYourAnswers.contactName = Contact name
@@ -117,7 +118,7 @@ checkYourAnswers.address.caption = We will send letters to this address
 checkYourAnswers.sautr = Self Assessment Unique Taxpayer Reference
 checkYourAnswers.nino = National Insurance Number
 checkYourAnswers.change = Change
-checkYourAnswers.add = Add
+checkYourAnswers.add = Provide your UTR
 checkYourAnswers.registerToUseService.text = By registering for this service you are confirming that, to the best of your knowledge, the details you are providing are correct.
 checkYourAnswers.button = Accept and register
 
