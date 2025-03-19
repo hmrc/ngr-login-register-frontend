@@ -80,10 +80,6 @@ provide.TRN.bullet.firstBullet = Self-assessment Unique Tax Reference (UTR)
 provide.TRN.bullet.secondBullet = National Insurance number (NINO)
 provide.TRN.disclaimer = It is a legal requirement to provide a TRN. While you can provide one later, we advise you to do so as soon as possible.
 
-postcode.empty.error = Enter a full UK postcode
-postcode.invalid.error = Enter a full UK postcode
-maxlength.100.error = No more than {n} characters allowed
-
 AddressSearchResult.table.heading = Address
 AddressSearchResult.pageTitle = Search results for {0}
 AddressSearchResult.heading = Search results for {0}
@@ -108,3 +104,23 @@ nino.label                    = National Insurance number
 nino.hint                     = It’s on your National Insurance card, benefit letter, payslip or P60. For example, ‘QQ 12 34 56 C’
 nino.empty.error              = Enter your National Insurance number
 nino.invalidFormat.error      = Enter a National Insurance number in the correct format
+
+checkYourAnswers.pageTitle = Check your answers
+checkYourAnswers.body.1 = Contact details
+checkYourAnswers.body.2 = Tax reference number
+checkYourAnswers.body.3 = Register to use this service
+checkYourAnswers.contactName = Contact name
+checkYourAnswers.emailAddress = Email address
+checkYourAnswers.phoneNumber = Phone number
+checkYourAnswers.address = Address
+checkYourAnswers.address.caption = We will send letters to this address
+checkYourAnswers.sautr = Self Assessment Unique Taxpayer Reference
+checkYourAnswers.nino = National Insurance Number
+checkYourAnswers.change = Change
+checkYourAnswers.add = Add
+checkYourAnswers.registerToUseService.text = By registering for this service you are confirming that, to the best of your knowledge, the details you are providing are correct.
+checkYourAnswers.button = Accept and register
+
+postcode.empty.error = Enter a full UK postcode
+postcode.invalid.error = Enter a full UK postcode
+maxlength.100.error = No more than {n} characters allowed

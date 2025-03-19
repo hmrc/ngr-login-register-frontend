@@ -26,7 +26,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress.form
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
-import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 

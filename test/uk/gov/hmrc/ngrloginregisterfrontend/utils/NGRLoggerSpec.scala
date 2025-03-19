@@ -17,7 +17,6 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 class NGRLoggerSpec extends TestSupport {
   val logger: NGRLogger = inject[NGRLogger]

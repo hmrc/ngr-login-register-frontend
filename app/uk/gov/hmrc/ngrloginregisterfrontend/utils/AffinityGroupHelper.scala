@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.util
+package uk.gov.hmrc.ngrloginregisterfrontend.utils
+
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 object AffinityGroupHelper {

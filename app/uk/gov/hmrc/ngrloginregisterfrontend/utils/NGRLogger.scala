@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.util
+package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
 import jakarta.inject.Singleton
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
