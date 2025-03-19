@@ -25,13 +25,18 @@ sealed trait ConfirmUTR extends RadioEntry
 
 object ConfirmUTR {
 
-  case object yes extends ConfirmUTR
-  case object noNI extends ConfirmUTR
-  case object noLater extends ConfirmUTR
+  case class Yes(utr: String) extends ConfirmUTR
+  case object NoNI extends ConfirmUTR
+  case object NoLater extends ConfirmUTR
 
-  val values: Seq[ConfirmUTR] = Seq(yes, noNI, noLater)
+  val values: Seq[ConfirmUTR] = Seq(NoNI, NoLater)
 
-  private def fromString(value: String): Option[ConfirmUTR] = values.find(_.toString == value)
+  private def fromString(value: String): Option[ConfirmUTR] = value match {
+    case s"Yes($utr)" => Some(Yes(utr))
+    case "NoNI"      => Some(NoNI)
+    case "NoLater"   => Some(NoLater)
+    case _           => None
+  }
 
   implicit val confirmUTRFormatter: Formatter[ConfirmUTR] = new Formatter[ConfirmUTR] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], ConfirmUTR] = {
@@ -40,7 +45,13 @@ object ConfirmUTR {
         .toRight(Seq(FormError(key, "confirmUtr.noSelectionError")))
     }
 
-    override def unbind(key: String, value: ConfirmUTR): Map[String, String] = Map(key -> value.toString)
+    override def unbind(key: String, value: ConfirmUTR): Map[String, String] = Map(
+      key -> (value match {
+        case Yes(utr) => s"Yes($utr)"
+        case NoNI     => "NoNI"
+        case NoLater  => "NoLater"
+      })
+    )
   }
 
   def form(): Form[ConfirmUTR] = Form(

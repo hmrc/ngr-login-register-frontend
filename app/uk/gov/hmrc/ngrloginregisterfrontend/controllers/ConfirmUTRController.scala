@@ -25,7 +25,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{noLater, noNI, yes}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -39,7 +39,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
-  private var obfuscatedUtr: String = ""
+  private var savedUtr: String = ""
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
@@ -50,8 +50,8 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
             case Right(details) =>
               details.saUtr
                 .map(utr => {
-                  obfuscatedUtr = maskString(utr.value)
-                  Future.successful(Ok(view(form(), summaryList(obfuscatedUtr), radios())))
+                  savedUtr = utr.value
+                  Future.successful(Ok(view(form(), summaryList(maskString(savedUtr)), radios())))
                 })
                 .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
           }
@@ -76,9 +76,9 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     NGRRadio.buildRadios(form = form(), NGRRadios = NGRRadio(
       radioGroupName = NGRRadioName("confirmUTR"),
       NGRRadioButtons = Seq(
-        NGRRadioButtons(radioContent = messages("confirmUtr.yesProvide"), radioValue = yes),
-        NGRRadioButtons(radioContent = messages("confirmUtr.noNI"), radioValue = noNI),
-        NGRRadioButtons(radioContent = messages("confirmUtr.noLater"), radioValue = noLater)
+        NGRRadioButtons(radioContent = messages("confirmUtr.yesProvide"), radioValue = Yes(savedUtr)),
+        NGRRadioButtons(radioContent = messages("confirmUtr.noNI"), radioValue = NoNI),
+        NGRRadioButtons(radioContent = messages("confirmUtr.noLater"), radioValue = NoLater)
       ),
       ngrTitle = None
     ))
@@ -94,8 +94,13 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(obfuscatedUtr), radios()))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskString(savedUtr)), radios()))),
           utrChoice => {
+            utrChoice match {
+              case ConfirmUTR.Yes(utr) => println(s"Yes selected, UTR: $utr")
+              case ConfirmUTR.NoNI => println("No, will provide NINO")
+              case ConfirmUTR.NoLater => println("No, will provide TRN later")
+            }
             //TODO: next page
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
