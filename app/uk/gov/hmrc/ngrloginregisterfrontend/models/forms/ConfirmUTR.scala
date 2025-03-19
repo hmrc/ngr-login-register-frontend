@@ -29,18 +29,13 @@ object ConfirmUTR {
   case object NoNI extends ConfirmUTR
   case object NoLater extends ConfirmUTR
 
-  private def fromString(value: String): Option[ConfirmUTR] = value match {
-    case s"Yes($utr)" => Some(Yes(utr))
-    case "NoNI"      => Some(NoNI)
-    case "NoLater"   => Some(NoLater)
-    case _           => None
-  }
-
   implicit val confirmUTRFormatter: Formatter[ConfirmUTR] = new Formatter[ConfirmUTR] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], ConfirmUTR] = {
-      data.get(key)
-        .flatMap(fromString)
-        .toRight(Seq(FormError(key, "confirmUtr.noSelectionError")))
+      data.get(key).collectFirst {
+        case s"Yes($utr)" => Yes(utr)
+        case "NoNI"       => NoNI
+        case "NoLater"    => NoLater
+      }.toRight(Seq(FormError(key, "confirmUtr.noSelectionError")))
     }
 
     override def unbind(key: String, value: ConfirmUTR): Map[String, String] = Map(
