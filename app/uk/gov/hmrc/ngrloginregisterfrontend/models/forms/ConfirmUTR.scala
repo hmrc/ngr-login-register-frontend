@@ -18,12 +18,14 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.forms
 
 import play.api.data.Forms.single
 import play.api.data.format.Formatter
-import play.api.data.{Form, FormError}
+import play.api.data.{Form, FormError, Forms}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.RadioEntry
 
 sealed trait ConfirmUTR extends RadioEntry
 
 object ConfirmUTR {
+
+  val formName: String = "confirmUTR"
 
   case class Yes(utr: String) extends ConfirmUTR
   case object NoNI extends ConfirmUTR
@@ -48,6 +50,6 @@ object ConfirmUTR {
   }
 
   def form(): Form[ConfirmUTR] = Form(
-    single("confirmUTR" -> play.api.data.Forms.of[ConfirmUTR])
+    single(formName -> Forms.of[ConfirmUTR])
   )
 }

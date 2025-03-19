@@ -44,7 +44,7 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
   val matchingDetailsNoUTR: MatchingDetails = MatchingDetails("bob", "jones", None)
   val pageTitle: String = "Confirm your Self Assessment Unique Taxpayer Reference"
 
-  def requestWithFormValue(value: String): AuthenticatedUserRequest[AnyContentAsFormUrlEncoded] = AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody(("confirmUTR", value)).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some("")))
+  def requestWithFormValue(value: String): AuthenticatedUserRequest[AnyContentAsFormUrlEncoded] = AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody((ConfirmUTR.formName, value)).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some("")))
 
   "ConfirmUTRController" must {
     "Return OK and the correct view" in {
@@ -112,9 +112,9 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
     "unbind a ConfirmUTR value correctly" in {
       val formatter: Formatter[ConfirmUTR] = ConfirmUTR.confirmUTRFormatter
       val yes = Yes("1234567890")
-      formatter.unbind("confirmUTR", yes) mustBe Map("confirmUTR" -> yes.toString)
-      formatter.unbind("confirmUTR", NoNI) mustBe Map("confirmUTR" -> NoNI.toString)
-      formatter.unbind("confirmUTR", NoLater) mustBe Map("confirmUTR" -> NoLater.toString)
+      formatter.unbind(ConfirmUTR.formName, yes) mustBe Map(ConfirmUTR.formName -> yes.toString)
+      formatter.unbind(ConfirmUTR.formName, NoNI) mustBe Map(ConfirmUTR.formName -> NoNI.toString)
+      formatter.unbind(ConfirmUTR.formName, NoLater) mustBe Map(ConfirmUTR.formName -> NoLater.toString)
     }
   }
 }

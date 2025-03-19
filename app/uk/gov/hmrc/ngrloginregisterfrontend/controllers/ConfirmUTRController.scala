@@ -74,7 +74,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
 
   private[controllers] def radios()(implicit  messages: Messages): Radios = {
     NGRRadio.buildRadios(form = form(), NGRRadios = NGRRadio(
-      radioGroupName = NGRRadioName("confirmUTR"),
+      radioGroupName = NGRRadioName(ConfirmUTR.formName),
       NGRRadioButtons = Seq(
         NGRRadioButtons(radioContent = messages("confirmUtr.yesProvide"), radioValue = Yes(savedUtr)),
         NGRRadioButtons(radioContent = messages("confirmUtr.noNI"), radioValue = NoNI),
