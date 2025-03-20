@@ -103,12 +103,9 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
               case Some(credId) =>
                 utrChoice match {
                   case ConfirmUTR.Yes(utr) =>
-                    println(s"Yes selected, UTR: $utr")
                     NGRConnector.changeTrn(CredId(credId), ReferenceNumber(SAUTR, utr))
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-                  case ConfirmUTR.NoNI => println("No, will provide NINO")
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-                  case ConfirmUTR.NoLater => println("No, will provide TRN later")
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
                 }
               case None => Future.failed(new RuntimeException("No Cred ID found in request"))
