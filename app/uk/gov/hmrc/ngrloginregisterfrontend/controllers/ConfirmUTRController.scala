@@ -102,7 +102,6 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
               case Some(credId) =>
                 utrChoice match {
                   case ConfirmUTR.Yes(utr) =>
-                    println(s"Yes selected, UTR: $utr")
                     NGRConnector.changeTrn(CredId(credId), TRNReferenceNumber(SAUTR, utr))
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
                   case ConfirmUTR.NoNI =>
