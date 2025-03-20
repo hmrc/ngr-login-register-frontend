@@ -63,10 +63,10 @@ object Nino extends CommonFormValidators {
           .verifying(
             firstError(
               isNotEmpty(nino, ninoEmptyError),
-              regexp(ninoRegexPattern.pattern(), ninoInvalidFormat),
-              isMatchingNino(authNino, nino,ninoInvalidFormat ),
             )
           )
+          .verifying(ninoInvalidFormat, isValidNino)
+          .verifying(isMatchingNino(authNino, nino,ninoInvalidFormat))
       )(Nino.apply)(Nino.unapply)
     )
 }

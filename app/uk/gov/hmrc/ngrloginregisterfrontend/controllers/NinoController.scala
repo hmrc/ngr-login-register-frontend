@@ -40,7 +40,6 @@ class NinoController @Inject()(
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
-      println(Console.YELLOW + s"Auth Nino = $authNino" + Console.RESET)
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val ninoForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)

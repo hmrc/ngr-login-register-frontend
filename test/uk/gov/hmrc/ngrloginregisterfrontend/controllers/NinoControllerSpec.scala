@@ -77,6 +77,11 @@ class NinoControllerSpec extends ControllerSpecSupport {
         status(result) mustBe SEE_OTHER
       }
 
+      "Successfully submit valid matching nino that contains spaces and redirect to confirm contact details" in {
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "AA 00 00 03 D")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
+        status(result) mustBe SEE_OTHER
+      }
+
       "Submit valid non matching nino display error message" in {
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "AA000003E")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
