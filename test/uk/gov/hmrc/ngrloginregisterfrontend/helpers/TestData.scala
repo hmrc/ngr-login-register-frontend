@@ -17,8 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Nino => ourNino}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
@@ -95,7 +94,7 @@ trait TestData {
 
   val contactNumberModel: ContactNumber = ContactNumber("0300 200 3310")
   val nameModel: Name = Name("Lovely Fella")
-  val ninoModel: ourNino = ourNino("AA000003D")
+  val ninoModel: Nino = Nino("AA000003D")
 
   val contactNumberJson: JsValue = Json.parse(
     """

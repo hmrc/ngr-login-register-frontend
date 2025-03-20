@@ -41,7 +41,7 @@ class NinoViewSpec  extends ViewBaseSpec {
     val label = "#main-content > div > div > form > div > label"
     val hint = "#nino-value-hint"
     val continueButton   = "#continue"
-    val errorMessage = "  #nino-value-error"
+    val errorMessage = "#nino-value-error"
   }
 
   "NinoView" must {

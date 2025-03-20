@@ -23,7 +23,8 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -56,8 +57,8 @@ class NinoController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
-          name => {
-            connector.changeNino(CredId(request.credId.getOrElse("")), name)
+          nino => {
+            connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO,nino.value))
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )

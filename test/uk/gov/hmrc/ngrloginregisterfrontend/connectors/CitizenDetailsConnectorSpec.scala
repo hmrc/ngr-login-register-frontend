@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 import uk.gov.hmrc.http.client.HttpClientV2
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2

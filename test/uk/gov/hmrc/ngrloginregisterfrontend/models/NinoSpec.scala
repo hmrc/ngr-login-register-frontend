@@ -17,7 +17,6 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.libs.json.{JsString, JsValue, Json}
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
 class NinoSpec extends TestSupport {
@@ -97,12 +96,6 @@ class NinoSpec extends TestSupport {
 
     "fail if the suffix is E" in {
       validateNino("AB123456E") mustBe false
-    }
-  }
-
-  "Creating a Nino" should {
-    "fail if the nino is not valid" in {
-      an[IllegalArgumentException] should be thrownBy Nino("INVALID_NINO")
     }
   }
 
