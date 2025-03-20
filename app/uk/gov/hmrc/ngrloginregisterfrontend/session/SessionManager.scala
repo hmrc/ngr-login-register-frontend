@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.session
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -45,17 +45,17 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
     updateSession(session, journeyIdKey, journeyId)
   }
 
-  def setChosenAddress(session: Session, address: Address): Session = {
+  def setChosenAddress(session: Session, address: LookedUpAddress): Session = {
     val splitIndex: Int = if (address.lines.size > 2) address.lines.size / 2 else 1
     val lineSeq = address.lines.splitAt(splitIndex)
     val line1 = lineSeq._1.mkString(", ")
     val line2 = if (lineSeq._2.isEmpty) None else Some(lineSeq._2.mkString(", "))
     val ngrAddress = uk.gov.hmrc.ngrloginregisterfrontend.models.Address(
-      line1, line2, address.town, None, Postcode(address.postcode), address.country.code)
+      line1, line2, address.town,None, Postcode(address.postcode))
     updateSession(session, chosenAddressIdKey, Json.toJson(ngrAddress).toString())
   }
 
-  def setAddressLookupResponse(session: Session, addresses: Seq[Address]): Session = {
+  def setAddressLookupResponse(session: Session, addresses: Seq[LookedUpAddress]): Session = {
     updateSession(session, addressLookupResponseKey, Json.toJson(addresses).toString())
   }
 

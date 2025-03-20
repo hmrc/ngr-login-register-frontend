@@ -18,14 +18,21 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import helpers.{IntegrationSpecBase, IntegrationTestData, WiremockHelper}
+import org.openqa.selenium.remote.tracing.HttpTracing.inject
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import play.api.test.Helpers._
 import play.api.test.Injecting
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
+
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase with Injecting with IntegrationTestData{
 
+  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
   lazy val connector: AddressLookupConnector = app.injector.instanceOf[AddressLookupConnector]
 
   override def beforeEach(): Unit = {
@@ -37,16 +44,16 @@ class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase w
       "sending a request" should {
         "return a successful response" in {
           WiremockHelper.stubPost(s"/address-lookup/lookup",OK, addressLookupResponseJson)
-          val result = connector.findAddressByPostcode(testAddressLookupRequest).futureValue
-          result mustBe Right(Seq(testAddressLookupResponseModel))
+          val result = connector.findAddressByPostcode(testAddressLookupRequest.postcode, None).futureValue
+          result mustBe AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))
           WiremockHelper.verifyPost(s"/address-lookup/lookup")
         }
         "return an error when the request fails" in {
           WiremockHelper.stubPost(s"/address-lookup/lookup", INTERNAL_SERVER_ERROR, "Call to address lookup failed")
 
-          val result = connector.findAddressByPostcode(testAddressLookupRequest).futureValue
+          val result: AddressLookupResponse = connector.findAddressByPostcode(testAddressLookupRequest.postcode, None).futureValue
+          result.toString mustBe AddressLookupErrorResponse(UpstreamErrorResponse(s"POST of 'http://localhost:11111/address-lookup/lookup' returned 500. Response body: 'Call to address lookup failed'",statusCode = 500)).toString
 
-          result mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Call to address lookup failed"))
           WiremockHelper.verifyPost(s"/address-lookup/lookup")
         }
       }

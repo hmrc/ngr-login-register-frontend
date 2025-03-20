@@ -16,58 +16,51 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.HttpResponse
+import play.api.libs.json.{JsPath, JsResultException, JsValue, JsonValidationError}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
-import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
-
-import scala.concurrent.Future
 
 class AddressLookupConnectorSpec extends MockHttpV2 with TestData {
 
   val httpClientV2: HttpClientV2 = mock[HttpClientV2]
   val logger: NGRLogger = inject[NGRLogger]
   val testAlfConnector: AddressLookupConnector = new AddressLookupConnector(mockHttpClientV2,mockConfig, logger)
+  val addressLookupHeader: Seq[(String, String)] = Seq("X-Hmrc-Origin" -> "ngr-login-register-frontend")
 
   "Calling the Address lookup api" when {
-    "a valid AddressLookupRequest is passed in" should {
+    "a valid AddressLookupRequest is passed in with only a valid postcode" should {
       "return a 200(OK)" in {
-        val successResponse = HttpResponse(status = OK, json = addressLookupResponseJson, headers = Map.empty)
-        setupMockHttpV2Post(s"${mockConfig.addressLookupUrl}/address-lookup/lookup")(successResponse)
-        val result: Future[Either[ErrorResponse,Seq[AddressLookupResponse]]] = testAlfConnector.findAddressByPostcode(testAddressLookupRequest)
-        result.futureValue mustBe Right(Seq(testAddressLookupResponseModel))
+        val successResponse: JsValue = addressLookupResponseJson
+        setupMockHttpV2PostWithHeaderCarrier(s"${mockConfig.addressLookupUrl}/address-lookup/lookup", addressLookupHeader)(successResponse)
+        val result: AddressLookupResponse = testAlfConnector.findAddressByPostcode(testPostcode, None).futureValue
+        result mustBe AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))
+      }
+    }
+    "a valid AddressLookupRequest is passed in with both a valid postcode and filter" should {
+      "return a 200(OK)" in {
+        val successResponse: JsValue = addressLookupResponseJson
+        setupMockHttpV2PostWithHeaderCarrier(s"${mockConfig.addressLookupUrl}/address-lookup/lookup", addressLookupHeader)(successResponse)
+        val result: AddressLookupResponse = testAlfConnector.findAddressByPostcode(testPostcode, Some("1 Test Street")).futureValue
+        result mustBe AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))
       }
     }
     "json is invalid" should {
       "return an error" in {
-        val successResponse = HttpResponse(status = OK, json = Json.obj(), headers = Map.empty)
-        setupMockHttpV2Post(s"${mockConfig.addressLookupUrl}/address-lookup/lookup")(successResponse)
-        val result = testAlfConnector.findAddressByPostcode(testAddressLookupRequest).futureValue
-        result.left.map(_.code) mustBe Left(BAD_REQUEST)
-      }
-    }
-    "a 400-499 response is returned" should{
-      "return an ErrorResponse" in {
-        val errorResponse = HttpResponse(status = NOT_FOUND, body="""No address found for this post code""", headers = Map.empty)
-        setupMockHttpV2Post(s"${mockConfig.addressLookupUrl}/address-lookup/lookup")(errorResponse)
-        val result = testAlfConnector.findAddressByPostcode(testAddressLookupRequest)
-        result.futureValue mustBe Left(ErrorResponse(NOT_FOUND, "No address found for this post code"))
+        val successResponse: JsValue = contactNumberJson
+        setupMockHttpV2PostWithHeaderCarrier(s"${mockConfig.addressLookupUrl}/address-lookup/lookup", addressLookupHeader)(successResponse)
+        val result = testAlfConnector.findAddressByPostcode(testPostcode, None).futureValue
+        result.leftSide mustBe AddressLookupErrorResponse(JsResultException(Seq((JsPath(), List(JsonValidationError(List("error.expected.jsarray")))))))
       }
     }
     "a 500-599 response is returned" should {
       "return an ErrorResponse" in {
-        setupMockHttpV2FailedPost(s"${mockConfig.addressLookupUrl}/address-lookup/lookup")
-        val result = testAlfConnector.findAddressByPostcode(testAddressLookupRequest)
-        result.futureValue mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR, "call to AddressLookup failed: null Request Failed"))
+        setupMockHttpV2FailedPostWithHeaderCarrier(s"${mockConfig.addressLookupUrl}/address-lookup/lookup", addressLookupHeader)
+        val result = testAlfConnector.findAddressByPostcode(testPostcode, None).futureValue
+        result.leftSide.toString mustBe "AddressLookupErrorResponse(java.lang.RuntimeException: Request Failed)"
       }
     }
-
   }
-
 }

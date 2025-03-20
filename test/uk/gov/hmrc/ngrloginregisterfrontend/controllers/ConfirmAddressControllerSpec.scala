@@ -28,7 +28,7 @@ import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddressWrapper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
 
 class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSupport with TestData {
@@ -36,7 +36,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
   lazy val chosenAddressIdKey: String = "NGR-Chosen-Address-Key"
   lazy val view: ConfirmAddressView = inject[ConfirmAddressView]
   val pageTitle = "Confirm Address"
-  lazy val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
   val session: Session = Session(Map(chosenAddressIdKey -> addressJsonResponse.toString()))
 

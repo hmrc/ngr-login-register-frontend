@@ -19,14 +19,16 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
-import play.api.libs.json.Json
+import play.api.libs.json.JsResult.Exception
+import play.api.libs.json.{JsError, Json}
 import play.api.mvc.Session
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
-import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.{BadRequestException, HeaderNames}
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupErrorResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupResponseModel, LookedUpAddressWrapper}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
 
@@ -38,9 +40,9 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
   lazy val postcodeKey: String = "Postcode-Key"
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "Find the contact address"
-  lazy val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-  val session: Session = Session(Map(addressResponseKey -> expectAddressesJsonString, postcodeKey -> "BN110AA"))
+  val session: Session = Session(Map(addressResponseKey -> expectAddressesJsonString, postcodeKey -> "AA00 0AA"))
 
   def controller() = new FindAddressController(
     view,
@@ -62,24 +64,24 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
     }
 
     "method submit" must {
-      "Successfully submit valid postcode and property name and redirect to confirm contact details" in {
+      "Successfully submit valid postcode and redirect to address search result page" in {
         when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
         when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
-        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
+        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))))
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
-          .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
+          .withFormUrlEncodedBody(("postcode-value", "AA00 0AA"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
           result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
-          result.session.get(postcodeKey) mustBe Some("BN110AA")
+          result.session.get(postcodeKey) mustBe Some("AA00 0AA")
         })
         status(result) mustBe SEE_OTHER
       }
 
-      "Successfully submit only valid postcode and redirect to confirm contact details" in {
+      "Successfully submit only valid postcode and redirect to address search result page" in {
         when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
         when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
-        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Right(addressLookupResponses)))
+        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any)).thenReturn(Future.successful(AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))))
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
           .withFormUrlEncodedBody(("postcode-value", "W126WA"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
@@ -90,15 +92,32 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
         status(result) mustBe SEE_OTHER
       }
 
-      "Successfully submit valid postcode but AddressLookup throws an error" in {
-        when(mockAddressLookupConnector.findAddressByPostcode(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(500, "INTERNAL_SERVER_ERROR"))))
+      "Successfully submit valid postcode but AddressLookup throws a BadRequestException" in {
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
+        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse(new BadRequestException(""))))
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
-          .withFormUrlEncodedBody(("postcode-value", "W126WA"), ("property-name-value", "7"))
+          .withFormUrlEncodedBody(("postcode-value", "W126WA"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
+          result.session.get(postcodeKey) mustBe Some("BN110AA")
+        })
+        status(result) mustBe BAD_REQUEST
+      }
 
+      "Successfully submit valid postcode but AddressLookup throws an error" in {
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
+        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse(Exception(JsError("INVALID JSON")))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.FindAddressController.submit)
+          .withFormUrlEncodedBody(("postcode-value", "W126WA"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
+          result.session.get(postcodeKey) mustBe Some("BN110AA")
+        })
         status(result) mustBe INTERNAL_SERVER_ERROR
-        val errorResponse: ErrorResponse = contentAsJson(result).as[ErrorResponse]
-        errorResponse.message mustBe "INTERNAL_SERVER_ERROR"
       }
 
       "Submit with no postcode and display error message" in {

@@ -16,59 +16,56 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.models.JsonFormatUtils
 
-final case class AddressLookupResponses(addressLookupResponses: Seq[AddressLookupResponse])
-
-object AddressLookupResponses {
-  implicit val format: Format[AddressLookupResponses] = Json.format[AddressLookupResponses]
+final case class AddressLookupResponseModel(candidateAddresses: Seq[LookedUpAddressWrapper]) {
+  lazy val noOfHits: Int = candidateAddresses.size
 }
 
-final case class AddressLookupResponse (
-                                   id: String,
-                                   uprn: Int,
-                                   parentUprn: Option[Int],
-                                   usrn: Option[Int],
-                                   organisation: Option[String],
-                                   address: Address,
-                                   localCustodian: Option[LocalCustodian],
-                                   location: Option[Seq[Int]],
-                                   language: String,
-                                   administrativeArea: Option[String],
-                                   poBox: Option[String]
-                                 )
+object AddressLookupResponseModel {
+  def fromJsonAddressLookupService(addressListAsJson: JsValue): AddressLookupResponseModel = {
+    val addresses = addressListAsJson.as[Seq[LookedUpAddressWrapper]]
+    AddressLookupResponseModel(addresses)
+  }
+  implicit val reads: Reads[AddressLookupResponseModel] =
+    __.read[Seq[LookedUpAddressWrapper]].map(AddressLookupResponseModel.apply)
 
-object AddressLookupResponse {
-  implicit val format: Format[AddressLookupResponse] = Json.format[AddressLookupResponse]
 }
 
-final case class Address(
-                      lines: Seq[String],
-                      town: String,
-                      postcode: String,
-                      subdivision: Option[Subdivision],
-                      country: Subdivision
-                    )
+final case class LookedUpAddressWrapper(
+                                         id: String,
+                                         uprn: Uprn,
+                                         address: LookedUpAddress,
+                                         language: String,
+                                         location: Option[Location]
+                                       )
 
-object Address {
-  implicit val format: Format[Address] = Json.format[Address]
+object LookedUpAddressWrapper {
+  implicit val reads: Reads[LookedUpAddressWrapper] = Json.reads[LookedUpAddressWrapper]
 }
 
+case class LookedUpAddress(lines: Seq[String], town: String, county: Option[String], postcode: String)
 
-final case class Subdivision(
-                          code: String,
-                          name: String
-                        )
-
-object Subdivision {
-  implicit val format: Format[Subdivision] = Json.format[Subdivision]
+object LookedUpAddress {
+  implicit val format: Format[LookedUpAddress] = Json.format[LookedUpAddress]
 }
 
-final case class LocalCustodian(
-                             code: Int,
-                             name: String
-                           )
+final case class Uprn(value: Long)
 
-object LocalCustodian {
-  implicit val format: Format[LocalCustodian] = Json.format[LocalCustodian]
+object Uprn {
+  implicit val format: Format[Uprn] = JsonFormatUtils.longFormat(Uprn.apply)(_.value)
+}
+
+final case class Location(latitude: BigDecimal, longitude: BigDecimal)
+
+object Location {
+
+  private val arrayNumberReads: Reads[Location] = (json: JsValue) =>
+    json.validate[Seq[BigDecimal]] match {
+      case JsSuccess(Seq(lat, long), _) => JsSuccess(Location(lat, long))
+      case _                            => JsError("Expected exactly two numbers for lat and long in location field")
+    }
+
+  implicit val format: OFormat[Location] = OFormat(arrayNumberReads orElse Json.reads[Location], Json.writes[Location])
 }

@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Session
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddressWrapper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
 class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestData {
@@ -40,7 +40,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
     mockSessionManager
   )
 
-  val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
+  val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
   val expectAddressesJsonString: String = Json.toJson(addressLookupResponses.map(_.address)).toString()
 
   "Address Search Result Controller" must {
