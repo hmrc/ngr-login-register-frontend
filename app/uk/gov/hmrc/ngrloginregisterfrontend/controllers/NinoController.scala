@@ -59,7 +59,7 @@ class NinoController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
           nino => {
-            connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO,nino.value))
+            connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO,nino.value.filterNot(_.isWhitespace)))
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
