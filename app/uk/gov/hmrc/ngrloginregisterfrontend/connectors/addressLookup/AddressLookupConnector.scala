@@ -49,7 +49,6 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
       .setHeader("X-Hmrc-Origin" -> "ngr-login-register-frontend")
       .execute[JsValue] map {
       addressListJson =>
-        println(Console.GREEN + addressListJson + Console.RESET)
         logger.info(s"Successfully Received addressList $addressListJson")
         AddressLookupSuccessResponse(AddressLookupResponseModel.fromJsonAddressLookupService(addressListJson))
     } recover {
