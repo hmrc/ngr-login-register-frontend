@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.auth.core.Nino
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, ViewBaseSpec}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
@@ -33,9 +33,8 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
   val layout: Layout = MockitoSugar.mock[Layout]
   val button: saveAndContinueButton = mock[saveAndContinueButton]
   val injectedView: ConfirmContactDetailsView = injector.instanceOf[ConfirmContactDetailsView]
-  val summaryList: SummaryList = SummaryList(rows)
+  val summaryList: SummaryList = controller.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(hasNino = true, Some(""))))
   lazy val controller: ConfirmContactDetailsController = inject[ConfirmContactDetailsController]
-  lazy val rows: Seq[SummaryListRow] = controller.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(hasNino = true, Some(""))))
 
   val navTitle = "Manage your business rates valuation"
   val pageTitle = "Confirm your contact details"

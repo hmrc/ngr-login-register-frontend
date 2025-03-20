@@ -30,11 +30,12 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, Test
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
 import scala.concurrent.Future
 
-class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with TestData {
+class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with TestData with SummaryListHelper{
   lazy val view: ConfirmContactDetailsView = inject[ConfirmContactDetailsView]
   lazy val citizenDetailsConnector: CitizenDetailsConnector = inject[CitizenDetailsConnector]
   val noNinoAuth: AuthenticatedUserRequest[AnyContentAsEmpty.type] = AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(hasNino = false, None))
@@ -128,15 +129,15 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
         )
       )
       val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None, None, None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
-      val rows = controller().createSummaryRows(personDetails, authRequest)
-      rows.length shouldBe 4
+      val summaryList = controller().createSummaryRows(personDetails, authRequest)
+      summaryList.rows.length shouldBe 4
     }
 
     "will create summary rows from ratepayer registration model" in {
       val model = testRegistrationModel
       val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
-      val rows = controller().createSummaryRowsFromRatePayer(ratepayer)
-      rows.length shouldBe 4
+      val summaryList = createContactDetailSummaryRows(ratepayer)
+      summaryList.rows.length shouldBe 4
     }
     "Calling the submit function return a 303 and the correct redirect location" in {
       val result = controller().submit()(authenticatedFakeRequest)

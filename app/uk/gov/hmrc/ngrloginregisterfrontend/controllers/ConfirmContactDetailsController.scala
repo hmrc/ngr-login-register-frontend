@@ -91,7 +91,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     personDetails.person.lastName
   ).flatten.mkString(" ")
 
-  private[controllers] def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): SummaryList = {
+  def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): SummaryList = {
     val address: Seq[String] = Seq(
       personDetails.address.line1.getOrElse(""),
       personDetails.address.line2.getOrElse(""),
