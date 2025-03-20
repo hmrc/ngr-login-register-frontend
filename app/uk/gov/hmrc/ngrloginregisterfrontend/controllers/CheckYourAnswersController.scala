@@ -26,7 +26,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
-import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.{StringHelper, SummaryListHelper}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckYourAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -38,7 +38,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            authenticate: AuthJourney,
                                            connector: NGRConnector,
                                            mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport with SummaryListHelper {
+  extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
@@ -54,22 +54,33 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
     }
 
   def submit(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async {
-      Future.successful(Redirect(routes.ProvideTRNController.show()))
+    authenticate.authWithUserDetails.async { implicit request =>
+      request.credId match {
+        case Some(credId) =>
+          connector.isRegistered(CredId(credId))
+          //TODO call Registered Controller
+          Future.successful(Redirect(routes.ProvideTRNController.show()))
+        case _ =>
+          Future.failed(new RuntimeException("No Cred ID found in request"))
+      }
     }
 
   private def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
-    def getUrl(route: String, linkId: String, messageKey: String): Option[Link] =
-      Some(Link(Call("GET", route), linkId, messageKey))
+    def getUrl(linkId: String, messageKey: String): Option[Link] =
+      Some(Link(Call("GET", routes.ConfirmUTRController.show.url), linkId, messageKey))
+
+    val provideYourTRNRow: NGRSummaryListRow = NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq.empty, getUrl("sautr-linkid", "checkYourAnswers.add"))
 
     val ngrSummaryListRow: NGRSummaryListRow = ratepayerRegistrationValuation.ratepayerRegistration
       .flatMap(_.referenceNumber)
       .map(trnReferenceNumber => trnReferenceNumber.referenceType match {
-        case NINO => NGRSummaryListRow(messages("checkYourAnswers.nino"), None, Seq(trnReferenceNumber.value), getUrl(routes.NameController.show.url, "nino-linkid", "Change"))
-        case SAUTR => NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq(trnReferenceNumber.value), getUrl(routes.PhoneNumberController.show.url, "sautr-linkid",
-          if (trnReferenceNumber.value.isEmpty) "checkYourAnswers.add" else "checkYourAnswers.change"))
+        case NINO =>
+          NGRSummaryListRow(messages("checkYourAnswers.nino"), None, Seq(maskString(trnReferenceNumber.value)), getUrl("nino-linkid", "checkYourAnswers.change"))
+        case SAUTR if trnReferenceNumber.value.nonEmpty =>
+          NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq(maskString(trnReferenceNumber.value)), getUrl("sautr-linkid", "checkYourAnswers.change"))
+        case _ => provideYourTRNRow
       })
-      .getOrElse(NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq.empty, getUrl(routes.PhoneNumberController.show.url, "sautr-linkid", "checkYourAnswers.add")))
+      .getOrElse(provideYourTRNRow)
 
       SummaryList(rows = Seq(summarise(ngrSummaryListRow)), classes = "govuk-!-margin-bottom-9")
   }

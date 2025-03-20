@@ -24,14 +24,13 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow, Nino}
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import ConfirmUTR.form
-import org.apache.commons.lang3.StringUtils
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes, form}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.StringHelper
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,7 +40,8 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      authenticate: AuthJourney,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      NGRConnector: NGRConnector,
-                                     mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+                                     mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
+  extends FrontendController(mcc) with I18nSupport with StringHelper {
 
   private var savedUtr: String = ""
 
@@ -88,10 +88,6 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     ))
   }
 
-  private def maskString(input: String): String = {
-    StringUtils.overlay(input, StringUtils.repeat("*", input.length - 3), 0, input.length - 3)
-  }
-
   def submit(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       ConfirmUTR.form()
@@ -108,7 +104,8 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                   case ConfirmUTR.NoNI =>
                     Future.successful(Redirect(routes.NinoController.show))
                   case ConfirmUTR.NoLater =>
-                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                    NGRConnector.changeTrn(CredId(credId), TRNReferenceNumber(SAUTR, ""))
+                    Future.successful(Redirect(routes.CheckYourAnswersController.show))
                 }
               case None => Future.failed(new RuntimeException("No Cred ID found in request"))
             }
