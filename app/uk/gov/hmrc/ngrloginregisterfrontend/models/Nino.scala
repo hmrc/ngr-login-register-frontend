@@ -40,17 +40,7 @@ object Nino extends CommonFormValidators {
   implicit val ninoWrite: Writes[Nino] = new SimpleObjectWrites[Nino](_.value)
   implicit val ninoRead: Reads[Nino] = new SimpleObjectReads[Nino]("nino", Nino.apply)
 
-  private val validNinoFormat = "[[A-Z]&&[^DFIQUV]][[A-Z]&&[^DFIQUVO]] ?\\d{2} ?\\d{2} ?\\d{2} ?[A-D]{1}"
-  private val invalidPrefixes = List("BG", "GB", "NK", "KN", "TN", "NT", "ZZ")
-
-  private def hasValidPrefix(nino: String) = invalidPrefixes.find(nino.startsWith).isEmpty
-
-  def isValid(nino: String) = nino != null && hasValidPrefix(nino) && nino.matches(validNinoFormat)
-
-  private val validFirstCharacters = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'Q', 'U', 'V').contains).map(_.toString)
-  private val validSecondCharacters = ('A' to 'Z').filterNot(List('D', 'F', 'I', 'O', 'Q', 'U', 'V').contains).map(_.toString)
-  val validPrefixes = validFirstCharacters.flatMap(a => validSecondCharacters.map(a + _)).filterNot(invalidPrefixes.contains(_))
-  val validSuffixes = ('A' to 'D').map(_.toString)
+  def isValid(nino: String) = nino.nonEmpty && ninoRegexPattern.matcher(nino).matches()
 
   private lazy val ninoEmptyError    = "nino.empty.error"
   private lazy val ninoInvalidFormat = "nino.invalidFormat.error"
@@ -63,10 +53,9 @@ object Nino extends CommonFormValidators {
           .verifying(
             firstError(
               isNotEmpty(nino, ninoEmptyError),
+              regexp(ninoRegexPattern.pattern(), ninoInvalidFormat)
             )
           )
-          .verifying(ninoInvalidFormat, isValidNino)
-          .verifying(isMatchingNino(authNino, nino,ninoInvalidFormat))
       )(Nino.apply)(Nino.unapply)
     )
 }

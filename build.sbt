@@ -1,5 +1,4 @@
 import uk.gov.hmrc.DefaultBuildSettings
-import scoverage.ScoverageKeys
 ThisBuild / majorVersion := 0
 ThisBuild / scalaVersion := "2.13.12"
 

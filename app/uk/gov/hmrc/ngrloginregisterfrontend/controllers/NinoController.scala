@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView
@@ -40,13 +41,16 @@ class NinoController @Inject()(
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
-        val ninoForm = ratepayerOpt
-          .flatMap(_.ratepayerRegistration)
-          .flatMap(_.nino)
-          .map(nino => form(authNino).fill(Nino(nino.value)))
-          .getOrElse(form(request.nino.nino.get))
-        Ok(ninoView(ninoForm))
+      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
+        case Some(ratepayer) =>
+          val ninoForm: Form[Nino] = ratepayer.ratepayerRegistration
+            .flatMap(_.trnReferenceNumber)
+            .filter(_.referenceType == NINO)
+            .map(trnReferenceNumber => form(authNino).fill(Nino(trnReferenceNumber.value)))
+            .getOrElse(form(request.nino.nino.get))
+          Ok(ninoView(ninoForm))
+        case None =>
+          Ok(ninoView(form(request.nino.nino.get)))
       }
     }
   }
@@ -59,7 +63,7 @@ class NinoController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
           nino => {
-            connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO,nino.value.filterNot(_.isWhitespace)))
+            connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, nino.value))
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )

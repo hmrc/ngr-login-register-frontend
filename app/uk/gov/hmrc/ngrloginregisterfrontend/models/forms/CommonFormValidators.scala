@@ -24,7 +24,7 @@ trait CommonFormValidators  {
 
   val fullNameRegexPattern: Pattern     = Pattern.compile("^[A-Za-z .'-]+$")
   val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9() ]{9,16}$")
-  val ninoRegexPattern: Pattern  = Pattern.compile("^((?!(BG|GB|KN|NK|NT|TN|ZZ)|(D|F|I|Q|U|V)[A-Z]|[A-Z](D|F|I|O|Q|U|V))[A-Z]{2})[0-9]{6}[A-D]?$")
+  val ninoRegexPattern: Pattern  = Pattern.compile("^((?!(BG|GB|KN|NK|NT|TN|ZZ)|(D|F|I|Q|U|V)[A-Z]|[A-Z](D|F|I|O|Q|U|V))[A-Z]{2}) ?([0-9]{2} ?){3}[A-D]?$")
   val postcodeRegexPattern: Pattern = Pattern.compile("^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$")
   val emailPattern: Pattern =
     Pattern.compile("""[a-zA-Z0-9]+([-+.'][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*\.[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*""")
@@ -38,9 +38,6 @@ trait CommonFormValidators  {
         .find(_ != Valid)
         .getOrElse(Valid)
     }
-
-  val isMatchingPattern: (String, Pattern) => Boolean = (value, pattern) => pattern.matcher(value).matches()
-  val isValidNino: String => Boolean = (nino:String) => nino.isEmpty || isMatchingPattern(nino.filterNot(_.isWhitespace), ninoRegexPattern)
 
   protected def regexp(regex: String, errorKey: String): Constraint[String] =
     Constraint {
@@ -56,14 +53,6 @@ trait CommonFormValidators  {
         Valid
       case _                            =>
         Invalid(errorKey, maximum)
-    }
-
-  protected def isMatchingNino(authNino:String, nino: String, errorKey: String): Constraint[String] =
-    Constraint{
-      case nino if nino.filterNot(_.isWhitespace).matches(authNino) =>
-        Valid
-      case _ =>
-        Invalid(errorKey, nino)
     }
 
   protected def isNotEmpty(value: String, errorKey: String): Constraint[String] =

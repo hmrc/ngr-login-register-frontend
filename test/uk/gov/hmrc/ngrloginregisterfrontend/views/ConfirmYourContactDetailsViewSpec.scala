@@ -40,10 +40,10 @@ class ConfirmYourContactDetailsViewSpec extends ViewBaseSpec {
   val continueText = "Continue"
 
   object Selectors {
-    val heading = "#main-content > div > div > h1"
+    val heading = "#main-content > div > div > form > h1"
     val backLink = ".govuk-back-link"
-    val title: Int => String = selectorNumber => s"#main-content > div > div > dl > div:nth-child($selectorNumber) > dt"
-    val value: Int => String = selectorNumber => s"#main-content > div > div > dl > div:nth-child($selectorNumber) > dd.govuk-summary-list__value"
+    val title: Int => String = selectorNumber => s"#main-content > div > div > form > dl > div:nth-child($selectorNumber) > dt"
+    val value: Int => String = selectorNumber => s"#main-content > div > div > form > dl > div:nth-child($selectorNumber) > dd.govuk-summary-list__value"
     val contactNameChangeLink = "#changeName"
     val emailChangeLink = "#changeEmail"
     val phoneNumberAddLink = "#addPhoneNumber"

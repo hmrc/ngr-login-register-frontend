@@ -1,28 +1,28 @@
 # microservice specific routes
 
-->         /hmrc-frontend                   hmrcfrontend.Routes
-GET        /start                           uk.gov.hmrc.ngrloginregisterfrontend.controllers.LoginController.start
-GET        /assets/*file                    controllers.Assets.versioned(path = "/public", file: Asset)
-GET        /register                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.show
-POST       /register                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.submit
-GET        /phone-number                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.show
-POST       /phone-number                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.submit
-GET        /change-email                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.EmailController.show
-POST       /change-email                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.EmailController.submit
-GET        /find-address                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.FindAddressController.show
-POST       /find-address                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.FindAddressController.submit
-GET        /name                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.show
-POST       /name                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.submit
-GET        /confirm-your-contact-details    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
-POST       /confirm-your-contact-details      uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.submit
-GET        /confirm-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.show
-POST       /confirm-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.submit
-GET        /address-search-results/:page    uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.show(page:Int)
-GET        /select-address/:index           uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.selectedAddress(index:Int)
+->         /hmrc-frontend                       hmrcfrontend.Routes
+GET        /start                               uk.gov.hmrc.ngrloginregisterfrontend.controllers.LoginController.start
+GET        /assets/*file                        controllers.Assets.versioned(path = "/public", file: Asset)
+GET        /register                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.show
+POST       /register                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.submit
+GET        /phone-number                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.show
+POST       /phone-number                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.PhoneNumberController.submit
+GET        /change-email                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.EmailController.show
+POST       /change-email                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.EmailController.submit
+GET        /find-address                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.FindAddressController.show
+POST       /find-address                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.FindAddressController.submit
+GET        /name                                uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.show
+POST       /name                                uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.submit
+GET        /confirm-your-contact-details        uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
+POST       /confirm-your-contact-details        uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.submit
+GET        /confirm-address                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.show
+POST       /confirm-address                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.submit
+GET        /address-search-results/:page        uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.show(page:Int)
+GET        /select-address/:index               uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.selectedAddress(index:Int)
 GET        /provide-national-insurance-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.NinoController.show
 POST       /provide-national-insurance-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.NinoController.submit
-GET        /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.show()
-POST       /provide-your-tax-reference-number  uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.submit()
-GET        /confirm-utr                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.show
-POST       /confirm-utr                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.submit
-GET        /feature-not-implemented        uk.gov.hmrc.ngrloginregisterfrontend.controllers.FeatureNotImplementedController.show(journeyId:Option[String])
+GET        /provide-your-tax-reference-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.show()
+POST       /provide-your-tax-reference-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.submit()
+GET        /confirm-utr                         uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.show
+POST       /confirm-utr                         uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.submit
+GET        /feature-not-implemented             uk.gov.hmrc.ngrloginregisterfrontend.controllers.FeatureNotImplementedController.show(journeyId:Option[String])

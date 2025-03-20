@@ -18,7 +18,6 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -26,12 +25,12 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector,
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import ConfirmUTR.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, ReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -103,9 +102,12 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
               case Some(credId) =>
                 utrChoice match {
                   case ConfirmUTR.Yes(utr) =>
-                    NGRConnector.changeTrn(CredId(credId), ReferenceNumber(SAUTR, utr))
+                    println(s"Yes selected, UTR: $utr")
+                    NGRConnector.changeTrn(CredId(credId), TRNReferenceNumber(SAUTR, utr))
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                  case ConfirmUTR.NoNI =>
+                    Future.successful(Redirect(routes.NinoController.show))
+                  case ConfirmUTR.NoLater =>
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
                 }
               case None => Future.failed(new RuntimeException("No Cred ID found in request"))

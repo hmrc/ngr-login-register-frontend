@@ -22,12 +22,13 @@ import play.api.Play.materializer
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import uk.gov.hmrc.auth.core.{Nino => authNino}
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Nino, RatepayerRegistration}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView
-import uk.gov.hmrc.auth.core.{Nino => authNino}
 
 import scala.concurrent.Future
 
@@ -59,7 +60,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
         content must include(pageTitle)
       }
       "Return OK and the correct view with nino" in {
-        val ratepayer: RatepayerRegistration = RatepayerRegistration(nino = Some(Nino("AA000003D")))
+        val ratepayer: RatepayerRegistration = RatepayerRegistration(trnReferenceNumber = Some(TRNReferenceNumber(NINO, "AA000003D")))
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(Some(model)))
@@ -68,6 +69,18 @@ class NinoControllerSpec extends ControllerSpecSupport {
         val content = contentAsString(result)
         content must include(pageTitle)
         content must include("AA000003D")
+      }
+
+      "Return OK and the correct view if nino is missing from TRNReferenceNumber" in {
+        val ratepayer: RatepayerRegistration = RatepayerRegistration(trnReferenceNumber = Some(TRNReferenceNumber(SAUTR, "1097133333")))
+        val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+        when(mockNGRConnector.getRatepayer(any())(any()))
+          .thenReturn(Future.successful(Some(model)))
+        val result = controller().show()(authenticatedFakeRequest)
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must include(pageTitle)
+        content mustNot include("AA000003D")
       }
     }
 
