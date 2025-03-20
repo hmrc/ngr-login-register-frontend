@@ -47,7 +47,7 @@ class NinoViewSpec  extends ViewBaseSpec {
   "NinoView" must {
 
     val form = Nino
-      .form()
+      .form("AA000003D")
       .fillAndValidate(Nino("AA000003D"))
     lazy val htmlF = ninoView.f(form)(request, messages, mockConfig)
 
@@ -57,7 +57,7 @@ class NinoViewSpec  extends ViewBaseSpec {
 
     "produce the same output for apply() and render()" in {
       val form = Nino
-        .form()
+        .form("AA000003D")
         .fillAndValidate(Nino("AA000003D"))
       val htmlApply = ninoView.apply(form).body
       val htmlRender = ninoView.render(form, request, messages, mockConfig).body
@@ -73,7 +73,7 @@ class NinoViewSpec  extends ViewBaseSpec {
 
     "show missing nino error correctly " in {
       val form = Nino
-        .form()
+        .form("")
         .fillAndValidate(Nino(""))
       val htmlApply = ninoView.apply(form).body
       val htmlRender = ninoView.render(form, request, messages, mockConfig).body
@@ -90,7 +90,7 @@ class NinoViewSpec  extends ViewBaseSpec {
 
     "show invalid nino error correctly" in {
       val form = Nino
-        .form()
+        .form("!nino")
         .fillAndValidate(Nino("!nino"))
       val htmlApply = ninoView.apply(form).body
       val htmlRender = ninoView.render(form, request, messages, mockConfig).body

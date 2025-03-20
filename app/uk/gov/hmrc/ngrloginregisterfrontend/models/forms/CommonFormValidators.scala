@@ -20,7 +20,7 @@ import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import java.util.regex.Pattern
 
-trait CommonFormValidators {
+trait CommonFormValidators  {
 
   val fullNameRegexPattern: Pattern     = Pattern.compile("^[A-Za-z .'-]+$")
   val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9() ]{9,16}$")
@@ -54,6 +54,14 @@ trait CommonFormValidators {
         Valid
       case _                            =>
         Invalid(errorKey, maximum)
+    }
+
+  protected def isMatchingNino(authNino:String, nino: String, errorKey: String): Constraint[String] =
+    Constraint{
+      case nino if nino.matches(authNino) =>
+        Valid
+      case _ =>
+        Invalid(errorKey, nino)
     }
 
   protected def isNotEmpty(value: String, errorKey: String): Constraint[String] =

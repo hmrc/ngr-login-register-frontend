@@ -72,12 +72,20 @@ class NinoControllerSpec extends ControllerSpecSupport {
     }
 
     "method submit" must {
-      "Successfully submit valid phone number and redirect to confirm contact details" in {
+      "Successfully submit valid matching nino and redirect to confirm contact details" in {
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "AA000003D")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
       }
 
-      "Submit with no phone number and display error message" in {
+      "Submit valid non matching nino display error message" in {
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "AA000003E")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
+        status(result) mustBe BAD_REQUEST
+        val content = contentAsString(result)
+        content must include(pageTitle)
+        content must include("Enter a National Insurance number in the correct format")
+      }
+
+      "Submit with no nino and display error message" in {
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
@@ -85,7 +93,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
         content must include("Enter your National Insurance number")
       }
 
-      "Submit incorrect phone number format and display error message" in {
+      "Submit incorrect nino format and display error message" in {
         val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "uk07953009506")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)

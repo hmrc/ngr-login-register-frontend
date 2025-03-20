@@ -39,21 +39,23 @@ class NinoController @Inject()(
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
+      val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
+      println(Console.YELLOW + s"Auth Nino = $authNino" + Console.RESET)
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val ninoForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.nino)
-          .map(nino => form().fill(Nino(nino.value)))
-          .getOrElse(form())
+          .map(nino => form(authNino).fill(Nino(nino.value)))
+          .getOrElse(form(request.nino.nino.get))
         Ok(ninoView(ninoForm))
       }
     }
   }
 
-
   def submit(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      Nino.form()
+      val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
+      Nino.form(authNino)
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
