@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, Location, LookedUpAddress, LookedUpAddressWrapper, Uprn}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN

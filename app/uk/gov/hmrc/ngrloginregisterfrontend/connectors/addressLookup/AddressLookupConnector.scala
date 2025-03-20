@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
-import play.api.i18n.Lang.logger.warn
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
