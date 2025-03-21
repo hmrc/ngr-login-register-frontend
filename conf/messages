@@ -53,7 +53,6 @@ confirmContactDetails.address.caption = We will send letters to this address
 confirmContactDetails.change = Change
 confirmContactDetails.add = Add
 
-findAddress.pageTitle = Find the contact address
 confirmUtr.pageTitle = Confirm your Self Assessment Unique Taxpayer Reference
 confirmUtr.body = We will display the last 3 digits of your Unique Taxpayer Reference (UTR). You can provide this UTR to join up the accounts you use to pay tax.
 confirmUtr.sautr = Self Assessment Unique Taxpayer Reference
@@ -62,6 +61,7 @@ confirmUtr.noNI = No, I want to provide my National Insurance number
 confirmUtr.noLater = No, I will provide a tax reference number later
 confirmUtr.noSelectionError = Please select an option
 
+findAddress.pageTitle = Find the contact address
 findAddress.heading = Find the contact address
 findAddress.caption = Register for the business rates valuation service
 findAddress.body = We will use this address to send letters via post
@@ -94,6 +94,7 @@ AddressSearchResult.link    = Select property
 confirmAddress.pageTitle = Confirm Address
 confirmAddress.caption   = Register for the business rates valuation service
 confirmAddress.heading   = Do you want to use this address?
+confirmAddress.body = We will send all letters to this address
 confirmAddress.radio.unselected.error = This field is required
 
 featureNotAvailable.title = This part of the online service is not available yet
