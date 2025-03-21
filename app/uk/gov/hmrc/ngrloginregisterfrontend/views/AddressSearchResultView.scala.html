@@ -36,8 +36,6 @@ govukTable : GovukTable
 
 @(postcode: String, paginationData: PaginationData, totalAddress: Int, pageTop: Int, pageBottom: Int, addressSearchResultTable: Table)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-
-
 @layout(pageTitle = Some(messages("AddressSearchResult.pageTitle", postcode))) {
     <span class="govuk-caption-l">@messages("service.caption")</span>
     <h1 class="govuk-heading-l">

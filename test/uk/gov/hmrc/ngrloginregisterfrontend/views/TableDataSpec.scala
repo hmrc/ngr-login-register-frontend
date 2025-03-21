@@ -24,10 +24,10 @@ class TableDataSpec extends ViewBaseSpec{
 
   "TableData" when {
     "To table produces table" in {
-      val mockTableData = TableData(headers = Seq(TableHeader("header 1", "gov-uk")),rows = Seq(Seq(TableRowText("Address 1"))),caption = Some("Caption"))
+      val mockTableData = TableData(headers = Seq(TableHeader("header 1", "gov-uk", Some(2))),rows = Seq(Seq(TableRowText("Address 1"))),caption = Some("Caption"))
       mockTableData.toTable mustBe Table(
         rows = List(List(TableRow(Text("Address 1") , classes = ""))),
-        head = Some(List(HeadCell(Text("header 1"), classes = "gov-uk"))),
+        head = Some(List(HeadCell(Text("header 1"), classes = "gov-uk", colspan = Some(2)))),
         caption = Some("Caption"), captionClasses = "govuk-table__caption--m", firstCellIsHeader = false, classes = "govuk-!-width-full")
     }
   }

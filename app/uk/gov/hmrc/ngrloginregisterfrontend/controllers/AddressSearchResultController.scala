@@ -59,8 +59,19 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
         x => (x._1, if(page > 1){routes.AddressSearchResultController.selectedAddress(x._2 + defaultPageSize).url} else {routes.AddressSearchResultController.selectedAddress(x._2).url})
       )
 
-      def generateTable(addressList:AddressSearchResult): Table  = {
-        TableData(headers = Seq(TableHeader("Address", "govuk-table__caption--m govuk-table govuk-!-width-three-quarters"), TableHeader("", "govuk-!-width-one-quarter")), rows = zipWithIndex(page, defaultPageSize, addressList.address).map(stringValue => Seq(TableRowText(stringValue._1), TableRowLink(stringValue._2, "Select Property")))).toTable
+      def generateTable(addressList: AddressSearchResult): Table = {
+        TableData(
+          headers = Seq(
+            TableHeader("Address", "govuk-table__caption--m", colspan = Some(2))
+          ),
+          rows = zipWithIndex(page, defaultPageSize, addressList.address).map {
+            case (address, index) =>
+              Seq(
+                TableRowText(address, Some("govuk-table govuk-!-width-three-quarters")),
+                TableRowLink(index, "Select Property", Some("govuk-table govuk-!-width-one-quarter"))
+              )
+          }
+        ).toTable
       }
 
       Future.successful(Ok(view(
