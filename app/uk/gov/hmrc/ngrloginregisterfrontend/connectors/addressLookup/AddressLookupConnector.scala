@@ -22,6 +22,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.net.URL
 import javax.inject.Inject
