@@ -35,7 +35,7 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
   lazy val heading = "Do you want to use this address?"
   lazy val yesLabel = "Yes"
   lazy val noLabel = "No"
-  lazy val message = "We will use this address to send letters via post"
+  lazy val message = "We will send all letters to this address"
   lazy val continueButton = "Continue"
   lazy val unselectedRadioMessage = "This field is required"
   lazy val chosenAddress = "5 Wibble Rd, Worthing HA49EY"
