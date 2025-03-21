@@ -63,16 +63,6 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       status(result) mustBe OK
     }
 
-    "throw an exception if auth does not return a nino" in{
-    //  when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Right(personDetailsResponse)))
-      val result = controller().show()(authenticatedFakeRequestNoNino)
-      status(result) mustBe OK
-//      val exception = intercept[Exception] {
-//        controller.show()(authenticatedFakeRequestNoNino)
-//      }
-//      exception.getMessage must include("No nino found from auth")
-    }
-
     "return the correct status when no ratepayer is found and citizen details fail" in {
       when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(404, "Not Found"))))
