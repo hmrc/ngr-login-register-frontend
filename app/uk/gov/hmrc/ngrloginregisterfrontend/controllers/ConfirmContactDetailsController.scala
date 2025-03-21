@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -41,12 +41,11 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 connector: NGRConnector,
                                                 mcc: MessagesControllerComponents,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
-  //TODO WE DON'T HAVE TOWN FROM PERSON DETAILS BUT NEED IT IN MAKING A RATEPAYER
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
-      val nino = Nino(request.nino.nino.getOrElse(""))
+      val authNino = Nino(request.nino.nino.getOrElse(throw new Exception("No nino found from auth")))
       val email = Email(request.email.getOrElse(""))
 
       connector.getRatepayer(credId).flatMap {
@@ -55,13 +54,14 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
           Future.successful(Ok(view(SummaryList(createSummaryRowsFromRatePayer(ratepayer)), name)))
 
         case None =>
-          citizenDetailsConnector.getPersonDetails(nino).flatMap {
+          citizenDetailsConnector.getPersonDetails(authNino).flatMap {
             case Left(error) =>
               Future.successful(Status(error.code)(Json.toJson(error)))
 
             case Right(personDetails) =>
               val nameValue = name(personDetails)
               val ratepayerRegistration = RatepayerRegistration(
+                nino = Some(authNino),
                 name = Some(Name(nameValue)),
                 email = Some(email),
                 address = Some(buildAddress(personDetails))

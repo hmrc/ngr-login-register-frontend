@@ -18,14 +18,13 @@ package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
 import play.api.http.Status.{CREATED, OK}
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
-import uk.gov.hmrc.http.HttpReads.Implicits.readFromJson
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, ReferenceNumber}
-import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, ContactNumber, Email, Name, RatepayerRegistration}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 import java.net.URL
 import javax.inject.{Inject, Singleton}
@@ -76,6 +75,21 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
+  def changeNino(credId: CredId, nino: Nino)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val ratepayer: RatepayerRegistration = RatepayerRegistration(nino = Some(nino))
+    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+    http.post(url("change-nino"))
+      .withBody(Json.toJson(model))
+      .execute[HttpResponse]
+      .map { response =>
+        logger.info("Change nino" + response.body)
+        response.status match {
+          case OK => response
+          case _ => throw new Exception(s"${response.status}: ${response.body}")
+        }
+      }
+  }
+
   def changePhoneNumber(credId: CredId, contactNumber: ContactNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(contactNumber))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
@@ -106,8 +120,8 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def changeTrn(credId: CredId, trn: ReferenceNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(referenceNumber = Some(trn))
+  def changeTrn(credId: CredId, trn: TRNReferenceNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val ratepayer: RatepayerRegistration = RatepayerRegistration(trnReferenceNumber = Some(trn))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-trn"))
       .withBody(Json.toJson(model))

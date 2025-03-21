@@ -114,6 +114,9 @@ with IntegrationPatience {
   lazy val authenticatedFakeRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
     AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(true, Some("")))
 
+  lazy val authenticatedFakeRequestNoNino: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
+    AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(false, None))
+
   lazy val authenticatedFakeRequestWithSession: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
     AuthenticatedUserRequest(fakeRequest.withSession(addressResponseKey -> expectAddressesJsonString), None, None, None, None, None, None, nino = Nino(true, Some("")))
 

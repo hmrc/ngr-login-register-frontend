@@ -16,15 +16,12 @@
 
 package helpers
 
-import org.openqa.selenium.remote.tracing.HttpTracing.inject
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 
 import java.time.LocalDate
-import scala.concurrent.ExecutionContext
 
 trait IntegrationTestData {
   val nino : Nino = Nino("AA000003D")

@@ -17,14 +17,13 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, ReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, TRNReferenceNumber}
 
 import java.time.LocalDate
 
@@ -71,7 +70,7 @@ trait TestData {
           country = "UK",
         )
       ),
-      referenceNumber = Some(ReferenceNumber(TRN, "12345")),
+      trnReferenceNumber = Some(TRNReferenceNumber(TRN, "12345")),
       isRegistered = Some(true)
     )
 
@@ -92,6 +91,7 @@ trait TestData {
 
   val contactNumberModel: ContactNumber = ContactNumber("0300 200 3310")
   val nameModel: Name = Name("Lovely Fella")
+  val ninoModel: Nino = Nino("AA000003D")
 
   val contactNumberJson: JsValue = Json.parse(
     """
@@ -108,12 +108,12 @@ trait TestData {
   val minRegResponseModel: RatepayerRegistration = testRegistrationModel.copy(tradingName = None, secondaryNumber = None)
 
   val regResponseJson: JsValue = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"tradingName":{"value":"CompanyLTD"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"secondaryNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"referenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
+    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"tradingName":{"value":"CompanyLTD"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"secondaryNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"trnReferenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
       |""".stripMargin)
 
 
   val minRegResponseJson: JsValue = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"referenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
+    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"trnReferenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
       |""".stripMargin)
 
 

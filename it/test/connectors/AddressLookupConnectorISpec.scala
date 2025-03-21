@@ -18,17 +18,14 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import helpers.{IntegrationSpecBase, IntegrationTestData, WiremockHelper}
-import org.openqa.selenium.remote.tracing.HttpTracing.inject
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase with Injecting with IntegrationTestData{
 

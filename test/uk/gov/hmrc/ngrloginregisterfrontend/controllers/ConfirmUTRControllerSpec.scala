@@ -20,17 +20,17 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.data.format.Formatter
 import play.api.http.Status._
-import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsFormUrlEncoded, BodyParser, Request, Result}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse, SaUtr}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.MatchingDetails
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse, SaUtr}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
 import scala.concurrent.{ExecutionContext, Future}

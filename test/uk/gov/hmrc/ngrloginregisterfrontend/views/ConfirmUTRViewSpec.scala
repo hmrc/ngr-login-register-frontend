@@ -23,9 +23,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow, SaUtr}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
 class ConfirmUTRViewSpec extends ViewBaseSpec {
