@@ -24,7 +24,7 @@ final case class AddressLookupResponseModel(candidateAddresses: Seq[LookedUpAddr
 }
 
 object AddressLookupResponseModel {
-  def fromJsonAddressLookupService(addressListAsJson: JsValue): AddressLookupResponseModel = {
+  def fromJsonAddressLookupService(addressListAsJson: JsArray): AddressLookupResponseModel = {
     val addresses = addressListAsJson.as[Seq[LookedUpAddressWrapper]]
     AddressLookupResponseModel(addresses)
   }
@@ -60,12 +60,5 @@ object Uprn {
 final case class Location(latitude: BigDecimal, longitude: BigDecimal)
 
 object Location {
-
-  private val arrayNumberReads: Reads[Location] = (json: JsValue) =>
-    json.validate[Seq[BigDecimal]] match {
-      case JsSuccess(Seq(lat, long), _) => JsSuccess(Location(lat, long))
-      case _                            => JsError("Expected exactly two numbers for lat and long in location field")
-    }
-
-  implicit val format: OFormat[Location] = OFormat(arrayNumberReads orElse Json.reads[Location], Json.writes[Location])
+  implicit val format: OFormat[Location] = OFormat(Json.reads[Location], Json.writes[Location])
 }

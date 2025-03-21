@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsArray, JsObject, Json}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 import uk.gov.hmrc.http.HttpReads.Implicits._
-
 import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 sealed trait AddressLookupResponse
 
@@ -47,14 +47,22 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
     http.post(url("lookup"))
       .withBody(Json.obj("postcode" -> postcode) +? filter.map(f => Json.obj("filter" -> f)))
       .setHeader("X-Hmrc-Origin" -> "ngr-login-register-frontend")
-      .execute[JsValue] map {
-      addressListJson =>
-        logger.info(s"Successfully Received addressList $addressListJson")
-        AddressLookupSuccessResponse(AddressLookupResponseModel.fromJsonAddressLookupService(addressListJson))
-    } recover {
-      case e: Exception =>
-        logger.warn(s"Error received from address lookup service: $e")
-        AddressLookupErrorResponse(e)
-    }
+      .execute[JsArray]
+      .transform {
+        case Success(response) =>
+          try {
+            val addresses = AddressLookupResponseModel.fromJsonAddressLookupService(response)
+            AddressLookupSuccessResponse(addresses)
+            logger.info(s"Successfully Received addressList $addresses")
+            Success(AddressLookupSuccessResponse(addresses))
+          } catch {
+            case e: Exception =>
+              logger.warn(s"Error received from address lookup service: $e")
+              Success(AddressLookupErrorResponse(e))
+          }
+        case Failure(exception) =>
+          logger.warn(s"Error received from address lookup service: ${exception.getMessage}")
+          Success(AddressLookupErrorResponse(new RuntimeException(exception.getMessage)))
+      }
   }
 }

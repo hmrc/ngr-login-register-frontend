@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
-import play.api.libs.json.{JsPath, JsResultException, JsValue, JsonValidationError}
+import play.api.libs.json.{JsArray, JsNumber, JsValue}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
@@ -49,10 +49,13 @@ class AddressLookupConnectorSpec extends MockHttpV2 with TestData {
     }
     "json is invalid" should {
       "return an error" in {
-        val successResponse: JsValue = contactNumberJson
+        val successResponse: JsArray = JsArray(IndexedSeq(JsNumber(123),JsNumber(123)))
         setupMockHttpV2PostWithHeaderCarrier(s"${mockConfig.addressLookupUrl}/address-lookup/lookup", addressLookupHeader)(successResponse)
         val result = testAlfConnector.findAddressByPostcode(testPostcode, None).futureValue
-        result.leftSide mustBe AddressLookupErrorResponse(JsResultException(Seq((JsPath(), List(JsonValidationError(List("error.expected.jsarray")))))))
+        result match {
+          case AddressLookupSuccessResponse(_) => fail("must not succeed")
+          case AddressLookupErrorResponse(_) => succeed
+        }
       }
     }
     "a 500-599 response is returned" should {
