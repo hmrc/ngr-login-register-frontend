@@ -43,12 +43,11 @@ class NinoController @Inject()(
       val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
         case Some(ratepayer) =>
-          val ninoForm: Form[Nino] = ratepayer.ratepayerRegistration
-            .flatMap(_.trnReferenceNumber)
-            .filter(_.referenceType == NINO)
-            .map(trnReferenceNumber => form(authNino).fill(Nino(trnReferenceNumber.value)))
-            .getOrElse(form(request.nino.nino.get))
-          Ok(ninoView(ninoForm))
+          val ninoForm = for {
+            ratepayer <- ratepayer.ratepayerRegistration
+            trnReferenceNumber <- ratepayer.trnReferenceNumber.filter(_.referenceType == NINO)
+          } yield form(authNino).fill(Nino(trnReferenceNumber.value))
+          Ok(ninoView(ninoForm.getOrElse(form(request.nino.nino.get))))
         case None =>
           Ok(ninoView(form(request.nino.nino.get)))
       }
