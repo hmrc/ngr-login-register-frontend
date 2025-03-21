@@ -16,45 +16,44 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
-import play.api.http.Status._
-import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
+import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, AddressLookupResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
 import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
 
 import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+sealed trait AddressLookupResponse
+
+case class AddressLookupSuccessResponse(addressList: AddressLookupResponseModel) extends AddressLookupResponse
+case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
+
 class AddressLookupConnector @Inject()(http: HttpClientV2,
                                        appConfig: AppConfig,
-                                       logger: NGRLogger)(implicit ec: ExecutionContext) {
+                                       logger: NGRLogger) {
 
   private def url(path: String): URL = url"${appConfig.addressLookupUrl}/address-lookup/$path"
 
-  def findAddressByPostcode(request: AddressLookupRequest)(implicit headerCarrier: HeaderCarrier) : Future[Either[ErrorResponse, Seq[AddressLookupResponse]]] = {
+  implicit class JsObjectOps(json: JsObject) {
+    def +?(o: Option[JsObject]): JsObject = o.fold(json)(_ ++ json)
+  }
+
+  def findAddressByPostcode(postcode: String, filter: Option[String])(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[AddressLookupResponse] = {
     http.post(url("lookup"))
-      .withBody(Json.toJson(request))
-      .execute[HttpResponse](readRaw, ec)
-      .map { response =>
-        response.status match {
-          case OK => response.json.validate[AddressLookupResponse] match {
-            case JsSuccess(valid, _) =>
-              logger.info("AddressLookupResponse received" + valid)
-              Right(Seq(valid))
-            case JsError(errors) =>
-              Left(ErrorResponse(BAD_REQUEST, s"Json Validation Errors: $errors"))
-          }
-          case _ =>
-            Left(ErrorResponse(response.status, response.body))
-        }
-      } recover {
-      case ex =>
-        Left(ErrorResponse(INTERNAL_SERVER_ERROR, s"call to AddressLookup failed: ${ex.getCause} ${ex.getMessage}"))
+      .withBody(Json.obj("postcode" -> postcode) +? filter.map(f => Json.obj("filter" -> f)))
+      .setHeader("X-Hmrc-Origin" -> "ngr-login-register-frontend")
+      .execute[JsValue] map {
+      addressListJson =>
+        logger.info(s"Successfully Received addressList $addressListJson")
+        AddressLookupSuccessResponse(AddressLookupResponseModel.fromJsonAddressLookupService(addressListJson))
+    } recover {
+      case e: Exception =>
+        logger.warn(s"Error received from address lookup service: $e")
+        AddressLookupErrorResponse(e)
     }
   }
 }

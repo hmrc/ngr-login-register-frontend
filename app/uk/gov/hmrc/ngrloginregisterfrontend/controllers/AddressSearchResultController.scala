@@ -22,8 +22,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -43,7 +43,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
     authenticate.authWithUserDetails.async { implicit request =>
      val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
        .map(
-         Json.parse(_).as[Seq[Address]]
+         Json.parse(_).as[Seq[LookedUpAddress]]
          .map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
        )
        .getOrElse(Seq.empty)
@@ -78,7 +78,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   def selectedAddress(index: Int): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
-        .map(Json.parse(_).as[Seq[Address]])
+        .map(Json.parse(_).as[Seq[LookedUpAddress]])
         .map(_.apply(index))
         .map(address =>
           Future.successful(

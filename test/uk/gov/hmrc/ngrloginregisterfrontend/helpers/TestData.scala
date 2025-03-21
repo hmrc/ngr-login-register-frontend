@@ -18,13 +18,13 @@ package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, ReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, AddressLookupResponse, LocalCustodian, Subdivision, Address => AlfAddress}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, ReferenceNumber}
 
 import java.time.LocalDate
 
@@ -39,17 +39,19 @@ trait TestData {
       country = "UK",
     )
 
-  val addressLookupAddress: uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address =
-    uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.Address(
+  val addressLookupAddress:LookedUpAddress =
+    LookedUpAddress(
       lines = Seq("100"),
       town = "London",
+      county = Some("Hillingdon"),
       postcode = "W126WA",
-      subdivision = None,
-      country = Subdivision("100", "UK")
     )
 
+  val testPostcode: String = "AA00 0AA"
+  val testFilter: Option[String] = Some("")
+
   val testAddressString: String =
-    "99 Wibble Rd, Worthing, West Sussex BN110AA"
+    "99 Wibble Rd, Testtown, West Sussex BN110AA"
 
   val testRegistrationModel: RatepayerRegistration =
     RatepayerRegistration(
@@ -73,39 +75,20 @@ trait TestData {
       isRegistered = Some(true)
     )
 
-  val testAddressLookupResponseModel : AddressLookupResponse = AddressLookupResponse (
-    id = "1234567890",
-    uprn = 246810,
-    parentUprn = Some(1234567890),
-    usrn = Some(987654321),
-    organisation = Some("Capgemini"),
+  val testAddressLookupResponseModel : LookedUpAddressWrapper = LookedUpAddressWrapper (
+    id = "GB690091234501",
+    uprn = Uprn(690091234501L),
     address =
-      AlfAddress(
-        lines = Seq("99" + "Wibble Rd"),
-        town = "Worthing",
-        postcode = "BN110AA",
-        subdivision = Some(Subdivision(
-          code = "code",
-          name = "name"
-        )),
-        country = Subdivision(
-        code = "GB",
-        name = "Great Britain"
-      )),
-    localCustodian = Some(LocalCustodian(
-      code = 123,
-      name = "LcName"
-    )),
-    location = Some(Seq(1,2,3)),
+      LookedUpAddress(
+        lines = Seq("1 Test Street"),
+        town = "Testtown",
+        county = None,
+        postcode = "AA00 0AA"
+      ),
     language = "English",
-    administrativeArea = Some("AdminArea"),
-    poBox = Some("PO321")
+    location = None
   )
 
-  val testAddressLookupRequest: AddressLookupRequest = AddressLookupRequest(
-    postcode = "AA1 1BB",
-    filter = Some("filter")
-  )
 
   val contactNumberModel: ContactNumber = ContactNumber("0300 200 3310")
   val nameModel: Name = Name("Lovely Fella")
@@ -226,518 +209,195 @@ trait TestData {
 
   val addressLookupResponseJson : JsValue = Json.parse(
     """
-      |{
-      |  "id": "1234567890",
-      |  "uprn": 246810,
-      |  "parentUprn": 1234567890,
-      |  "usrn": 987654321,
-      |  "organisation": "Capgemini",
-      |  "address": {
-      |    "lines": [
-      |      "99Wibble Rd"
-      |    ],
-      |    "town": "Worthing",
-      |    "postcode": "BN110AA",
-      |    "subdivision": {
-      |      "code": "code",
-      |      "name": "name"
-      |    },
-      |    "country": {
-      |      "code": "GB",
-      |      "name": "Great Britain"
-      |    }
-      |  },
-      |  "localCustodian": {
-      |    "code": 123,
-      |    "name": "LcName"
-      |  },
-      |  "location": [1, 2, 3],
-      |  "language": "English",
-      |  "administrativeArea": "AdminArea",
-      |  "poBox": "PO321"
-      |}
+      |[
+      | {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"English",
+      |   "localCustodian":{"code":121,"name":"NORTH SOMERSET"}
+      | }
+      |]
       |""".stripMargin
   )
 
   val addressLookupResponsesJson: JsValue = Json.parse(
     """
       |[
+      | {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
       |  {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "99 Wibble Rd"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
       |  {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "2 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
       |  {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |    {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  }
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | }
       |]
       |""".stripMargin
   )
@@ -767,7 +427,6 @@ trait TestData {
       |    "code": 123,
       |    "name": "LcName"
       |  },
-      |  "location": [1, 2, 3],
       |  "language": "English",
       |  "administrativeArea": "AdminArea",
       |  "poBox": "PO321"

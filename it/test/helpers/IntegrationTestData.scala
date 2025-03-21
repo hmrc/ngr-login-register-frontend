@@ -16,12 +16,15 @@
 
 package helpers
 
+import org.openqa.selenium.remote.tracing.HttpTracing.inject
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, AddressLookupResponse, LocalCustodian, Subdivision, Address => AlfAddress}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 
 import java.time.LocalDate
+import scala.concurrent.ExecutionContext
 
 trait IntegrationTestData {
   val nino : Nino = Nino("AA000003D")
@@ -81,68 +84,38 @@ trait IntegrationTestData {
     filter = Some("filter")
   )
 
-  val testAddressLookupResponseModel : AddressLookupResponse = AddressLookupResponse (
-    id = "1234567890",
-    uprn = 246810,
-    parentUprn = Some(1234567890),
-    usrn = Some(987654321),
-    organisation = Some("Capgemini"),
+  val testAddressLookupResponseModel : LookedUpAddressWrapper = LookedUpAddressWrapper (
+    id = "GB690091234501",
+    uprn = Uprn(690091234501L),
     address =
-      AlfAddress(
-        lines = Seq("99"+"Wibble Rd"),
-        town= "Worthing",
-        postcode ="BN110AA",
-        subdivision = Some(Subdivision(
-          code = "code",
-          name = "name"
-        )),
-        country = Subdivision(
-          code = "GB",
-          name = "Great Britain"
-        )),
-    localCustodian = Some(LocalCustodian(
-      code = 123,
-      name = "LcName"
-    )),
-    location = Some(Seq(1,2,3)),
+      LookedUpAddress(
+        lines = Seq("1 Test Street"),
+        town = "Testtown",
+        county = None,
+        postcode = "AA00 0AA"
+      ),
     language = "English",
-    administrativeArea = Some("AdminArea"),
-    poBox = Some("PO321")
+    location = None
   )
 
   val addressLookupResponseJson : String =
     """
-      |{
-      |  "id": "1234567890",
-      |  "uprn": 246810,
-      |  "parentUprn": 1234567890,
-      |  "usrn": 987654321,
-      |  "organisation": "Capgemini",
-      |  "address": {
-      |    "lines": [
-      |      "99Wibble Rd"
-      |    ],
-      |    "town": "Worthing",
-      |    "postcode": "BN110AA",
-      |    "subdivision": {
-      |      "code": "code",
-      |      "name": "name"
-      |    },
-      |    "country": {
-      |      "code": "GB",
-      |      "name": "Great Britain"
-      |    }
-      |  },
-      |  "localCustodian": {
-      |    "code": 123,
-      |    "name": "LcName"
-      |  },
-      |  "location": [1, 2, 3],
-      |  "language": "English",
-      |  "administrativeArea": "AdminArea",
-      |  "poBox": "PO321"
-      |}
+      |[
+      | {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"English"
+      | }
+      |]
       |""".stripMargin
+
 
 
   val invalidAddressLookupResponseJson : String =
@@ -170,7 +143,6 @@ trait IntegrationTestData {
       |    "code": 123,
       |    "name": "LcName"
       |  },
-      |  "location": [1, 2, 3],
       |  "language": "English",
       |  "administrativeArea": "AdminArea",
       |  "poBox": "PO321"

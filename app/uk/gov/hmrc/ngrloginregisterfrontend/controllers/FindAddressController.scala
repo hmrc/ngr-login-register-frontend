@@ -17,13 +17,12 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
+import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup._
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, Postcode}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{Address, AddressLookupRequest, AddressLookupResponse, Subdivision}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress.form
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
@@ -44,26 +43,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
                                      )(implicit ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
 
-  // $COVERAGE-OFF$
-  val testAddressModel: Int => Address = number =>
-    Address(
-      lines = Seq(s"Unit $number", s"7 Wibble Rd"),
-      town = "Worthing",
-      postcode = "HA49EY",
-      subdivision = Some(Subdivision(
-        code = "code",
-        name = "name"
-      )),
-      country = Subdivision(
-        code = "GB",
-        name = "Great Britain"
-      )
-    )
-  // $COVERAGE-ON$
-
-  lazy val testAddressList: Seq[Address] = for (i <- 1 to 7) yield testAddressModel(i)
-
-  def show: Action[AnyContent]  = {
+  def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       Future.successful(Ok(findAddressView(form())))
     }
@@ -76,32 +56,19 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
         .fold(
           formWithErrors => Future.successful(BadRequest(findAddressView(formWithErrors))),
           findAddress => {
-            appConfig.getString("addressLookup.enabled") match {
-              // $COVERAGE-OFF$
-              case "false" =>
-                val addresses: Seq[Address] = testAddressList
-                val addressLookupResponseSession: Session = sessionManager.setAddressLookupResponse(request.session, addresses)
+            addressLookupConnector.findAddressByPostcode(findAddress.postcode.value, findAddress.propertyName) map {
+              case AddressLookupErrorResponse(e: BadRequestException) =>
+                BadRequest(e.message)
+              case AddressLookupErrorResponse(_) =>
+                InternalServerError
+              case AddressLookupSuccessResponse(recordSet) =>
+                val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-                Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession))
-              // $COVERAGE-ON$
-              case _ =>
-                addressLookupConnector.findAddressByPostcode(AddressLookupRequest(findAddress.postcode.value, findAddress.propertyName))
-                  .flatMap {
-                    case Right(responses: Seq[AddressLookupResponse]) =>
-                      val addresses: Seq[Address] = responses.map(_.address)
-                      val session: Session = request.session
-                      sessionManager.removeSessionKey(session, sessionManager.addressLookupResponseKey)
-                      sessionManager.removeSessionKey(session, sessionManager.postcodeKey)
-                      val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, addresses)
-                      val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-                      Future.successful(Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession))
-                    case Left(errorResponse: ErrorResponse) =>
-                      logger.error(s"AddressLookup has returned an error: status ${errorResponse.code}, ${errorResponse.message}")
-                      Future.successful(InternalServerError(Json.toJson(errorResponse)))
-                  }
+                Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession)
             }
-          }
-        )
+          })
     }
-
 }
+
+
+

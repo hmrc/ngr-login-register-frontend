@@ -36,7 +36,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.language.LanguageUtils
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddressWrapper
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -72,114 +72,24 @@ with IntegrationPatience {
   private val addressLookupResponsesJson: JsValue = Json.parse(
     """
       |[
-      |  {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "99 Wibble Rd"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |  {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "2 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  },
-      |  {
-      |    "id": "1234567890",
-      |    "uprn": 246810,
-      |    "parentUprn": 1234567890,
-      |    "usrn": 987654321,
-      |    "organisation": "Capgemini",
-      |    "address": {
-      |      "lines": [
-      |        "3 The Test Close"
-      |      ],
-      |      "town": "Worthing",
-      |      "postcode": "BN110AA",
-      |      "subdivision": {
-      |        "code": "code",
-      |        "name": "name"
-      |      },
-      |      "country": {
-      |        "code": "GB",
-      |        "name": "Great Britain"
-      |      }
-      |    },
-      |    "localCustodian": {
-      |      "code": 123,
-      |      "name": "LcName"
-      |    },
-      |    "location": [
-      |      1,
-      |      2,
-      |      3
-      |    ],
-      |    "language": "English",
-      |    "administrativeArea": "AdminArea",
-      |    "poBox": "PO321"
-      |  }
+      | {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"en"
+      | }
       |]
       |""".stripMargin
   )
-  private val addressLookupResponses: Seq[AddressLookupResponse] = addressLookupResponsesJson.as[Seq[AddressLookupResponse]]
-  private val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
 
+  private val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
+  private val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
   def injector: Injector = app.injector
   lazy val frontendAppConfig: AppConfig = inject[AppConfig]
   lazy val messagesApi: MessagesApi             = inject[MessagesApi]
