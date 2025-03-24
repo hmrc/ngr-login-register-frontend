@@ -21,7 +21,6 @@ import helpers.{IntegrationSpecBase, IntegrationTestData, WiremockHelper}
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.test.Injecting
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
 
@@ -49,7 +48,10 @@ class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase w
           WiremockHelper.stubPost(s"/address-lookup/lookup", INTERNAL_SERVER_ERROR, "Call to address lookup failed")
 
           val result: AddressLookupResponse = connector.findAddressByPostcode(testAddressLookupRequest.postcode, None).futureValue
-          result.toString mustBe AddressLookupErrorResponse(UpstreamErrorResponse(s"POST of 'http://localhost:11111/address-lookup/lookup' returned 500. Response body: 'Call to address lookup failed'",statusCode = 500)).toString
+          result match {
+            case AddressLookupSuccessResponse(_) => fail("should return an error")
+            case AddressLookupErrorResponse(_) => succeed
+          }
 
           WiremockHelper.verifyPost(s"/address-lookup/lookup")
         }

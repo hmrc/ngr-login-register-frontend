@@ -17,7 +17,7 @@
 package helpers
 
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, LookedUpAddress, LookedUpAddressWrapper, Uprn}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, LookedUpAddress, LookedUpAddressWrapper, Uprn, Location}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 
@@ -92,7 +92,7 @@ trait IntegrationTestData {
         postcode = "AA00 0AA"
       ),
     language = "English",
-    location = None
+    location = Some(Location(0.234789234,0.2347859438))
   )
 
   val addressLookupResponseJson : String =
@@ -108,7 +108,8 @@ trait IntegrationTestData {
       |     "subdivision":{"code":"GB-ENG","name":"England"},
       |     "country":{"code":"GB","name":"United Kingdom"}
       |   },
-      |   "language":"English"
+      |   "language":"English",
+      |   "location":["0.234789234","0.2347859438"]
       | }
       |]
       |""".stripMargin
