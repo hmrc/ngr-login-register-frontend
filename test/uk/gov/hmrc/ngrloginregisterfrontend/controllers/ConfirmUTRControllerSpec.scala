@@ -33,7 +33,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, No
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse, SaUtr}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ConfirmUTRControllerSpec extends ControllerSpecSupport {
 
@@ -45,16 +45,6 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
   val pageTitle: String = "Confirm your Self Assessment Unique Taxpayer Reference"
 
   def requestWithFormValue(value: String): AuthenticatedUserRequest[AnyContentAsFormUrlEncoded] = AuthenticatedUserRequest(FakeRequest(routes.ConfirmUTRController.submit).withFormUrlEncodedBody((ConfirmUTR.formName, value)).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some("")))
-
-  def mockRequest(hasCredId: Boolean = false, hasNino: Boolean = true): Unit =
-    when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
-    override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
-      val authRequest = AuthenticatedUserRequest(request, None, None, None, if (hasCredId) Some("1234") else None, None, None, nino = if (hasNino) Nino(hasNino = true, Some("AA000003D")) else Nino(hasNino = false, None))
-      block(authRequest)
-    }
-    override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
-    override protected def executionContext: ExecutionContext = ec
-  }
 
   "ConfirmUTRController" must {
     "Return OK and the correct view" in {

@@ -97,7 +97,7 @@ featureNotAvailable.title = This part of the online service is not available yet
 featureNotAvailable.idTrue = The Journey ID is {0}
 featureNotAvailable.idFalse = The Journey ID is unavailable
 
-nino.pageTitle =              = Provide your National Insurance number
+nino.pageTitle                = Provide your National Insurance number
 nino.caption                  = Register for the business rates valuation service
 nino.heading                  = Provide your National Insurance number
 nino.label                    = National Insurance number

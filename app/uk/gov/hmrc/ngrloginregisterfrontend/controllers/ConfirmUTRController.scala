@@ -27,7 +27,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes, form}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.StringHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -55,7 +55,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
               details.saUtr
                 .map(utr => {
                   savedUtr = utr.value
-                  Future.successful(Ok(view(form(), summaryList(maskString(savedUtr)), radios())))
+                  Future.successful(Ok(view(form(), summaryList(maskString(savedUtr, 3)), radios())))
                 })
                 .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
           }
@@ -93,14 +93,14 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskString(savedUtr)), radios()))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskSAUTR(savedUtr)), radios()))),
           utrChoice => {
             request.credId match {
               case Some(credId) =>
                 utrChoice match {
                   case ConfirmUTR.Yes(utr) =>
                     NGRConnector.changeTrn(CredId(credId), TRNReferenceNumber(SAUTR, utr))
-                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                    Future.successful(Redirect(routes.CheckYourAnswersController.show))
                   case ConfirmUTR.NoNI =>
                     Future.successful(Redirect(routes.NinoController.show))
                   case ConfirmUTR.NoLater =>

@@ -49,7 +49,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
           Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "govuk-!-margin-bottom-9"), createTRNSummaryRows(ratepayer), name)))
         case None =>
-          Future.failed(new RuntimeException(s"Can not find CredId: $credId in the database"))
+          Future.failed(new RuntimeException(s"Can not find CredId: ${credId.value} in the database"))
       }
     }
 
@@ -65,19 +65,19 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
       }
     }
 
-  private def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
+  private[controllers] def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
     def getUrl(linkId: String, messageKey: String): Option[Link] =
       Some(Link(Call("GET", routes.ConfirmUTRController.show.url), linkId, messageKey))
 
     val provideYourTRNRow: NGRSummaryListRow = NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq.empty, getUrl("sautr-linkid", "checkYourAnswers.add"))
 
     val ngrSummaryListRow: NGRSummaryListRow = ratepayerRegistrationValuation.ratepayerRegistration
-      .flatMap(_.referenceNumber)
+      .flatMap(_.trnReferenceNumber)
       .map(trnReferenceNumber => trnReferenceNumber.referenceType match {
         case NINO =>
-          NGRSummaryListRow(messages("checkYourAnswers.nino"), None, Seq(maskString(trnReferenceNumber.value)), getUrl("nino-linkid", "checkYourAnswers.change"))
+          NGRSummaryListRow(messages("checkYourAnswers.nino"), None, Seq(maskNino(trnReferenceNumber.value)), getUrl("nino-linkid", "checkYourAnswers.change"))
         case SAUTR if trnReferenceNumber.value.nonEmpty =>
-          NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq(maskString(trnReferenceNumber.value)), getUrl("sautr-linkid", "checkYourAnswers.change"))
+          NGRSummaryListRow(messages("checkYourAnswers.sautr"), None, Seq(maskSAUTR(trnReferenceNumber.value)), getUrl("sautr-linkid", "checkYourAnswers.change"))
         case _ => provideYourTRNRow
       })
       .getOrElse(provideYourTRNRow)

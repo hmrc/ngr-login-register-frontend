@@ -47,6 +47,10 @@ class NinoControllerSpec extends ControllerSpecSupport {
     mcc
   )
 
+  override def beforeEach(): Unit = {
+    mockRequest()
+  }
+
   "Nino Controller" must {
     "method show" must {
       "Return OK and the correct view" in {
@@ -81,6 +85,22 @@ class NinoControllerSpec extends ControllerSpecSupport {
         val content = contentAsString(result)
         content must include(pageTitle)
         content mustNot include("AA000003D")
+      }
+
+      "Return OK and the correct view if ratepayer is not found" in {
+        when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
+        val result = controller().show()(authenticatedFakeRequest)
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must include(pageTitle)
+      }
+
+      "throw exception when nino is not found from auth" in {
+        mockRequest(hasNino = false)
+        val exception = intercept[RuntimeException] {
+          controller().show()(authenticatedFakeRequest).futureValue
+        }
+        exception.getMessage mustBe "No nino found from auth"
       }
     }
 
@@ -117,6 +137,14 @@ class NinoControllerSpec extends ControllerSpecSupport {
         val content = contentAsString(result)
         content must include(pageTitle)
         content must include("Enter a National Insurance number in the correct format")
+      }
+
+      "throw exception when nino is not found from auth" in {
+        mockRequest(hasNino = false)
+        val exception = intercept[RuntimeException] {
+          controller().submit()(authenticatedFakeRequest).futureValue
+        }
+        exception.getMessage mustBe "No nino found from auth"
       }
     }
   }

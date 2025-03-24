@@ -16,18 +16,24 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
-import org.apache.commons.lang3.StringUtils
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
-trait StringHelper {
-  def maskNino(nino: String): String = {
-    maskString(nino.replaceAll(" ", ""), 3)
-  }
+class StringHelperSpec extends TestSupport with StringHelper {
+  "StringHelper" must {
+    "mask string with correct unmark characters" in {
+      val actual = maskString("QASERTT12345", 5)
+      actual shouldBe "*******12345"
+    }
 
-  def maskSAUTR(sautr: String): String = {
-    maskString(sautr, 3)
-  }
+    "mask nino string with space correctly" in {
+      val actual = maskNino("QQ 12 34 56 C")
+      actual shouldBe "******56C"
+    }
 
-  def maskString(input: String, unmaskCharsNumber: Int): String = {
-    StringUtils.overlay(input, StringUtils.repeat("*", input.length - unmaskCharsNumber), 0, input.length - unmaskCharsNumber)
+    "mask nino string without space correctly" in {
+      val actual = maskNino("QQ123456C")
+      actual shouldBe "******56C"
+    }
   }
 }

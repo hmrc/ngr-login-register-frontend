@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import play.api.i18n.{I18nSupport, Messages}
+import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
@@ -44,7 +43,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
-      val authNino = Nino(request.nino.nino.getOrElse(throw new Exception("No nino found from auth")))
+      val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
       val email = Email(request.email.getOrElse(""))
 
       connector.getRatepayer(credId).flatMap {
@@ -69,7 +68,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
               val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
 
               connector.upsertRatepayer(ratepayerData).map { _ =>
-                Ok(view(createSummaryRows(personDetails, request), nameValue))
+                Ok(view(createContactDetailSummaryRows(ratepayerData), nameValue))
               }
           }
       }
@@ -90,20 +89,6 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
     personDetails.person.middleName,
     personDetails.person.lastName
   ).flatten.mkString(" ")
-
-  def createSummaryRows(personDetails: PersonDetails, request: AuthenticatedUserRequest[AnyContent])(implicit messages: Messages): SummaryList = {
-    val address: Seq[String] = Seq(
-      personDetails.address.line1.getOrElse(""),
-      personDetails.address.line2.getOrElse(""),
-      personDetails.address.line3.getOrElse(""),
-      personDetails.address.line4.getOrElse(""),
-      personDetails.address.line5.getOrElse(""),
-      personDetails.address.postcode.getOrElse(""),
-      personDetails.address.country.getOrElse("")
-    ).filter(_.nonEmpty)
-
-    SummaryList(deriveNGRSummaryRows(Seq(name(personDetails)), Seq(request.email.getOrElse("")), Seq.empty, address))
-  }
 
   def submit(): Action[AnyContent] = {
     authenticate.authWithUserDetails.async {

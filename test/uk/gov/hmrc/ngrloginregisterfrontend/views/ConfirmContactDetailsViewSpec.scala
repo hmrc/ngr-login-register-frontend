@@ -20,20 +20,20 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, ViewBaseSpec}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.saveAndContinueButton
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{ConfirmContactDetailsView, Layout}
 
-class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
+class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData with SummaryListHelper {
 
   val layout: Layout = MockitoSugar.mock[Layout]
   val button: saveAndContinueButton = mock[saveAndContinueButton]
   val injectedView: ConfirmContactDetailsView = injector.instanceOf[ConfirmContactDetailsView]
-  val summaryList: SummaryList = controller.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(hasNino = true, Some(""))))
+  val summaryList: SummaryList = createContactDetailSummaryRows(RatepayerRegistrationValuation(CredId("12345"), Some(testRegistrationModel)))//controller.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(hasNino = true, Some(""))))
   lazy val controller: ConfirmContactDetailsController = inject[ConfirmContactDetailsController]
 
   val navTitle = "Manage your business rates valuation"
@@ -58,7 +58,7 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData {
     val bullet2 = "#main-content > div > div > form > ul > li:nth-child(2)"
     val contactName = "#main-content > div > div > form > dl > div:nth-child(1) > dt"
     val email = "#main-content > div > div > form > dl > div:nth-child(2) > dt"
-    val phone = "#main-content > div > div > form > dl > div.govuk-summary-list__row.govuk-summary-list__row--no-actions > dt"
+    val phone = "#main-content > div > div > form > dl > div:nth-child(3) > dt"
     val address = "#main-content > div > div > form > dl > div:nth-child(4) > dt"
     val continue = "#continue"
   }
