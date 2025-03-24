@@ -18,6 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
+import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.libs.json.{Reads, Writes}
 import uk.gov.hmrc.domain.{SimpleName, SimpleObjectReads, SimpleObjectWrites, TaxIdentifier}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
@@ -50,6 +51,7 @@ object Nino extends CommonFormValidators {
     Form(
       mapping(
         nino -> text()
+          .verifying(isMatchingNino(authNino, nino,ninoInvalidFormat))
           .verifying(
             firstError(
               isNotEmpty(nino, ninoEmptyError),

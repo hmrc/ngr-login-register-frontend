@@ -101,10 +101,15 @@ featureNotAvailable.title = This part of the online service is not available yet
 featureNotAvailable.idTrue = The Journey ID is {0}
 featureNotAvailable.idFalse = The Journey ID is unavailable
 
-nino.pageTitle =              = Provide your National Insurance number
+nino.pageTitle                = Provide your National Insurance number
 nino.caption                  = Register for the business rates valuation service
 nino.heading                  = Provide your National Insurance number
 nino.label                    = National Insurance number
 nino.hint                     = It’s on your National Insurance card, benefit letter, payslip or P60. For example, ‘QQ 12 34 56 C’
 nino.empty.error              = Enter your National Insurance number
 nino.invalidFormat.error      = Enter a National Insurance number in the correct format
+
+confirmTrn.noSelectionError = Select yes if you want to provide a UTR
+confirmTrn.EnteredNinoButNoRadioError = Select yes if you want to provide a National Insurance number
+confirmTrn.yesProvide = Yes, I want to provide this UTR
+confirmTrn.noNI = No, I want to provide my National Insurance number
