@@ -1,0 +1,23 @@
+
+@import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
+@import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+
+@this(layout: Layout)
+
+@(recoveryId: Option[String])(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
+
+@layout(pageTitle = Some(messages("registrationComplete.title"))) {
+
+@govukPanel(Panel(
+title = Text(@messages("registrationComplete.title"))
+))
+
+<h1 class="govuk-heading-xl">@messages("registrationComplete.title")</h1>
+
+<p class="govuk-body">@messages("registrationComplete.p1", recoveryId.getOrElse(""))</p>
+
+<p class="govuk-body">@messages("registrationComplete.p2")</p>
+
+}
