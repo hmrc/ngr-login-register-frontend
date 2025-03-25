@@ -16,20 +16,21 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
-import play.api.data.{Form, FormError, Forms}
-import play.api.data.Forms.{mapping, optional, single, text}
+import play.api.data._
+import play.api.data.Forms._
 import play.api.data.format.Formatter
+import play.api.data.validation.Constraint
 import play.api.libs.json.{Reads, Writes}
 import uk.gov.hmrc.domain.{SimpleName, SimpleObjectReads, SimpleObjectWrites, TaxIdentifier}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
 
 sealed trait ConfirmTRN extends RadioEntry
 
-final case class NinoNoSaUTR(nino: Option[String], confirmTRN: ConfirmTRN) extends TaxIdentifier with SimpleName {
+final case class NinoNoSaUTR(nino: String, confirmTRN: ConfirmTRN) extends TaxIdentifier with SimpleName {
 
   private val LengthWithoutSuffix: Int = 8
 
-  def value = nino.getOrElse("")
+  def value = nino
 
   val name = "nino"
 
@@ -43,12 +44,12 @@ object NinoNoSaUTR extends CommonFormValidators {
   val formName: String = "NinoNoSaUTR"
 
   implicit val ninoWrite: Writes[Nino] = new SimpleObjectWrites[Nino](_.value)
-  implicit val ninoRead: Reads[Nino] = new SimpleObjectReads[Nino]("nino", Nino.apply)
+  implicit val ninoRead: Reads[Nino]   = new SimpleObjectReads[Nino]("nino", Nino.apply)
 
   def isValid(nino: String): Boolean = nino.nonEmpty && ninoRegexPattern.matcher(nino).matches()
 
-  private lazy val ninoEmptyError    = "nino.empty.error"
   private lazy val ninoInvalidFormat = "nino.invalidFormat.error"
+  private lazy val ninoFailsMatch    = "confirmTrn.failsNinoMatch"
   val nino                           = "nino-value"
 
   case object Yes extends ConfirmTRN
@@ -56,33 +57,40 @@ object NinoNoSaUTR extends CommonFormValidators {
 
   implicit val confirmTRNFormatter: Formatter[ConfirmTRN] = new Formatter[ConfirmTRN] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], ConfirmTRN] = {
-      data.get(key).collectFirst {
-        case s"Yes" => Yes
-        case "NoLater"    => NoLater
-      }.toRight(Seq(FormError(key, "confirmTrn.noSelectionError")))
+      data.get(key) match {
+        case Some("Yes")             => Right(Yes)
+        case Some("NoLater")         => Right(NoLater)
+        case _                       => Left(Seq(FormError(key, "confirmTrn.noSelectionError")))
+      }
     }
 
-    override def unbind(key: String, value: ConfirmTRN): Map[String, String] = Map(
-      key -> (value match {
-        case Yes => s"Yes"
-        case NoLater  => "NoLater"
-      })
-    )
+    override def unbind(key: String, value: ConfirmTRN): Map[String, String] = {
+      Map(key -> (value match {
+        case Yes    => "Yes"
+        case NoLater => "NoLater"
+      }))
+    }
   }
 
   def form(authNino: Option[String]): Form[NinoNoSaUTR] =
     Form(
       mapping(
-        nino -> optional(text()
+        nino -> text()
           .verifying(
             firstError(
-              regexp(ninoRegexPattern.pattern(), ninoInvalidFormat),
-              isMatchingNino(authNino.getOrElse(""), nino, ninoInvalidFormat)
+              formNameCheck(nino, formName, ninoInvalidFormat)
+//              regexp(ninoRegexPattern.pattern(), ninoInvalidFormat),
+//              isMatchingNino(authNino.getOrElse(""), nino, ninoFailsMatch)
             )
-          )),
+        ),
         formName -> Forms.of[ConfirmTRN]
       )(NinoNoSaUTR.apply)(NinoNoSaUTR.unapply)
+        .verifying("nino.empty.error", { case NinoNoSaUTR(ninoOpt, confirmTRN) =>
+          ninoOpt.isEmpty || confirmTRN == NoLater
+        })
     )
+
+
 
 
 }

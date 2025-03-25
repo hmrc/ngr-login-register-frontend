@@ -34,8 +34,8 @@ saveAndContinueButton: saveAndContinueButton
 @(ninoForm: Form[NinoNoSaUTR], radios: Radios)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = Some(messages("nino.pageTitle"))) {
-@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.NinoNoSaUTRController.submit(), Symbol("autoComplete") -> "off") {
-@if(ninoForm.errors.nonEmpty) {
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.NinoNoSaUTRController.submitNinoNoSaUTR(), Symbol("autoComplete") -> "off") {
+ @if(ninoForm.errors.nonEmpty) {
 @govukErrorSummary(ErrorSummaryViewModel(ninoForm))
 }
 <span class="govuk-caption-l">@messages("nino.caption")</span>

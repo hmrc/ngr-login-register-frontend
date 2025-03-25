@@ -110,6 +110,7 @@ nino.empty.error              = Enter your National Insurance number
 nino.invalidFormat.error      = Enter a National Insurance number in the correct format
 
 confirmTrn.noSelectionError = Select yes if you want to provide a UTR
+confirmTrn.failsNinoMatch = Enter a valid national insurance number
 confirmTrn.EnteredNinoButNoRadioError = Select yes if you want to provide a National Insurance number
-confirmTrn.yesProvide = Yes, I want to provide this UTR
-confirmTrn.noNI = No, I want to provide my National Insurance number
+confirmTrn.yesProvide = Yes, I want to provide my National insurance number
+confirmTrn.noNI = I want to provide my tax reference number later

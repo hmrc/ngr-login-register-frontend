@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import org.checkerframework.checker.units.qual.A
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -25,7 +24,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NinoNoSaUTR.{NoLater, Yes, form}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NinoNoSaUTR, No}
@@ -40,7 +38,7 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
                                       connector: NGRConnector,
                                       mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport{
 
-  def show: Action[AnyContent] = {
+  def showNinoNoSaUTR: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
@@ -48,7 +46,7 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
           val ninoNoSaUTRForm = for {
             ratepayer <- ratepayer.ratepayerRegistration
             trnReferenceNumber <- ratepayer.trnReferenceNumber.filter(_.referenceType == NINO)
-          } yield form(Some(authNino)).fill(NinoNoSaUTR(Some(trnReferenceNumber.value), NinoNoSaUTR.NoLater))
+          } yield form(Some(authNino)).fill(NinoNoSaUTR(trnReferenceNumber.value, NinoNoSaUTR.NoLater))
           Ok(ninoNoSaUTRView(ninoNoSaUTRForm.getOrElse(form(Some(authNino))),radios(form(Some(authNino)))))
         case None =>
           Ok(ninoNoSaUTRView(form(Some(authNino)),radios(form(Some(authNino)))))
@@ -61,26 +59,39 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
       radioGroupName = NGRRadioName(NinoNoSaUTR.formName),
       NGRRadioButtons = Seq(
         NGRRadioButtons(radioContent = messages("confirmTrn.yesProvide"), radioValue = Yes),
-        NGRRadioButtons(radioContent = messages("confirmTrn.noNI"), radioValue = No),
+        NGRRadioButtons(radioContent = messages("confirmTrn.noNI"), radioValue = NoLater),
       ),
       ngrTitle = None
     ))
   }
 
 
-  def submit(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
-      val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
-      NinoNoSaUTR.form(Some(authNino))
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(ninoNoSaUTRView(formWithErrors, radios(formWithErrors)))),
-          nino => {
-            connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, nino.value))
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-          }
-        )
-    }
+    def submitNinoNoSaUTR(): Action[AnyContent] =
+      authenticate.authWithUserDetails.async { implicit request =>
+        request.nino.nino match {
+          case Some(authNino) =>
+            NinoNoSaUTR.form(Some(authNino))
+              .bindFromRequest()
+              .fold(
+                formWithErrors => {
+                  Future.successful(BadRequest(ninoNoSaUTRView(formWithErrors, radios(formWithErrors))))
+                },
+                {
+                  //TODO Need to change the routes once the other pages are merged
+                  case NinoNoSaUTR(nino, Yes) =>
+                    connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, nino))
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                  case NinoNoSaUTR("", NoLater)  =>
+                    connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, ""))
+                    Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                }
+              )
+        }
+      }
+
+
+
+
 
 
 }

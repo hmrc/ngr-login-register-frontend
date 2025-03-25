@@ -17,14 +17,16 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models.forms
 
 import play.api.data.validation.{Constraint, Invalid, Valid}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{ConfirmTRN, NinoNoSaUTR}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.NinoNoSaUTR.{NoLater, Yes}
 
 import java.util.regex.Pattern
 
-trait CommonFormValidators  {
+trait CommonFormValidators {
 
-  val fullNameRegexPattern: Pattern     = Pattern.compile("^[A-Za-z .'-]+$")
-  val phoneNumberRegexPattern: Pattern  = Pattern.compile("^(\\+)?[0-9() ]{9,16}$")
-  val ninoRegexPattern: Pattern  = Pattern.compile("^((?!(BG|GB|KN|NK|NT|TN|ZZ)|(D|F|I|Q|U|V)[A-Z]|[A-Z](D|F|I|O|Q|U|V))[A-Z]{2}) ?([0-9]{2} ?){3}[A-D]?$")
+  val fullNameRegexPattern: Pattern = Pattern.compile("^[A-Za-z .'-]+$")
+  val phoneNumberRegexPattern: Pattern = Pattern.compile("^(\\+)?[0-9() ]{9,16}$")
+  val ninoRegexPattern: Pattern = Pattern.compile("^((?!(BG|GB|KN|NK|NT|TN|ZZ)|(D|F|I|Q|U|V)[A-Z]|[A-Z](D|F|I|O|Q|U|V))[A-Z]{2}) ?([0-9]{2} ?){3}[A-D]?$")
   val postcodeRegexPattern: Pattern = Pattern.compile("^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$")
   val emailPattern: Pattern =
     Pattern.compile("""[a-zA-Z0-9]+([-+.'][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*\.[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*""")
@@ -43,7 +45,7 @@ trait CommonFormValidators  {
     Constraint {
       case str if str.matches(regex) =>
         Valid
-      case _                         =>
+      case _ =>
         Invalid(errorKey, regex)
     }
 
@@ -51,7 +53,7 @@ trait CommonFormValidators  {
     Constraint {
       case str if str.length <= maximum =>
         Valid
-      case _                            =>
+      case _ =>
         Invalid(errorKey, maximum)
     }
 
@@ -59,15 +61,33 @@ trait CommonFormValidators  {
     Constraint {
       case str if str.trim.nonEmpty =>
         Valid
-      case _                        =>
+      case _ =>
         Invalid(errorKey, value)
     }
 
-  protected def isMatchingNino(authNino:String, nino: String, errorKey: String): Constraint[String] =
-    Constraint{
+  protected def isMatchingNino(authNino: String, nino: String, errorKey: String): Constraint[String] =
+    Constraint {
       case nino if nino.filterNot(_.isWhitespace).matches(authNino) =>
         Valid
       case _ =>
         Invalid(errorKey, nino)
     }
+
+  protected def formNameCheck(nino: String, confirmTRN: String, errorKey: String): Constraint[String] = {
+    Constraint {
+      case str if str.trim.nonEmpty && confirmTRN == "Yes" =>
+        println(Console.MAGENTA + str + confirmTRN + Console.RESET)
+        println(Console.CYAN + Valid + Console.RESET)
+        Valid
+      case str if str.trim.isEmpty && confirmTRN == "NoLater" =>
+        println(Console.MAGENTA + str + confirmTRN + Console.RESET)
+        println(Console.CYAN + Valid + Console.RESET)
+        Valid
+      case _ =>
+        println(Console.MAGENTA + confirmTRN + Console.RESET)
+        println(Console.YELLOW + Invalid(errorKey, nino) + Console.RESET)
+        Invalid(errorKey, nino)
+    }
+  }
 }
+
