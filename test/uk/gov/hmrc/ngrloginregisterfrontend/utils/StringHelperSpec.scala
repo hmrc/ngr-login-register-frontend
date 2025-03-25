@@ -16,19 +16,24 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
-class NGRLoggerSpec extends TestSupport {
-  val logger: NGRLogger = inject[NGRLogger]
-  // TODO: Figure out how to check logs
-  "NGRLogger" must {
-    logger.debug("")
-    logger.debug("", new RuntimeException(""))
-    logger.info("")
-    logger.info("", new RuntimeException(""))
-    logger.warn("")
-    logger.warn("", new RuntimeException(""))
-    logger.error("")
-    logger.error("", new RuntimeException(""))
+class StringHelperSpec extends TestSupport with StringHelper {
+  "StringHelper" must {
+    "mask string with correct unmark characters" in {
+      val actual = maskString("QASERTT12345", 5)
+      actual shouldBe "*******12345"
+    }
+
+    "mask nino string with space correctly" in {
+      val actual = maskNino("QQ 12 34 56 C")
+      actual shouldBe "******56C"
+    }
+
+    "mask nino string without space correctly" in {
+      val actual = maskNino("QQ123456C")
+      actual shouldBe "******56C"
+    }
   }
 }

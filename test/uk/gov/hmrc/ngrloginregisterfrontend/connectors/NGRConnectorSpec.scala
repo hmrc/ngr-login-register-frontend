@@ -28,7 +28,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
-import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 import scala.concurrent.Future
 
 class NGRConnectorSpec extends MockHttpV2 with TestData {

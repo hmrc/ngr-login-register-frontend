@@ -20,21 +20,22 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Status.{CREATED, OK, SEE_OTHER}
-import play.api.mvc.{AnyContent, AnyContentAsEmpty}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
-import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.auth.core.Nino
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
 import scala.concurrent.Future
 
-class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with TestData {
+class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with TestData with SummaryListHelper{
   lazy val view: ConfirmContactDetailsView = inject[ConfirmContactDetailsView]
   lazy val citizenDetailsConnector: CitizenDetailsConnector = inject[CitizenDetailsConnector]
   val noNinoAuth: AuthenticatedUserRequest[AnyContentAsEmpty.type] = AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(hasNino = false, None))
@@ -47,6 +48,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    mockRequest()
     val ratepayer: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
     val response: Option[RatepayerRegistrationValuation] = Some(ratepayer)
     val httpResponse = HttpResponse(CREATED, "Created Successfully")
@@ -75,6 +77,14 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future(Left(ErrorResponse(200, "bad"))))
       val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe 200
+    }
+
+    "throw exception when nino is not found from auth" in {
+      mockRequest(hasNino = false)
+      val exception = intercept[RuntimeException] {
+        controller().show()(authenticatedFakeRequest).futureValue
+      }
+      exception.getMessage mustBe "No nino found from auth"
     }
 
     "create a ratepayer when no existing ratepayer is found and citizen details succeed" in {
@@ -106,38 +116,28 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       status(result) mustBe OK
     }
 
-    "Will generate SummaryListRow from user data" in {
-      val personDetails = PersonDetails(
-        Person(
-          title = None,
-          firstName = Some("Joe"),
-          middleName = Some("Eric"),
-          lastName = Some("Jones"),
-          honours = None,
-          sex = None,
-          dateOfBirth = None,
-          nino = None),
-        PersonAddress(
-          line1 = Some("123 Britain Street"),
-          line2 = Some("123 Britain Street"),
-          line3 = Some("Nicetown"),
-          line4 = Some("123 Britain Street"),
-          line5 = Some("123 Britain Street"),
-          postcode = Some("TT347TC"),
-          country = Some("UK")
-        )
-      )
-      val authRequest: AuthenticatedUserRequest[AnyContent] = AuthenticatedUserRequest(request, Some(L250), None, None, None, None, None, uk.gov.hmrc.auth.core.Nino(hasNino = true))
-      val rows = controller().createSummaryRows(personDetails, authRequest)
+    "will create summary rows from ratepayer registration model correctly" in {
+      val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel))
+      val summaryList = createContactDetailSummaryRows(ratepayer)
+      val rows: Seq[SummaryListRow] = summaryList.rows
       rows.length shouldBe 4
+      rows(0).value.content.toString must include("John Doe")
+      rows(1).value.content.toString must include("JohnDoe@digital.hmrc.gov.uk")
+      rows(2).value.content.toString must include("07123456789")
+      rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA</br>UK")
     }
 
-    "will create summary rows from ratepayer registration model" in {
-      val model = testRegistrationModel
-      val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
-      val rows = controller().createSummaryRowsFromRatePayer(ratepayer)
+    "will create summary rows from ratepayer registration model correctly with add link for phone number" in {
+      val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel.copy(contactNumber = None)))
+      val summaryList = createContactDetailSummaryRows(ratepayer)
+      val rows: Seq[SummaryListRow] = summaryList.rows
       rows.length shouldBe 4
+      rows(0).value.content.toString must include("John Doe")
+      rows(1).value.content.toString must include("JohnDoe@digital.hmrc.gov.uk")
+      rows(2).value.content.toString must include("<a id=\"number-linkid\" href=\"/ngr-login-register-frontend/phone-number\" class=\"govuk-link\">Add</a>")
+      rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA</br>UK")
     }
+
     "Calling the submit function return a 303 and the correct redirect location" in {
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER

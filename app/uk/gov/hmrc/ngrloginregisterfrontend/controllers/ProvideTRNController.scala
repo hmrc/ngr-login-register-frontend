@@ -27,7 +27,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class ProvideTRNController @Inject()(view: ProvideTRNView, authenticate: AuthJourney, mcc: MessagesControllerComponents)(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+class ProvideTRNController @Inject()(view: ProvideTRNView, authenticate: AuthJourney, mcc: MessagesControllerComponents)(implicit appConfig: AppConfig)
+  extends FrontendController(mcc) with I18nSupport {
 
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>

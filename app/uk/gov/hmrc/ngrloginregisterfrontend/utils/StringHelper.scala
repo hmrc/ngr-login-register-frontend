@@ -16,19 +16,18 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import org.apache.commons.lang3.StringUtils
 
-class NGRLoggerSpec extends TestSupport {
-  val logger: NGRLogger = inject[NGRLogger]
-  // TODO: Figure out how to check logs
-  "NGRLogger" must {
-    logger.debug("")
-    logger.debug("", new RuntimeException(""))
-    logger.info("")
-    logger.info("", new RuntimeException(""))
-    logger.warn("")
-    logger.warn("", new RuntimeException(""))
-    logger.error("")
-    logger.error("", new RuntimeException(""))
+trait StringHelper {
+  def maskNino(nino: String): String = {
+    maskString(nino.replaceAll(" ", ""), 3)
+  }
+
+  def maskSAUTR(sautr: String): String = {
+    maskString(sautr, 3)
+  }
+
+  def maskString(input: String, unmaskCharsNumber: Int): String = {
+    StringUtils.overlay(input, StringUtils.repeat("*", input.length - unmaskCharsNumber), 0, input.length - unmaskCharsNumber)
   }
 }

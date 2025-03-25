@@ -17,8 +17,6 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.util.AffinityGroupHelper
-
 
 
 class AffinityGroupHelperSpec extends TestSupport {

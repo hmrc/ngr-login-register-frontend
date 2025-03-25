@@ -21,7 +21,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
-import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
 class AddressLookupConnectorSpec extends MockHttpV2 with TestData {
 

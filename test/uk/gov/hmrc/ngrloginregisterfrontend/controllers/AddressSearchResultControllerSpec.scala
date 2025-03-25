@@ -60,7 +60,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         val result = controller().show()(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must       include("Showing <strong>1</strong> to <strong>0</strong> of <strong>0</strong> items.")
+        content must include("Showing <strong>1</strong> to <strong>0</strong> of <strong>0</strong> items.")
       }
 
       "Correctly display page number and number of address's on page 2" in {
@@ -69,8 +69,8 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must    include("Previous")
-        content must    include ("Showing <strong>6</strong> to <strong>10</strong> of <strong>14</strong> items.")
+        content must include("Previous")
+        content must include ("Showing <strong>6</strong> to <strong>10</strong> of <strong>14</strong> items.")
         content must include("Next")
       }
 

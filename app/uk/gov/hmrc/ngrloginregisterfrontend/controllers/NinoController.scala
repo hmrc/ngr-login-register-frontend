@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -35,18 +36,21 @@ class NinoController @Inject()(
                                 ninoView: NinoView,
                                 connector: NGRConnector,
                                 authenticate: AuthJourney,
-                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
+  extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
+      val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
         case Some(ratepayer) =>
-          val ninoForm = for {
+          val ninoForm: Option[Form[Nino]] = for {
             ratepayer <- ratepayer.ratepayerRegistration
             trnReferenceNumber <- ratepayer.trnReferenceNumber.filter(_.referenceType == NINO)
           } yield form(authNino).fill(Nino(trnReferenceNumber.value))
+
           Ok(ninoView(ninoForm.getOrElse(form(request.nino.nino.get))))
+
         case None =>
           Ok(ninoView(form(request.nino.nino.get)))
       }
@@ -55,14 +59,14 @@ class NinoController @Inject()(
 
   def submit(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
+      val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
       Nino.form(authNino)
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
           nino => {
             connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, nino.value))
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+            Future.successful(Redirect(routes.CheckYourAnswersController.show))
           }
         )
     }

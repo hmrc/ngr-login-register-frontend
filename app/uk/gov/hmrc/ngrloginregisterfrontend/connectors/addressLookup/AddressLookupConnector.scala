@@ -20,9 +20,9 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
-import uk.gov.hmrc.ngrloginregisterfrontend.util.NGRLogger
-import uk.gov.hmrc.http.HttpReads.Implicits._
+
 import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
