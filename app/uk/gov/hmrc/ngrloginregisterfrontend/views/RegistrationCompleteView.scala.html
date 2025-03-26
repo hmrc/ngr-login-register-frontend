@@ -4,19 +4,34 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 
-@this(layout: Layout)
+@this(layout: Layout,
+govukPanel: uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel,
+      button: uk.gov.hmrc.govukfrontend.views.html.components.GovukButton,
+    end_survey: views.html.partial.end_survey,
+    appConfig: AppConfig,
+    urls: Urls
+)
 
-@(recoveryId: Option[String])(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
+@panelContent = {
+    @Messages("registrationComplete.title")
+    <br><strong>@Messages("registrationComplete.p1", recoveryId.getOrElse(""))</strong>
+}
+
+
+@(recoveryId: Option[String], email: Email)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
 
 @layout(pageTitle = Some(messages("registrationComplete.title"))) {
 
 @govukPanel(Panel(
-title = Text(@messages("registrationComplete.title"))
+title = Text(Messages("registrationComplete.title")),
+content = HtmlContent(panelContent)
 ))
 
-<h1 class="govuk-heading-xl">@messages("registrationComplete.title")</h1>
+<p class="govuk-body govuk-!-display-none-print">
+    <a href="javascript:window.print()" class="govuk-link">@Messages("success.page.print-link.mods")</a>
+</p>
 
-<p class="govuk-body">@messages("registrationComplete.p1", recoveryId.getOrElse(""))</p>
+<p class="govuk-body">@messages("registrationComplete.p2", email.getOrElse(""))</p>
 
 <p class="govuk-body">@messages("registrationComplete.p2")</p>
 
