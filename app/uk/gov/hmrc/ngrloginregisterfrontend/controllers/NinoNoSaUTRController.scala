@@ -46,7 +46,7 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
           val ninoNoSaUTRForm = for {
             ratepayer <- ratepayer.ratepayerRegistration
             trnReferenceNumber <- ratepayer.trnReferenceNumber.filter(_.referenceType == NINO)
-          } yield form(Some(authNino)).fill(NinoNoSaUTR(trnReferenceNumber.value, NinoNoSaUTR.NoLater))
+          } yield form(Some(authNino)).fill(NinoNoSaUTR(Some(trnReferenceNumber.value), NinoNoSaUTR.NoLater))
           Ok(ninoNoSaUTRView(ninoNoSaUTRForm.getOrElse(form(Some(authNino))),radios(form(Some(authNino)))))
         case None =>
           Ok(ninoNoSaUTRView(form(Some(authNino)),radios(form(Some(authNino)))))
@@ -79,9 +79,9 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
                 {
                   //TODO Need to change the routes once the other pages are merged
                   case NinoNoSaUTR(nino, Yes) =>
-                    connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, nino))
+                    connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, nino.getOrElse("")))
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
-                  case NinoNoSaUTR("", NoLater)  =>
+                  case NinoNoSaUTR(None, NoLater)  =>
                     connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, ""))
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
                 }

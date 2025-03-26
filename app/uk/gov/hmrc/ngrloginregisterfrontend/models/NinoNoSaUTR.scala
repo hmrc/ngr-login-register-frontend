@@ -26,11 +26,11 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
 
 sealed trait ConfirmTRN extends RadioEntry
 
-final case class NinoNoSaUTR(nino: String, confirmTRN: ConfirmTRN) extends TaxIdentifier with SimpleName {
+final case class NinoNoSaUTR(nino: Option[String], confirmTRN: ConfirmTRN) extends TaxIdentifier with SimpleName {
 
   private val LengthWithoutSuffix: Int = 8
 
-  def value = nino
+  def value = nino.getOrElse("")
 
   val name = "nino"
 
@@ -75,21 +75,21 @@ object NinoNoSaUTR extends CommonFormValidators {
   def form(authNino: Option[String]): Form[NinoNoSaUTR] =
     Form(
       mapping(
-        nino -> text()
+        nino -> optional(text()
           .verifying(
             firstError(
-              formNameCheck(nino, formName, ninoInvalidFormat)
-//              regexp(ninoRegexPattern.pattern(), ninoInvalidFormat),
-//              isMatchingNino(authNino.getOrElse(""), nino, ninoFailsMatch)
+              regexp(ninoRegexPattern.pattern(), ninoInvalidFormat),
+              isMatchingNino(authNino.getOrElse(""), nino, ninoFailsMatch)
             )
+          )
         ),
         formName -> Forms.of[ConfirmTRN]
       )(NinoNoSaUTR.apply)(NinoNoSaUTR.unapply)
         .verifying("nino.empty.error", { case NinoNoSaUTR(ninoOpt, confirmTRN) =>
-          ninoOpt.isEmpty || confirmTRN == NoLater
+          // Check if NINO is empty and confirmTRN is "Yes", it will fail validation.
+          ninoOpt.exists(_.trim.nonEmpty) || confirmTRN == NoLater
         })
     )
-
 
 
 
