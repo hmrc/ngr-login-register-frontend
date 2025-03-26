@@ -1,3 +1,18 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
 
 @import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
@@ -7,18 +22,19 @@
 @this(layout: Layout,
 govukPanel: uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel,
       button: uk.gov.hmrc.govukfrontend.views.html.components.GovukButton,
-    end_survey: views.html.partial.end_survey,
-    appConfig: AppConfig,
-    urls: Urls
+    appConfig: AppConfig
 )
 
+@(RecoveryId: Option[String])(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
+
 @panelContent = {
-    @Messages("registrationComplete.title")
-    <br><strong>@Messages("registrationComplete.p1", recoveryId.getOrElse(""))</strong>
+@Messages("registrationComplete.title")
+<br><strong>@Messages("registrationComplete.p1", RecoveryId.getOrElse(""))</strong>
 }
 
-
-@(recoveryId: Option[String], email: Email)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
+@buttonContent = {
+@Messages("registrationComplete.button")
+}
 
 @layout(pageTitle = Some(messages("registrationComplete.title"))) {
 
@@ -31,8 +47,15 @@ content = HtmlContent(panelContent)
     <a href="javascript:window.print()" class="govuk-link">@Messages("success.page.print-link.mods")</a>
 </p>
 
-<p class="govuk-body">@messages("registrationComplete.p2", email.getOrElse(""))</p>
+<p class="govuk-body">@Messages("registrationComplete.p2")</p>
+<p class="govuk-body">@Messages("registrationComplete.p3")</p>
 
-<p class="govuk-body">@messages("registrationComplete.p2")</p>
+<p class="govuk-body">@Messages("registrationComplete.p4")</p>
+
+<h1 class="govuk-header">@Messages("registrationComplete.h1")</h1>
+
+<p class="govuk-body">@Messages("registrationComplete.p5")</p>
+
+@button
 
 }
