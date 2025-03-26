@@ -27,7 +27,7 @@ class SessionManagerSpec extends TestSupport with TestData {
   val sessionManager: SessionManager = inject[SessionManager]
   val journeyId = "1234"
   private val address = LookedUpAddress(lines = Seq("20 Long Rd"), town = "Bournemouth",county = Some("Dorset"),postcode =  "BN110AA")
-  private val expectedAddressStr = """{"line1":"20 Long Rd","town":"Bournemouth","postcode":{"value":"BN110AA"},"country":"GB"}"""
+  private val expectedAddressStr = """{"line1":"20 Long Rd","town":"Bournemouth","postcode":{"value":"BN110AA"}}"""
   private val session: Session = Session()
   private val testKey = "key"
   private val testValue = "value"
@@ -46,14 +46,14 @@ class SessionManagerSpec extends TestSupport with TestData {
       val addressLookup: LookedUpAddress = LookedUpAddress(lines = Seq("Line1", "Line2"), town = "town", postcode = "SW12 6RE", county = None)
       val actual = sessionManager.getSessionValue(sessionManager.setChosenAddress(session, addressLookup), chosenAddressKeyId)
       actual.isDefined shouldBe true
-      actual.get shouldBe """{"line1":"Line1","line2":"Line2","town":"town","postcode":{"value":"SW12 6RE"},"country":"GB"}"""
+      actual.get shouldBe """{"line1":"Line1","line2":"Line2","town":"town","postcode":{"value":"SW12 6RE"}}"""
     }
 
     "set a chosen address correctly when addressLookup gives 5 address lines" in {
       val addressLookup: LookedUpAddress = LookedUpAddress(lines = Seq("Line1", "Line2", "Line3", "Line4", "Line5"),town = "town", postcode =  "SW12 6RE", county = None)
       val actual = sessionManager.getSessionValue(sessionManager.setChosenAddress(session, addressLookup), chosenAddressKeyId)
       actual.isDefined shouldBe true
-      actual.get shouldBe """{"line1":"Line1, Line2","line2":"Line3, Line4, Line5","town":"town","postcode":{"value":"SW12 6RE"},"country":"GB"}"""
+      actual.get shouldBe """{"line1":"Line1, Line2","line2":"Line3, Line4, Line5","town":"town","postcode":{"value":"SW12 6RE"}}"""
     }
 
     "set address lookup response" in {

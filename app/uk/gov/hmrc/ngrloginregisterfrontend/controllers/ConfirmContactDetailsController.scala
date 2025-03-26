@@ -79,9 +79,8 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
       line1 = personDetails.address.line1.getOrElse(""),
       line2 = personDetails.address.line2,
       town = personDetails.address.line4.getOrElse(""),
-      county = personDetails.address.line5,
-      postcode = Postcode(personDetails.address.postcode.getOrElse("")),
-      country = personDetails.address.country.getOrElse("")
+      county = None,
+      postcode =  Postcode(personDetails.address.postcode.getOrElse("")),
     )
 
   def name(personDetails: PersonDetails): String = List(

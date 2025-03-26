@@ -42,7 +42,7 @@ class AddressModelSpec extends TestSupport with TestData {
     }
     "format into a String" when{
       "toString method is called" in{
-        testAddressModel.toString mustBe "99, Wibble Rd, Worthing, West Sussex, BN110AA, UK"
+        testAddressModel.toString mustBe "99, Wibble Rd, Worthing, West Sussex, BN110AA"
       }
     }
   }

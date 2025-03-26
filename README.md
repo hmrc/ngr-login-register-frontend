@@ -25,6 +25,10 @@ sm2 --stop  NGR_LOGIN_REGISTER_FRONTEND
   *  stop `CENTRALISED_AUTHORISATION_POLICY_SERVER` in `service manager`
   *  start `CENTRALISED_AUTHORISATION_POLICY_SERVER` in `service manager`
 
+* `Searching by postcode locally` 
+  - AA00 0AA Postcode returns one address.
+  - FX1 7RR Postcode returns multiple address
+
 ### Running the test suite
 ```
 sbt clean coverage test coverageReport
