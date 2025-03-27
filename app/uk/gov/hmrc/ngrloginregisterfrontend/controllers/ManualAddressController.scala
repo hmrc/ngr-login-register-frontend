@@ -68,7 +68,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
           formWithErrors =>
             Future.successful(BadRequest(addressView(formWithErrors))),
           findAddress => {
-            addressLookupConnector.findAddressByPostcode(findAddress.postcode.value, Some(findAddress.line1)) map {
+            addressLookupConnector.findAddressByPostcode(findAddress.postcode.value, Some((findAddress.line1 + " " +  findAddress.line2 + " " +  findAddress.town + " " +  findAddress.county).replace("None", ""))) map {
               case AddressLookupErrorResponse(e: BadRequestException) =>
                 BadRequest(e.message)
               case AddressLookupErrorResponse(_) =>
