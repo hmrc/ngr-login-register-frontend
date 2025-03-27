@@ -29,7 +29,7 @@ class NameViewSpec  extends ViewBaseSpec {
   lazy val caption = "Register for the business rates valuation service"
   lazy val heading = "Contact name"
   lazy val continueButton = "Continue"
-  lazy val emptyErrorMessage = "Error: Enter your Contact name"
+  lazy val emptyErrorMessage = "Error: Enter your contact name"
   lazy val invalidErrorMessage = "Error: Enter a contact name in the correct format"
   lazy val maxLengthErrorMessage = "Error: Contact name must be 250 characters or less"
 

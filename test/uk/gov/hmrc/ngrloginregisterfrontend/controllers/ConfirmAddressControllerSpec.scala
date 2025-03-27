@@ -36,7 +36,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
   lazy val chosenAddressIdKey: String = "NGR-Chosen-Address-Key"
   lazy val view: ConfirmAddressView = inject[ConfirmAddressView]
   val pageTitle = "Confirm Address"
-  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
+  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson14.as[Seq[LookedUpAddressWrapper]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
   val session: Session = Session(Map(chosenAddressIdKey -> addressJsonResponse.toString()))
 

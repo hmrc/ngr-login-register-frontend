@@ -40,7 +40,7 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
   lazy val postcodeKey: String = "Postcode-Key"
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "Find the contact address"
-  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
+  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson14.as[Seq[LookedUpAddressWrapper]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
   val session: Session = Session(Map(addressResponseKey -> expectAddressesJsonString, postcodeKey -> "AA00 0AA"))
 

@@ -44,7 +44,7 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
 
   lazy val addressResponseKey: String = "Address-Lookup-Response"
   lazy val postcodeKey: String = "Postcode-Key"
-  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
+  lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson14.as[Seq[LookedUpAddressWrapper]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
   val session: Session = Session(Map(addressResponseKey -> expectAddressesJsonString, postcodeKey -> "AA00 0AA"))
 
