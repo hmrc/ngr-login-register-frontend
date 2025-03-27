@@ -78,7 +78,7 @@ class NameControllerSpec extends ControllerSpecSupport {
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
-        content must include("Enter your Contact name")
+        content must include("Enter your contact name")
       }
 
       "Submit with invalid name and display error message" in {

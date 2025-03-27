@@ -124,7 +124,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       rows(0).value.content.toString must include("John Doe")
       rows(1).value.content.toString must include("JohnDoe@digital.hmrc.gov.uk")
       rows(2).value.content.toString must include("07123456789")
-      rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA</br>UK")
+      rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA")
     }
 
     "will create summary rows from ratepayer registration model correctly with add link for phone number" in {
@@ -135,7 +135,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       rows(0).value.content.toString must include("John Doe")
       rows(1).value.content.toString must include("JohnDoe@digital.hmrc.gov.uk")
       rows(2).value.content.toString must include("<a id=\"number-linkid\" href=\"/ngr-login-register-frontend/phone-number\" class=\"govuk-link\">Add</a>")
-      rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA</br>UK")
+      rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA")
     }
 
     "Calling the submit function return a 303 and the correct redirect location" in {

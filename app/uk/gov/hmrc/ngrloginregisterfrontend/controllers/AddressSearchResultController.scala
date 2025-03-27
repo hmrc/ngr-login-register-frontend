@@ -37,7 +37,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               sessionManager: SessionManager
                                              )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
-  private lazy val defaultPageSize: Int = 5
+  private lazy val defaultPageSize: Int = 15
 
   def show(page: Int = 1): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>

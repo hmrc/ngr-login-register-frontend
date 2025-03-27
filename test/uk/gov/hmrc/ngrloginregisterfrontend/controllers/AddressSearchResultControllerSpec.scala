@@ -40,18 +40,21 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
     mockSessionManager
   )
 
-  val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson.as[Seq[LookedUpAddressWrapper]]
-  val expectAddressesJsonString: String = Json.toJson(addressLookupResponses.map(_.address)).toString()
+  val addressLookupResponses14: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson14.as[Seq[LookedUpAddressWrapper]]
+  val expectAddressesJsonString14: String = Json.toJson(addressLookupResponses14.map(_.address)).toString()
+
+  val addressLookupResponses32: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson32.as[Seq[LookedUpAddressWrapper]]
+  val expectAddressesJsonString32: String = Json.toJson(addressLookupResponses32.map(_.address)).toString()
 
   "Address Search Result Controller" must {
     "method show" must {
       "Return OK and the correct view when theirs 14 address on page 1" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
         val result = controller().show()(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must       include("Showing <strong>1</strong> to <strong>5</strong> of <strong>14</strong> items.")
-        content must       include("Next")
+        content must       include("Showing <strong>1</strong> to <strong>14</strong> of <strong>14</strong> items.")
+        content mustNot       include("Next")
         content mustNot    include("Previous")
       }
 
@@ -60,42 +63,43 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
         val result = controller().show()(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
-        content must include("Showing <strong>1</strong> to <strong>0</strong> of <strong>0</strong> items.")
+        content must       include("Showing <strong>1</strong> to <strong>0</strong> of <strong>0</strong> items.")
       }
 
       "Correctly display page number and number of address's on page 2" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
         val result = controller().show(page = 2)(authenticatedFakeRequestWithSession)
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
-        status(result) mustBe OK
-        val content = contentAsString(result)
-        content must include("Previous")
-        content must include ("Showing <strong>6</strong> to <strong>10</strong> of <strong>14</strong> items.")
-        content must include("Next")
-      }
-
-      "Correctly display page number and number of address's on page 3" in {
-        val result = controller().show(page = 3)(authenticatedFakeRequestWithSession)
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
         status(result) mustBe OK
         val content = contentAsString(result)
         content must    include("Previous")
-        content must    include ("Showing <strong>11</strong> to <strong>14</strong> of <strong>14</strong> items.")
+        content must    include ("Showing <strong>16</strong> to <strong>30</strong> of <strong>32</strong> items.")
+        content must    include("Next")
+      }
+
+      "Correctly display page number and number of address's on page 3" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
+        val result = controller().show(page = 3)(authenticatedFakeRequestWithSession)
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must    include("Previous")
+        content must    include ("Showing <strong>31</strong> to <strong>32</strong> of <strong>32</strong> items.")
         content mustNot include("Next")
       }
     }
 
     "method selectedAddress" must {
       "Return SEE OTHER and correctly store address to the session" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString))
-        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
+        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
         val result = controller().selectedAddress(1)(authenticatedFakeRequestWithSession)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show.url)
       }
       "Address index out of bounds exception thrown" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
-        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA, UK"))
+        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
         val exception = intercept[RuntimeException] {
           controller().selectedAddress(1)(authenticatedFakeRequestWithSession).futureValue
         }

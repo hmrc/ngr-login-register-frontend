@@ -33,7 +33,7 @@ trait SummaryListHelper {
     val address = ratepayerRegistrationValuation.ratepayerRegistration
       .flatMap(_.address)
       .map(address => {
-        Seq(address.line1, address.line2.getOrElse(""), address.town, address.postcode.value, address.country)
+        Seq(address.line1, address.line2.getOrElse(""), address.town, address.postcode.value)
           .filter(_.nonEmpty)
       }).getOrElse(Seq.empty)
 

@@ -56,6 +56,7 @@ object Nino extends CommonFormValidators {
               regexp(ninoRegexPattern.pattern(), ninoInvalidFormat)
             )
           )
+          .verifying(isMatchingNino(authNino, nino,ninoInvalidFormat))
       )(Nino.apply)(Nino.unapply)
     )
 }

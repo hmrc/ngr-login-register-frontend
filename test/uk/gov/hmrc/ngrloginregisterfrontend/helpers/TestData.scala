@@ -34,8 +34,7 @@ trait TestData {
       line2 = Some("Wibble Rd"),
       town = "Worthing",
       county = Some("West Sussex"),
-      postcode = Postcode("BN110AA"),
-      country = "UK",
+      postcode = Postcode("BN110AA")
     )
 
   val addressLookupAddress:LookedUpAddress =
@@ -50,7 +49,7 @@ trait TestData {
   val testFilter: Option[String] = Some("")
 
   val testAddressString: String =
-    "99 Wibble Rd, Testtown, West Sussex BN110AA"
+    "99 Wibble Rd, Testtown, West Sussex, BN110AA"
 
   val testRegistrationModel: RatepayerRegistration =
     RatepayerRegistration(
@@ -66,8 +65,7 @@ trait TestData {
           line2 = Some("Wibble Rd"),
           town = "Worthing",
           county = Some("West Sussex"),
-          postcode = Postcode("BN110AA"),
-          country = "UK",
+          postcode = Postcode("BN110AA")
         )
       ),
       trnReferenceNumber = Some(TRNReferenceNumber(TRN, "12345")),
@@ -108,18 +106,18 @@ trait TestData {
   val minRegResponseModel: RatepayerRegistration = testRegistrationModel.copy(tradingName = None, secondaryNumber = None)
 
   val regResponseJson: JsValue = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"tradingName":{"value":"CompanyLTD"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"secondaryNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"trnReferenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
+    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"tradingName":{"value":"CompanyLTD"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"secondaryNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"}},"trnReferenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
       |""".stripMargin)
 
 
   val minRegResponseJson: JsValue = Json.parse(
-    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"},"trnReferenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
+    """{"userType":"Individual","agentStatus":"Agent","name":{"value":"John Doe"},"email":{"value":"JohnDoe@digital.hmrc.gov.uk"},"contactNumber":{"value":"07123456789"},"address":{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"}},"trnReferenceNumber":{"referenceType":"TRN","value":"12345"},"isRegistered":true}
       |""".stripMargin)
 
 
-  val addressJsonResponse: JsValue = Json.parse("""{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"},"country":"UK"}""".stripMargin)
+  val addressJsonResponse: JsValue = Json.parse("""{"line1":"99","line2":"Wibble Rd","town":"Worthing","county":"West Sussex","postcode":{"value":"BN110AA"}}""".stripMargin)
   val minAddressModel: Address = testAddressModel.copy(line2 = None, county = None)
-  val addressMinJsonResponse: JsValue = Json.parse("""{"line1":"99","town":"Worthing","postcode":{"value":"BN110AA"},"country":"UK"}""".stripMargin)
+  val addressMinJsonResponse: JsValue = Json.parse("""{"line1":"99","town":"Worthing","postcode":{"value":"BN110AA"}}""".stripMargin)
 
   val postcodeModel: Postcode = Postcode("E20 1HZ")
   val postcodeJson: JsValue = Json.parse(
@@ -227,7 +225,7 @@ trait TestData {
       |""".stripMargin
   )
 
-  val addressLookupResponsesJson: JsValue = Json.parse(
+  val addressLookupResponsesJson14: JsValue = Json.parse(
     """
       |[
       | {
@@ -236,9 +234,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -248,9 +244,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -260,9 +254,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -272,9 +264,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -284,9 +274,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -296,9 +284,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -308,9 +294,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -320,9 +304,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -332,9 +314,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -344,9 +324,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -356,9 +334,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -368,9 +344,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -380,9 +354,7 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | },
@@ -392,9 +364,334 @@ trait TestData {
       |   "address":{
       |     "lines":["1 Test Street"],
       |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
-      |     "subdivision":{"code":"GB-ENG","name":"England"},
-      |     "country":{"code":"GB","name":"United Kingdom"}
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | }
+      |]
+      |""".stripMargin
+  )
+
+  val addressLookupResponsesJson32: JsValue = Json.parse(
+    """
+      |[
+      | {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
+      |   },
+      |   "language":"en"
+      | },
+      |  {
+      |   "id":"GB690091234501",
+      |   "uprn":690091234501,
+      |   "address":{
+      |     "lines":["1 Test Street"],
+      |     "town":"Testtown",
+      |     "postcode":"AA00 0AA"
       |   },
       |   "language":"en"
       | }
