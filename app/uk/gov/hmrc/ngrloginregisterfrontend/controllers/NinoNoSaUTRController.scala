@@ -26,7 +26,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NinoNoSaUTR.{NoLater, Yes, form}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NinoNoSaUTR, No}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NinoNoSaUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoNoSaUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -42,12 +42,10 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
     authenticate.authWithUserDetails.async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new Exception("No nino found from auth"))
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
-        case Some(ratepayer) =>
-          val ninoNoSaUTRForm = for {
-            ratepayer <- ratepayer.ratepayerRegistration
-            trnReferenceNumber <- ratepayer.trnReferenceNumber.filter(_.referenceType == NINO)
-          } yield form(Some(authNino)).fill(NinoNoSaUTR(Some(trnReferenceNumber.value), NinoNoSaUTR.NoLater))
-          Ok(ninoNoSaUTRView(ninoNoSaUTRForm.getOrElse(form(Some(authNino))),radios(form(Some(authNino)))))
+        case Some(_) =>
+          val ninoNoSaUTRForm = form(Some(authNino))
+          val validatedForm = NinoNoSaUTR.validateForm(ninoNoSaUTRForm)
+          Ok(ninoNoSaUTRView(validatedForm,radios(validatedForm)))
         case None =>
           Ok(ninoNoSaUTRView(form(Some(authNino)),radios(form(Some(authNino)))))
       }
@@ -69,9 +67,11 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
     def submitNinoNoSaUTR(): Action[AnyContent] =
       authenticate.authWithUserDetails.async { implicit request =>
         request.nino.nino match {
+          case None => Future.failed(new Exception())
           case Some(authNino) =>
-            NinoNoSaUTR.form(Some(authNino))
+            val boundForm = NinoNoSaUTR.form(Some(authNino))
               .bindFromRequest()
+              NinoNoSaUTR.validateForm(boundForm)
               .fold(
                 formWithErrors => {
                   Future.successful(BadRequest(ninoNoSaUTRView(formWithErrors, radios(formWithErrors))))
@@ -84,6 +84,7 @@ class NinoNoSaUTRController @Inject()(ninoNoSaUTRView: NinoNoSaUTRView,
                   case NinoNoSaUTR(None, NoLater)  =>
                     connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, ""))
                     Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+                  case _ => Future.failed(new Exception())
                 }
               )
         }

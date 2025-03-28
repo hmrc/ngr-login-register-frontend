@@ -16,18 +16,23 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ProvideTRNView
+import scala.concurrent.Future
 
-class ProvideTRNControllerSpec extends ControllerSpecSupport{
+class ProvideTRNControllerSpec extends ControllerSpecSupport with TestData {
 
   lazy val view: ProvideTRNView = inject[ProvideTRNView]
+  lazy val mockCIDConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
 
   def controller() =
     new ProvideTRNController(
-      view = view, authenticate = mockAuthJourney, mcc = mcc
+      mockCIDConnector, view = view, authenticate = mockAuthJourney, mcc = mcc
     )
 
   "ProvideTRNController" must {
@@ -37,6 +42,7 @@ class ProvideTRNControllerSpec extends ControllerSpecSupport{
     }
 
     "Calling the submit function return a 303 and the correct redirect location" in {
+      when(mockCIDConnector.getMatchingResponse(any())(any())).thenReturn(Future.successful(Right(matchingDetailsResponse)))
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.ConfirmUTRController.show.url)

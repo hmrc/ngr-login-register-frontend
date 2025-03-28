@@ -19,7 +19,6 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.format.Formatter
-import play.api.data.validation.Constraint
 import play.api.libs.json.{Reads, Writes}
 import uk.gov.hmrc.domain.{SimpleName, SimpleObjectReads, SimpleObjectWrites, TaxIdentifier}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
@@ -30,13 +29,13 @@ final case class NinoNoSaUTR(nino: Option[String], confirmTRN: ConfirmTRN) exten
 
   private val LengthWithoutSuffix: Int = 8
 
-  def value = nino.getOrElse("")
+  def value: String = nino.getOrElse("")
 
   val name = "nino"
 
-  def formatted = value.grouped(2).mkString(" ")
+  def formatted: String = value.grouped(2).mkString(" ")
 
-  def withoutSuffix = value.take(LengthWithoutSuffix)
+  def withoutSuffix: String = value.take(LengthWithoutSuffix)
 }
 
 object NinoNoSaUTR extends CommonFormValidators {
@@ -79,18 +78,19 @@ object NinoNoSaUTR extends CommonFormValidators {
           .verifying(
             firstError(
               regexp(ninoRegexPattern.pattern(), ninoInvalidFormat),
-              isMatchingNino(authNino.getOrElse(""), nino, ninoFailsMatch)
+              isMatchingNino(authNino.getOrElse(""), ninoFailsMatch)
             )
           )
         ),
         formName -> Forms.of[ConfirmTRN]
       )(NinoNoSaUTR.apply)(NinoNoSaUTR.unapply)
-        .verifying("nino.empty.error", { case NinoNoSaUTR(ninoOpt, confirmTRN) =>
-          // Check if NINO is empty and confirmTRN is "Yes", it will fail validation.
-          ninoOpt.exists(_.trim.nonEmpty) || confirmTRN == NoLater
-        })
     )
 
-
+  def validateForm(form: Form[NinoNoSaUTR]): Form[NinoNoSaUTR] =
+    if (form.value.exists(value => value.nino.isEmpty && value.confirmTRN == Yes)) {
+      form.withError(FormError(nino, "nino.empty.error"))
+    } else {
+      form
+    }
 
 }

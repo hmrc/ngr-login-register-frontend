@@ -18,7 +18,6 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
-import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.libs.json.{Reads, Writes}
 import uk.gov.hmrc.domain.{SimpleName, SimpleObjectReads, SimpleObjectWrites, TaxIdentifier}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
@@ -27,13 +26,13 @@ final case class Nino(nino: String) extends TaxIdentifier with SimpleName {
 
   private val LengthWithoutSuffix: Int = 8
 
-  def value = nino
+  def value: String = nino
 
   val name = "nino"
 
-  def formatted = value.grouped(2).mkString(" ")
+  def formatted: String = value.grouped(2).mkString(" ")
 
-  def withoutSuffix = value.take(LengthWithoutSuffix)
+  def withoutSuffix: String = value.take(LengthWithoutSuffix)
 }
 
 object Nino extends CommonFormValidators {
@@ -41,7 +40,7 @@ object Nino extends CommonFormValidators {
   implicit val ninoWrite: Writes[Nino] = new SimpleObjectWrites[Nino](_.value)
   implicit val ninoRead: Reads[Nino] = new SimpleObjectReads[Nino]("nino", Nino.apply)
 
-  def isValid(nino: String) = nino.nonEmpty && ninoRegexPattern.matcher(nino).matches()
+  def isValid(nino: String): Boolean = nino.nonEmpty && ninoRegexPattern.matcher(nino).matches()
 
   private lazy val ninoEmptyError    = "nino.empty.error"
   private lazy val ninoInvalidFormat = "nino.invalidFormat.error"
@@ -51,7 +50,7 @@ object Nino extends CommonFormValidators {
     Form(
       mapping(
         nino -> text()
-          .verifying(isMatchingNino(authNino, nino,ninoInvalidFormat))
+          .verifying(isMatchingNino(authNino, ninoInvalidFormat))
           .verifying(
             firstError(
               isNotEmpty(nino, ninoEmptyError),

@@ -17,9 +17,6 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models.forms
 
 import play.api.data.validation.{Constraint, Invalid, Valid}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{ConfirmTRN, NinoNoSaUTR}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.NinoNoSaUTR.{NoLater, Yes}
-
 import java.util.regex.Pattern
 
 trait CommonFormValidators {
@@ -65,12 +62,12 @@ trait CommonFormValidators {
         Invalid(errorKey, value)
     }
 
-  protected def isMatchingNino(authNino: String, nino: String, errorKey: String): Constraint[String] =
+  protected def isMatchingNino(authNino: String, errorKey: String): Constraint[String] =
     Constraint {
-      case nino if nino.filterNot(_.isWhitespace).matches(authNino) =>
+      case str if str.filterNot(_.isWhitespace).matches(authNino) =>
         Valid
       case _ =>
-        Invalid(errorKey, nino)
+        Invalid(errorKey, authNino)
     }
 
   protected def formNameCheck(nino: String, confirmTRN: String, errorKey: String): Constraint[String] = {

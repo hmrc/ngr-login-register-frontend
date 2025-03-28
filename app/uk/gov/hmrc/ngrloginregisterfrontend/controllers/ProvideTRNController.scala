@@ -22,7 +22,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.form
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ProvideTRNView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
