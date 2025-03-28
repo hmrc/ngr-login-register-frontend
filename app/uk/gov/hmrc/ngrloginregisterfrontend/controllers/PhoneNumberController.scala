@@ -21,8 +21,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{ContactNumber, PhoneNumber}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.PhoneNumber.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -57,7 +57,7 @@ class PhoneNumberController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors))),
           phoneNumber => {
-            connector.changePhoneNumber(CredId(request.credId.getOrElse("")), ContactNumber(phoneNumber.value))
+            connector.changePhoneNumber(CredId(request.credId.getOrElse("")), PhoneNumber(phoneNumber.value))
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )

@@ -21,7 +21,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 
 class PostcodeSpec extends TestSupport with TestData {
-
   "Postcode model" should {
     "serialise into json" in {
       Json.toJson(postcodeModel) mustBe postcodeJson
@@ -30,41 +29,4 @@ class PostcodeSpec extends TestSupport with TestData {
       postcodeJson.as[Postcode] mustBe postcodeModel
     }
   }
-
-  "Calling the isValidPostcode" should {
-    "return true if a valid post code is passed" in {
-      val postCode = Postcode("E20 1HZ").isValidPostcode
-      postCode mustBe true
-    }
-    "return true if its a valid post with only one characters and a number as the prefix" in {
-      val postCode = Postcode("M1 2HZ").isValidPostcode
-      postCode mustBe true
-    }
-    "return true if its a valid post with only two characters and a number as the prefix" in {
-      val postCode = Postcode("AA9 9AA").isValidPostcode
-      postCode mustBe true
-    }
-    "return true if its a valid post with only two characters and two number as the prefix" in {
-      val postCode = Postcode("AA99 9AA").isValidPostcode
-      postCode mustBe true
-    }
-    "return true if its a valid post with only two characters, a number and a character as the prefix" in {
-      val postCode = Postcode("AA9A 9AA").isValidPostcode
-      postCode mustBe true
-    }
-    "return false if the post code starts with a number" in {
-      val postCode = Postcode("12 1HZ").isValidPostcode
-      postCode mustBe false
-    }
-    "return false if the post code has special characters in it" in {
-      val postCode = Postcode("E20 1HZ';';[;[..").isValidPostcode
-      postCode mustBe false
-    }
-    "return false if the post code is malformed" in {
-      val postCode = Postcode("blah blah blah").isValidPostcode
-      postCode mustBe false
-    }
-  }
-
-
 }

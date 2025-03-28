@@ -29,14 +29,6 @@ sealed abstract class BaseUserRequest[A](
                                           val email: Option[String]
                                         ) extends WrappedRequest[A](request)
 
-final case class UserRequest[A](
-                                 override val request: Request[A],
-                                 override val confidenceLevel: Option[ConfidenceLevel],
-                                 override val isAuthenticated: Boolean,
-                                 override val authProvider: Option[String],
-                                 override val email: Option[String],
-                               ) extends BaseUserRequest[A](request, isAuthenticated, confidenceLevel, authProvider, email)
-
 final case class AuthenticatedUserRequest[A](
                                               override val request: Request[A],
                                               override val confidenceLevel: Option[ConfidenceLevel],

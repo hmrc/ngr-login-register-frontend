@@ -22,8 +22,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView

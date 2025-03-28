@@ -16,10 +16,10 @@
 
 package helpers
 
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, LookedUpAddress, LookedUpAddressWrapper, Uprn, Location}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 
 import java.time.LocalDate
 

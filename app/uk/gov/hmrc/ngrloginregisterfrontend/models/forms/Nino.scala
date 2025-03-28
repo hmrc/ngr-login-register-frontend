@@ -14,33 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models
+package uk.gov.hmrc.ngrloginregisterfrontend.models.forms
 
 import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.{Reads, Writes}
-import uk.gov.hmrc.domain.{SimpleName, SimpleObjectReads, SimpleObjectWrites, TaxIdentifier}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
+import uk.gov.hmrc.domain.{SimpleObjectReads, SimpleObjectWrites, TaxIdentifier}
 
-final case class Nino(nino: String) extends TaxIdentifier with SimpleName {
-
-  private val LengthWithoutSuffix: Int = 8
-
-  def value = nino
-
-  val name = "nino"
-
-  def formatted = value.grouped(2).mkString(" ")
-
-  def withoutSuffix = value.take(LengthWithoutSuffix)
+final case class Nino(nino: String) extends TaxIdentifier {
+  def value: String = nino
 }
 
 object Nino extends CommonFormValidators {
 
   implicit val ninoWrite: Writes[Nino] = new SimpleObjectWrites[Nino](_.value)
   implicit val ninoRead: Reads[Nino] = new SimpleObjectReads[Nino]("nino", Nino.apply)
-
-  def isValid(nino: String) = nino.nonEmpty && ninoRegexPattern.matcher(nino).matches()
 
   private lazy val ninoEmptyError    = "nino.empty.error"
   private lazy val ninoInvalidFormat = "nino.invalidFormat.error"

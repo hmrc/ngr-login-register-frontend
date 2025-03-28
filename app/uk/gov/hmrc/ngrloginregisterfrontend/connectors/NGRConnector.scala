@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOp
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino, PhoneNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
 import java.net.URL
@@ -90,7 +91,7 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def changePhoneNumber(credId: CredId, contactNumber: ContactNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def changePhoneNumber(credId: CredId, contactNumber: PhoneNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(contactNumber))
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
     http.post(url("change-phone-number"))

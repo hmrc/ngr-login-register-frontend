@@ -21,8 +21,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Email.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController

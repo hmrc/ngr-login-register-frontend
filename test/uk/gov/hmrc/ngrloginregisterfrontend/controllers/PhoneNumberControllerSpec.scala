@@ -25,8 +25,9 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ContactNumber, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 
 import scala.concurrent.Future
@@ -59,7 +60,7 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport {
         content must include(pageTitle)
       }
       "Return OK and the correct view with phone number" in {
-        val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(ContactNumber("07878787878")))
+        val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(PhoneNumber("07878787878")))
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(Some(model)))
