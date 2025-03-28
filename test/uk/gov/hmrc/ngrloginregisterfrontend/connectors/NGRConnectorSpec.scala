@@ -26,7 +26,8 @@ import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestData
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.RatepayerRegistration
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 import scala.concurrent.Future

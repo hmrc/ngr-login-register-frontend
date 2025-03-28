@@ -21,6 +21,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino, PhoneNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, TRNReferenceNumber}
@@ -58,8 +59,8 @@ trait TestData {
       name = Some(Name("John Doe")),
       tradingName = Some(TradingName("CompanyLTD")),
       email = Some(Email("JohnDoe@digital.hmrc.gov.uk")),
-      contactNumber = Some(ContactNumber("07123456789")),
-      secondaryNumber = Some(ContactNumber("07123456789")),
+      contactNumber = Some(PhoneNumber("07123456789")),
+      secondaryNumber = Some(PhoneNumber("07123456789")),
       address = Some(
         Address(line1 = "99",
           line2 = Some("Wibble Rd"),
@@ -86,8 +87,22 @@ trait TestData {
     location = None
   )
 
+  val testAddressLookupResponseIncorrectUprnModel : LookedUpAddressWrapper = LookedUpAddressWrapper (
+    id = "GB690091234501",
+    uprn = Uprn(6900912),
+    address =
+      LookedUpAddress(
+        lines = Seq("1 Test Street"),
+        town = "Testtown",
+        county = None,
+        postcode = "AA00 0AA"
+      ),
+    language = "English",
+    location = None
+  )
 
-  val contactNumberModel: ContactNumber = ContactNumber("0300 200 3310")
+
+  val contactNumberModel: PhoneNumber = PhoneNumber("0300 200 3310")
   val nameModel: Name = Name("Lovely Fella")
   val ninoModel: Nino = Nino("AA000003D")
 

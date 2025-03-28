@@ -20,7 +20,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Address
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ManualAddressView
 
 class ManualAddressViewSpec extends ViewBaseSpec {

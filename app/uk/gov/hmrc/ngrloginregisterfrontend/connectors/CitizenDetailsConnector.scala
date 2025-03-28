@@ -21,12 +21,13 @@ import play.api.http.Status.{BAD_REQUEST, OK}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, Nino}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, PersonDetails}
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 
 import scala.concurrent.Future
 import play.api.libs.json._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

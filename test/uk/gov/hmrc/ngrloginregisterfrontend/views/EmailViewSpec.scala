@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 
 class EmailViewSpec  extends ViewBaseSpec {
@@ -87,6 +87,22 @@ class EmailViewSpec  extends ViewBaseSpec {
       val form = Email
         .form()
         .fillAndValidate(Email("test@testuser.comtest@testUser.com"))
+      val htmlApply = emailView.apply(form).body
+      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+      elementText(Selectors.emailLabel) mustBe emailLabel
+    }
+
+    "show invalid contact email error correctly when email exceeds length" in {
+      val form = Email
+        .form()
+        .fillAndValidate(Email("123456789123456789123456789123456789@testuser@testUser.com"))
       val htmlApply = emailView.apply(form).body
       val htmlRender = emailView.render(form, request, messages, mockConfig).body
       htmlApply mustBe htmlRender

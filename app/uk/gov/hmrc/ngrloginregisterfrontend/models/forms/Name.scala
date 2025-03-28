@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models
+package uk.gov.hmrc.ngrloginregisterfrontend.models.forms
 
 import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
 
 final case class Name(value: String)
 

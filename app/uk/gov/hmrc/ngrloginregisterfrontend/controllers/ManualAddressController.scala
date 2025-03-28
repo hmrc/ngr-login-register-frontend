@@ -23,10 +23,11 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, Postcode}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ManualAddressView
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Address.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 

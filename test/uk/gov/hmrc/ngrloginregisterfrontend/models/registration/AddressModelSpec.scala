@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Address
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 
 class AddressModelSpec extends TestSupport with TestData {
 

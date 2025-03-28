@@ -29,8 +29,9 @@ import play.api.test.{FakeRequest, Injecting}
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Email, Link, NGRSummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Link, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 
 trait ViewBaseSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting with BeforeAndAfterEach with Matchers with TestData {
   def injector: Injector = app.injector

@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Name
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NameView
 
 class NameViewSpec  extends ViewBaseSpec {

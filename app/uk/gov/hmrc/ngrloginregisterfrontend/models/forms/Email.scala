@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models
+package uk.gov.hmrc.ngrloginregisterfrontend.models.forms
 
 import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.CommonFormValidators
 
 final case class Email(value: String) {
   override def toString: String = value
-  private val emailRegex = """[a-zA-Z0-9]+([-+.'][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*\.[a-zA-Z0-9]+([-.][a-zA-Z0-9]+)*"""
-  def isValidEmail: Boolean = value.matches(emailRegex)
 }
 
 object Email extends CommonFormValidators {
   implicit val format: Format[Email] = Json.format[Email]
-  lazy val emailEmptyError          = "email.empty.error"
-  lazy val emailInvalidFormat       = "email.invalidFormat.error"
-  val maxLength                     = 24
-  val email                   = "email-value"
+  lazy val emailEmptyError           = "email.empty.error"
+  lazy val emailInvalidFormat        = "email.invalidFormat.error"
+  val email                          = "email-value"
 
   def form(): Form[Email] =
     Form(
@@ -41,6 +37,7 @@ object Email extends CommonFormValidators {
           .verifying(
             firstError(
               isNotEmpty(email, emailEmptyError),
+              maxLength(24, emailInvalidFormat),
               regexp(emailPattern.pattern(), emailInvalidFormat)
             )
           )

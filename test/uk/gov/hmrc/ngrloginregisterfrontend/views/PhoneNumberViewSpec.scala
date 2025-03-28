@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
-import uk.gov.hmrc.ngrloginregisterfrontend.models.PhoneNumber
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 
 class PhoneNumberViewSpec extends ViewBaseSpec {
