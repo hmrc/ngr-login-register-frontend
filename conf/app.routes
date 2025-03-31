@@ -30,4 +30,6 @@ GET        /feature-not-implemented             uk.gov.hmrc.ngrloginregisterfron
 GET        /check-answers                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckYourAnswersController.show
 GET        /manual-find-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ManualAddressController.show(mode: String)
 POST       /manual-find-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ManualAddressController.submit(mode: String)
-GET        /recovery-complete                   uk.gov.hmrc.ngrloginregisterfrontend.controllers..RegistrationCompleteController.show(recoveryId:Option[String])
+GET        /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.show(recoveryId:Option[String])
+POST       /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.submit(recoveryId:Option[String])
+

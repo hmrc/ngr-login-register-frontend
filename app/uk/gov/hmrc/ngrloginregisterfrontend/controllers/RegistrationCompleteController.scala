@@ -35,13 +35,13 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
                                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
 
 
-  def show(RecoveryId: Option[String]):  Action[AnyContent] =
+  def show(recoveryId: Option[String]):  Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val email = ratepayer.ratepayerRegistration.flatMap(_.email).map(_.value).getOrElse("")
-          Future.successful(Ok(view(RecoveryId, email)))
+          Future.successful(Ok(view(recoveryId, email)))
 
         case None =>
               Future.successful(Redirect(routes.EmailController.show))
@@ -49,7 +49,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
   }
 
   //this will redirect to the dashboard
-  def submit() : Action[AnyContent] =
+  def submit(recoveryId: Option[String]) : Action[AnyContent] =
     Action.async {
       Future.successful(Redirect(routes.StartController.show))
     }

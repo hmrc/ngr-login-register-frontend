@@ -20,9 +20,9 @@
 
 
 @this(layout: Layout,
-govukPanel: uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel,
-      button: uk.gov.hmrc.govukfrontend.views.html.components.GovukButton,
-    appConfig: AppConfig
+      govukPanel: GovukPanel,
+      formHelper: FormWithCSRF,
+      saveAndContinueButton: saveAndContinueButton
 )
 
 @(recoveryId: Option[String], email: String)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
@@ -38,24 +38,27 @@ govukPanel: uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel,
 
 @layout(pageTitle = Some(messages("registrationComplete.title"))) {
 
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.RegistrationCompleteController.submit(recoveryId), Symbol("autoComplete") -> "off") {
+
 @govukPanel(Panel(
 title = Text(Messages("registrationComplete.title")),
 content = HtmlContent(panelContent)
 ))
 
 <p class="govuk-body govuk-!-display-none-print">
-    <a href="javascript:window.print()" class="govuk-link">@Messages("success.page.print-link.mods")</a>
+    <a href="javascript:window.print()" class="govuk-link">@Messages("registrationComplete.printLink")</a>
 </p>
 
 <p class="govuk-body">@Messages("registrationComplete.p2", email)</p>
 <p class="govuk-body">@Messages("registrationComplete.p3")</p>
 
-<p class="govuk-body">@Messages("registrationComplete.p4")</p>
+<p class="govuk-body">@Messages("registrationComplete.p4", recoveryId.getOrElse(""))</p>
 
-<h1 class="govuk-header">@Messages("registrationComplete.h1")</h1>
+<h2 class="govuk-heading-m">@Messages("registrationComplete.h1")</h2>
 
 <p class="govuk-body">@Messages("registrationComplete.p5")</p>
 
-@button
+@saveAndContinueButton(msg = messages("registrationComplete.button"), isStartButton = false)
 
+}
 }
