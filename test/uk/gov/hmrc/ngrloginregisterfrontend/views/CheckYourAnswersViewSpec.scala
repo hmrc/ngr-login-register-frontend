@@ -40,6 +40,7 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
   lazy val trnSummaryList: SummaryList = SummaryList(Seq(summarise(NGRSummaryListRow("Self Assessment Unique Taxpayer Reference", None, Seq.empty, Some(Link(Call("GET", routes.ConfirmUTRController.show.url), "sautr-linkid", provideTRN))))))
 
   val heading = "Register for the business rates valuation service"
+  val backLink = "Back"
   val pageTitle = "Check your answers"
   val body1 = "Contact details"
   val body1ContentTitle = "This account is registered to name"
@@ -56,6 +57,7 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
   val continue = "Accept and register"
 
   object Selectors {
+    val backLink = "body > div > a"
     val heading = "#main-content > div > div > span"
     val pageTitle = "#main-content > div > div > h1"
     val body1 = "#main-content > div > div > h2:nth-child(3)"
@@ -95,6 +97,7 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
         lazy implicit val document: Document = Jsoup.parse(view.body)
         elementText(Selectors.heading) mustBe heading
         elementText(Selectors.pageTitle) mustBe pageTitle
+        elementText(Selectors.backLink) mustBe backLink
         elementText(Selectors.body1) mustBe body1
         elementText(Selectors.body1ContentTitle) mustBe body1ContentTitle
         elementText(Selectors.body2) mustBe body2
