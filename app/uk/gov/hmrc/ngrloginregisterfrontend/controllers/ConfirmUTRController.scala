@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
@@ -55,7 +56,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
               details.saUtr
                 .map(utr => {
                   savedUtr = utr.value
-                  Future.successful(Ok(view(form(), summaryList(maskString(savedUtr, 3)), radios())))
+                  Future.successful(Ok(view(form(), summaryList(maskString(savedUtr, 3)), radios(form()))))
                 })
                 .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
           }
@@ -76,8 +77,8 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
     ))
   }
 
-  private def radios()(implicit  messages: Messages): Radios = {
-    NGRRadio.buildRadios(form = form(), NGRRadios = NGRRadio(
+  private def radios(form: Form[ConfirmUTR])(implicit  messages: Messages): Radios = {
+    NGRRadio.buildRadios(form = form, NGRRadios = NGRRadio(
       radioGroupName = NGRRadioName(ConfirmUTR.formName),
       NGRRadioButtons = Seq(
         NGRRadioButtons(radioContent = messages("confirmUtr.yesProvide"), radioValue = Yes(savedUtr)),
@@ -93,7 +94,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskSAUTR(savedUtr)), radios()))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskSAUTR(savedUtr)), radios(formWithErrors)))),
           utrChoice => {
             request.credId match {
               case Some(credId) =>
