@@ -27,7 +27,7 @@ saveAndContinueButton: saveAndContinueButton
 
 @(contactSummaryList: SummaryList, taxReferenceSummaryList: SummaryList, name: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("checkYourAnswers.pageTitle")), showBackLink = false) {
+@layout(pageTitle = Some(messages("checkYourAnswers.pageTitle"))) {
 <span class="govuk-caption-l">@messages("startView.heading")</span>
 <h1 class="govuk-heading-l">@messages("checkYourAnswers.pageTitle")</h1>
 <h2 class="govuk-heading-m">@messages("checkYourAnswers.body.1")</h2>
