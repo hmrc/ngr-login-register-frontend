@@ -29,7 +29,7 @@ govukPanel: uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel,
 
 @panelContent = {
 @Messages("registrationComplete.title")
-<br><strong>@Messages("registrationComplete.p1", recoveryId.getOrElse(""))</strong>
+<br><strong>@Messages("registrationComplete.p1", recoveryId.getOrElse("TestRecoveryId"))</strong>
 }
 
 @buttonContent = {
@@ -47,7 +47,7 @@ content = HtmlContent(panelContent)
     <a href="javascript:window.print()" class="govuk-link">@Messages("success.page.print-link.mods")</a>
 </p>
 
-<p class="govuk-body">@Messages("registrationComplete.p2", email.getOrElse(""))</p>
+<p class="govuk-body">@Messages("registrationComplete.p2", email)</p>
 <p class="govuk-body">@Messages("registrationComplete.p3")</p>
 
 <p class="govuk-body">@Messages("registrationComplete.p4")</p>
