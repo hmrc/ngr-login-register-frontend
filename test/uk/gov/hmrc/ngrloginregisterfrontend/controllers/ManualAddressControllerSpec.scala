@@ -29,8 +29,9 @@ import uk.gov.hmrc.http.{BadRequestException, HeaderNames}
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupErrorResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupResponseModel, LookedUpAddressWrapper}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Address, AuthenticatedUserRequest, Postcode, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Postcode, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.{FindAddressView, ManualAddressView}
 
 import scala.concurrent.Future

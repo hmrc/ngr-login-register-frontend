@@ -17,7 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models.cid
 
 import play.api.libs.json.{Format, Json, OFormat}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 
 import java.time.LocalDate
 

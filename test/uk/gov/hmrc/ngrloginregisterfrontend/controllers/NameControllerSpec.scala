@@ -24,9 +24,10 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NameView
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Name, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, RatepayerRegistration}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 
 import scala.concurrent.Future

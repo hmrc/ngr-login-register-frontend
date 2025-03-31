@@ -18,10 +18,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 
 class EmailSpec extends TestSupport with TestData{
-
   "Email model" should {
     "serialise into json" in {
       Json.toJson(emailModel) mustBe emailJson
@@ -30,28 +29,4 @@ class EmailSpec extends TestSupport with TestData{
       emailJson.as[Email] mustBe emailModel
     }
   }
-
-  "Calling the isValidEmail" should {
-    "return true if a valid email passed" in {
-      val email = Email("test@digital.hmrc.gov.uk").isValidEmail
-      email mustBe true
-    }
-    "return false if the email does not contain the domain" in {
-      val email = Email("aaaa@aaaa").isValidEmail
-      email mustBe false
-    }
-    "return false if the email contains special characters" in {
-      val email = Email("test@digital.hmrc.gov.uk/.;'';[;").isValidEmail
-      email mustBe false
-    }
-    "return false if the email only contains first half" in {
-      val email = Email("test").isValidEmail
-      email mustBe false
-    }
-    "return false if the email only contains the second half" in {
-      val email = Email("@digital.hmrc.gov.uk").isValidEmail
-      email mustBe false
-    }
-  }
-
 }

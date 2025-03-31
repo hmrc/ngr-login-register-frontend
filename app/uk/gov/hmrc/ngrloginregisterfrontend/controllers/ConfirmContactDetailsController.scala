@@ -24,6 +24,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector,
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView

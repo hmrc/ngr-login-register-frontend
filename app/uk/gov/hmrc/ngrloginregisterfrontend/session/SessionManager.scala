@@ -20,6 +20,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -50,7 +51,7 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
     val lineSeq = address.lines.splitAt(splitIndex)
     val line1 = lineSeq._1.mkString(", ")
     val line2 = if (lineSeq._2.isEmpty) None else Some(lineSeq._2.mkString(", "))
-    val ngrAddress = uk.gov.hmrc.ngrloginregisterfrontend.models.Address(
+    val ngrAddress = Address(
       line1, line2, address.town,None, Postcode(address.postcode))
     updateSession(session, chosenAddressIdKey, Json.toJson(ngrAddress).toString())
   }
