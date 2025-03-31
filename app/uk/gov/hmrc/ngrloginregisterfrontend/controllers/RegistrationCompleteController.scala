@@ -20,16 +20,38 @@ import com.google.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Email
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.RegistrationCompleteView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import scala.concurrent.{ExecutionContext, Future}
+
 
 class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
-                                               mcc: MessagesControllerComponents)(implicit appConfig: AppConfig)extends FrontendController(mcc) with I18nSupport {
+                                               authenticate: AuthJourney,
+                                               connector: NGRConnector,
+                                               mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
 
 
-  def show(RecoveryId: Option[String]): Action[AnyContent] = Action { implicit request =>
-    Ok(view(RecoveryId))
+  def show(RecoveryId: Option[String]):  Action[AnyContent] =
+    authenticate.authWithUserDetails.async { implicit request =>
+      val credId = CredId(request.credId.getOrElse(""))
+      connector.getRatepayer(credId).flatMap {
+        case Some(ratepayer) =>
+          val email = ratepayer.ratepayerRegistration.flatMap(_.email).map(_.value).getOrElse("")
+          Future.successful(Ok(view(RecoveryId, email)))
+
+        case None =>
+              Future.successful(Redirect(routes.EmailController.show))
+      }
   }
+
+  //this will redirect to the dashboard
+  def submit() : Action[AnyContent] =
+    Action.async {
+      Future.successful(Redirect(routes.StartController.show))
+    }
+
 }
