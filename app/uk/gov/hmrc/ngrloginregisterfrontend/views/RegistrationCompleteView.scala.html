@@ -28,8 +28,7 @@
 @(recoveryId: Option[String], email: String)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
 
 @panelContent = {
-@Messages("registrationComplete.title")
-<br><strong>@Messages("registrationComplete.p1", recoveryId.getOrElse("TestRecoveryId"))</strong>
+@Messages("registrationComplete.p1") <strong>@recoveryId.getOrElse("TestRecoveryId")</strong>
 }
 
 @buttonContent = {

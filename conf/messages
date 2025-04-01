@@ -145,7 +145,7 @@ ManualAddressSearch.postalCode.error.invalid = Provide a real UK postcode
 ManualAddressSearch.button = Find address
 
 registrationComplete.title    = Registration Successful
-registrationComplete.p1       = Your service recovery number is {0}
+registrationComplete.p1       = Your service recovery number is
 registrationComplete.p2       = We’ve sent details about this registration to {0}
 registrationComplete.p3       = We’ve also sent a welcome email which has a guide to using this account.
 registrationComplete.p4       = Your service recovery number is {0}. You will need this if you have a problem signing in to the service using Government Gateway.

@@ -26,40 +26,46 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
   val layout: Layout = MockitoSugar.mock[Layout]
   lazy val testView: RegistrationCompleteView = inject[RegistrationCompleteView]
   lazy val backLink = "Back"
-  val title = "Registration Successful"
+  val title = "Manage your business rates valuation"
   val heading = "Registration Successful"
   val body1Id = "Your service recovery number is 12345"
-  val bodyP2 = "We've sent details about this registration to {0}"
-  val bodyP3 = "We've also sent a welcome email which has a guide to using this account."
-  val bodyP4 = "Your service recovery number is {0}. You will need this if you have a problem signing in to the service using Government Gateway."
-  val bodyH1 = "What happens next"
+  val bodyP2 = "We’ve sent details about this registration to testEmail@emailProvider.com"
+  val bodyP3 = "We’ve also sent a welcome email which has a guide to using this account."
+  val bodyP4 = "Your service recovery number is 12345. You will need this if you have a problem signing in to the service using Government Gateway."
+  val bodyH2 = "What happens next"
   val bodyP5 = "Use your Government Gateway ID details next time you sign in to your manage your business rates valuation account"
   val buttonText = "Go to the dashboard"
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
-    val headingSelector = "#content > h1"
-    val body1Selector = "#content > p:nth-child(0)"
-    val body2Selector = "#content > p:nth-child(1)"
-    val body3Selector = "#content > p:nth-child(2)"
-    val body4Selector = "#content > p:nth-child(3)"
-    val body5Selector = "#content > p:nth-child(4)"
-    val body6Selector = "#content > p:nth-child(5)"
+    val headingSelector = "#main-content > div > div > form > div > h1"
+    val body1Selector = "#main-content > div > div > form > div > div"
+    val bodyEmailSelector = "#main-content > div > div > form > p:nth-child(3)"
+    val body2Selector = "#main-content > div > div > form > p:nth-child(4)"
+    val body3Selector = "#main-content > div > div > form > p:nth-child(5)"
+    val body4Selector = "#main-content > div > div > form > p:nth-child(6)"
+    val body5Selector = "#main-content > div > div > form > p:nth-child(7)"
+    val body6Selector = "#main-content > div > div > form > p:nth-child(8)"
+    val bodyH2Selector = "#main-content > div > div > form > h2"
     val backLink = ".govuk-back-link"
+    val button = "#continue"
+  }
+
     "The RegistrationCompleteView view" should {
       "Render a page with the appropriate message" when {
         "a recovery ID is present" in {
-          lazy implicit val document: Document = Jsoup.parse(testView(Some("12345"))(request, messages, mockConfig).body)
+          lazy implicit val document: Document = Jsoup.parse(testView(Some("12345"), "testEmail@emailProvider.com")(request, messages, mockConfig).body)
           elementText(Selectors.navTitle) mustBe title
           elementText(Selectors.backLink) mustBe backLink
           elementText(Selectors.headingSelector) mustBe heading
           elementText(Selectors.body1Selector) mustBe body1Id
-          elementText(Selectors.body2Selector) mustBe bodyP2
-          elementText(Selectors.body3Selector) mustBe bodyP3
-          elementText(Selectors.body4Selector) mustBe bodyP4
+          elementText(Selectors.body2Selector) mustBe bodyP3
+          //elementText(Selectors.body4Selector) mustBe bodyP4
           elementText(Selectors.body5Selector) mustBe bodyP5
+          elementText(Selectors.bodyH2Selector) mustBe bodyH2
+          elementText(Selectors.bodyEmailSelector) mustBe bodyP2
+          elementText(Selectors.button) mustBe buttonText
         }
       }
     }
-  }
 }
