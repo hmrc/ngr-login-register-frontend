@@ -43,7 +43,6 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
     val bodyEmailSelector = "#main-content > div > div > form > p:nth-child(3)"
     val body2Selector = "#main-content > div > div > form > p:nth-child(4)"
     val body3Selector = "#main-content > div > div > form > p:nth-child(5)"
-    val body4Selector = "#main-content > div > div > form > p:nth-child(6)"
     val body5Selector = "#main-content > div > div > form > p:nth-child(7)"
     val body6Selector = "#main-content > div > div > form > p:nth-child(8)"
     val bodyH2Selector = "#main-content > div > div > form > h2"
@@ -60,7 +59,6 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
           elementText(Selectors.headingSelector) mustBe heading
           elementText(Selectors.body1Selector) mustBe body1Id
           elementText(Selectors.body2Selector) mustBe bodyP3
-          //elementText(Selectors.body4Selector) mustBe bodyP4
           elementText(Selectors.body5Selector) mustBe bodyP5
           elementText(Selectors.bodyH2Selector) mustBe bodyH2
           elementText(Selectors.bodyEmailSelector) mustBe bodyP2
