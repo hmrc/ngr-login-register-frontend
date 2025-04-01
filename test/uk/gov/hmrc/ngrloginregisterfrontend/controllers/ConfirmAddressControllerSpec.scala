@@ -60,17 +60,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
     }
 
     "method submit" must {
-      "Successfully submit when selected no" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
-          .withFormUrlEncodedBody(("confirm-address-radio", "No"))
-          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        result.map(result => {
-          result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
-        })
-        status(result) mustBe SEE_OTHER
-        verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
-      }
 
       "Direct to confirm your contact details when the chosen address doesn't exist" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
@@ -100,6 +89,17 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
           result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
+        })
+        status(result) mustBe SEE_OTHER
+        verify(mockNGRConnector, times(1)).changeAddress(any(), any())(any())
+      }
+      "Successfully submit when selected no" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+          .withFormUrlEncodedBody(("confirm-address-radio", "No"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/find-address")
         })
         status(result) mustBe SEE_OTHER
         verify(mockNGRConnector, times(1)).changeAddress(any(), any())(any())

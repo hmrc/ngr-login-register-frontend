@@ -32,6 +32,7 @@ object Nino extends CommonFormValidators {
 
   private lazy val ninoEmptyError    = "nino.empty.error"
   private lazy val ninoInvalidFormat = "nino.invalidFormat.error"
+  private lazy val ninoNotMatching   = "nino.notMatching.error"
   val nino                           = "nino-value"
 
   def form(authNino: String): Form[Nino] =
@@ -44,7 +45,7 @@ object Nino extends CommonFormValidators {
               regexp(ninoRegexPattern.pattern(), ninoInvalidFormat)
             )
           )
-          .verifying(isMatchingNino(authNino, nino,ninoInvalidFormat))
+          .verifying(isMatchingNino(authNino, nino,ninoNotMatching))
       )(Nino.apply)(Nino.unapply)
     )
 }
