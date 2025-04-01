@@ -44,7 +44,6 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
     val body2Selector = "#main-content > div > div > form > p:nth-child(4)"
     val body3Selector = "#main-content > div > div > form > p:nth-child(5)"
     val body5Selector = "#main-content > div > div > form > p:nth-child(7)"
-    val body6Selector = "#main-content > div > div > form > p:nth-child(8)"
     val bodyH2Selector = "#main-content > div > div > form > h2"
     val backLink = ".govuk-back-link"
     val button = "#continue"
@@ -58,11 +57,13 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
           elementText(Selectors.backLink) mustBe backLink
           elementText(Selectors.headingSelector) mustBe heading
           elementText(Selectors.body1Selector) mustBe body1Id
+          elementText(Selectors.bodyEmailSelector) mustBe bodyP2
           elementText(Selectors.body2Selector) mustBe bodyP3
+          elementText(Selectors.body3Selector) mustBe bodyP4
           elementText(Selectors.body5Selector) mustBe bodyP5
           elementText(Selectors.bodyH2Selector) mustBe bodyH2
-          elementText(Selectors.bodyEmailSelector) mustBe bodyP2
           elementText(Selectors.button) mustBe buttonText
+
         }
       }
     }
