@@ -44,7 +44,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
           Future.successful(Ok(view(recoveryId, email)))
 
         case None =>
-              Future.successful(Redirect(routes.EmailController.show))
+          Future.failed(new RuntimeException("Can not find ratepayer email in the database"))
       }
   }
 

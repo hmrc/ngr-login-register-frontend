@@ -62,6 +62,14 @@ class RegistrationCompleteControllerSpec extends ControllerSpecSupport {
         val content = contentAsString(result)
         content must include(pageTitle1)
       }
+      "throw exception when email is not found " in {
+        when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
+
+        val exception = intercept[RuntimeException] {
+          controller().show(Some("12345xyz"))(authenticatedFakeRequest).futureValue
+        }
+        exception.getMessage must include("Can not find ratepayer email in the database")
+      }
     }
     "method submit" must {
       "Return SEE_OTHER" in {
