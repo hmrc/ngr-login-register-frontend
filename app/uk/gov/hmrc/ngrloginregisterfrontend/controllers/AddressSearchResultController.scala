@@ -63,12 +63,15 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
         TableData(headers = Seq(TableHeader("Address", "govuk-table__caption--m", colspan = Some(2))), rows = zipWithIndex(page, defaultPageSize, addressList.address).map(stringValue => Seq(TableRowText(stringValue._1), TableRowLink(stringValue._2, "Select Property")))).toTable
       }
 
+       def pageBottom: Int = PaginationData.pageBottom(currentPage = page, pageSize = defaultPageSize)
+       def pageTop: Int = PaginationData.pageTop(currentPage = page, pageSize = defaultPageSize, address.length)
+
       Future.successful(Ok(view(
         postcode = postcode,
         paginationData = PaginationData(totalPages = totalPages, currentPage = page, baseUrl = "/ngr-login-register-frontend/address-search-results", pageSize = defaultPageSize),
         totalAddress = address.length,
-        pageTop = PaginationData.pageTop(currentPage = page, pageSize = defaultPageSize, address.length),
-        pageBottom = PaginationData.pageBottom(currentPage = page, pageSize = defaultPageSize) + 1,
+        pageTop = pageTop,
+        pageBottom = pageBottom + (if (pageTop == 0) 0 else 1),
         addressSearchResultTable = generateTable(AddressSearchResult(address)
        )
       )))
