@@ -37,28 +37,31 @@ class PhoneNumberController @Inject()(
                                        authenticate: AuthJourney,
                                        mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
-  def show: Action[AnyContent] = {
+  def show(mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap { ratepayerRegistrationValuation =>
         ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
           contactNumber => contactNumber.contactNumber.map(
           number =>
-          Future.successful(Ok(phoneNumberView(form().fill(PhoneNumber(number.value))))
-        ))).getOrElse(Future.successful(Ok(phoneNumberView(form()))))
+          Future.successful(Ok(phoneNumberView(form().fill(PhoneNumber(number.value)), mode))
+        ))).getOrElse(Future.successful(Ok(phoneNumberView(form(), mode))))
       }
     }
   }
 
 
-  def submit(): Action[AnyContent] =
+  def submit(mode: String): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       PhoneNumber.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors, mode))),
           phoneNumber => {
             connector.changePhoneNumber(CredId(request.credId.getOrElse("")), PhoneNumber(phoneNumber.value))
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+            if (mode.equals("CYA"))
+              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+            else
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }

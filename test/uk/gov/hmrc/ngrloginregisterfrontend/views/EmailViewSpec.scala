@@ -47,7 +47,7 @@ class EmailViewSpec  extends ViewBaseSpec {
     val form = Email
       .form()
       .fillAndValidate(Email("test@testuser.com"))
-    lazy val htmlF = emailView.f(form)(request, messages, mockConfig)
+    lazy val htmlF = emailView.f(form, confirmContactDetailsMode)(request, messages, mockConfig)
 
     "htmlF is not empty" in {
       htmlF.toString() must not be empty
@@ -57,10 +57,10 @@ class EmailViewSpec  extends ViewBaseSpec {
       val form = Email
         .form()
         .fillAndValidate(Email("test@testuser.com"))
-      val htmlApply = emailView.apply(form).body
-      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      val htmlApply = emailView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = emailView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(emailView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
@@ -72,10 +72,10 @@ class EmailViewSpec  extends ViewBaseSpec {
       val form = Email
         .form()
         .fillAndValidate(Email(""))
-      val htmlApply = emailView.apply(form).body
-      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      val htmlApply = emailView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = emailView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(emailView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
@@ -87,10 +87,10 @@ class EmailViewSpec  extends ViewBaseSpec {
       val form = Email
         .form()
         .fillAndValidate(Email("test@testuser.comtest@testUser.com"))
-      val htmlApply = emailView.apply(form).body
-      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      val htmlApply = emailView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = emailView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(emailView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
@@ -103,10 +103,10 @@ class EmailViewSpec  extends ViewBaseSpec {
       val form = Email
         .form()
         .fillAndValidate(Email("123456789123456789123456789123456789@testuser@testUser.com"))
-      val htmlApply = emailView.apply(form).body
-      val htmlRender = emailView.render(form, request, messages, mockConfig).body
+      val htmlApply = emailView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = emailView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(emailView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(emailView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading

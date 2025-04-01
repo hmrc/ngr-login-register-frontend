@@ -43,18 +43,18 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
                                      )(implicit ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
 
-  def show: Action[AnyContent] = {
+  def show(mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(findAddressView(form())))
+      Future.successful(Ok(findAddressView(form(), mode)))
     }
   }
 
-  def submit(): Action[AnyContent] =
+  def submit(mode: String): Action[AnyContent] =
     Action.async { implicit request =>
       FindAddress.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(findAddressView(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(findAddressView(formWithErrors, mode))),
           findAddress => {
             addressLookupConnector.findAddressByPostcode(findAddress.postcode.value, findAddress.propertyName) map {
               case AddressLookupErrorResponse(e: BadRequestException) =>
@@ -64,7 +64,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
               case AddressLookupSuccessResponse(recordSet) =>
                 val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-                Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession)
+                Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)
             }
           })
     }

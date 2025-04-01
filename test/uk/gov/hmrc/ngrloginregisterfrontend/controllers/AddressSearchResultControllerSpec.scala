@@ -28,7 +28,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
 class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestData {
 
-  lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1).url
+  lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1, confirmContactDetailsMode).url
   lazy val addressSearchResultView: AddressSearchResultView = inject[AddressSearchResultView]
   lazy val addressResponseKey: String = mockSessionManager.addressLookupResponseKey
   val pageTitle = s"Search results for CH27RH"
@@ -50,7 +50,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
     "method show" must {
       "Return OK and the correct view when theirs 14 address on page 1" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
-        val result = controller().show()(authenticatedFakeRequestWithSession)
+        val result = controller().show(page = 1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must       include("Showing <strong>1</strong> to <strong>14</strong> of <strong>14</strong> items.")
@@ -60,7 +60,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
 
       "Correctly display page number and number for no address" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
-        val result = controller().show()(authenticatedFakeRequestWithSession)
+        val result = controller().show(page = 1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must       include("Showing <strong>0</strong> to <strong>0</strong> of <strong>0</strong> items.")
@@ -68,7 +68,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
 
       "Correctly display page number and number of address's on page 2" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
-        val result = controller().show(page = 2)(authenticatedFakeRequestWithSession)
+        val result = controller().show(page = 2, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -79,7 +79,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
 
       "Correctly display page number and number of address's on page 3" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
-        val result = controller().show(page = 3)(authenticatedFakeRequestWithSession)
+        val result = controller().show(page = 3, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -90,18 +90,27 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
     }
 
     "method selectedAddress" must {
-      "Return SEE OTHER and correctly store address to the session" in {
+      "Return SEE OTHER and correctly store address to the session with mode as confirm contact details" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
         when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
-        val result = controller().selectedAddress(1)(authenticatedFakeRequestWithSession)
+        val result = controller().selectedAddress(1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show.url)
+        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show(confirmContactDetailsMode).url)
       }
+
+      "Return SEE OTHER and correctly store address to the session with mode as check your answers" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
+        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
+        val result = controller().selectedAddress(1, checkYourAnswersMode)(authenticatedFakeRequestWithSession)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show(checkYourAnswersMode).url)
+      }
+
       "Address index out of bounds exception thrown" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
         when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
         val exception = intercept[RuntimeException] {
-          controller().selectedAddress(1)(authenticatedFakeRequestWithSession).futureValue
+          controller().selectedAddress(1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession).futureValue
         }
         exception.getMessage must include("Address not found at index")
       }

@@ -35,7 +35,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
 import scala.concurrent.Future
 
-class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with TestData with SummaryListHelper{
+class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with TestData with SummaryListHelper {
   lazy val view: ConfirmContactDetailsView = inject[ConfirmContactDetailsView]
   lazy val citizenDetailsConnector: CitizenDetailsConnector = inject[CitizenDetailsConnector]
   val noNinoAuth: AuthenticatedUserRequest[AnyContentAsEmpty.type] = AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(hasNino = false, None))
@@ -118,23 +118,27 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
 
     "will create summary rows from ratepayer registration model correctly" in {
       val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel))
-      val summaryList = createContactDetailSummaryRows(ratepayer)
+      val summaryList = createContactDetailSummaryRows(ratepayer, confirmContactDetailsMode)
       val rows: Seq[SummaryListRow] = summaryList.rows
       rows.length shouldBe 4
       rows(0).value.content.toString must include("John Doe")
+      rows(0).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/name?mode=$confirmContactDetailsMode"
       rows(1).value.content.toString must include("JohnDoe@digital.hmrc.gov.uk")
+      rows(1).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/change-email?mode=$confirmContactDetailsMode"
       rows(2).value.content.toString must include("07123456789")
+      rows(2).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/phone-number?mode=$confirmContactDetailsMode"
       rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA")
+      rows(3).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/find-address?mode=$confirmContactDetailsMode"
     }
 
     "will create summary rows from ratepayer registration model correctly with add link for phone number" in {
       val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel.copy(contactNumber = None)))
-      val summaryList = createContactDetailSummaryRows(ratepayer)
+      val summaryList = createContactDetailSummaryRows(ratepayer, confirmContactDetailsMode)
       val rows: Seq[SummaryListRow] = summaryList.rows
       rows.length shouldBe 4
       rows(0).value.content.toString must include("John Doe")
       rows(1).value.content.toString must include("JohnDoe@digital.hmrc.gov.uk")
-      rows(2).value.content.toString must include("<a id=\"number-linkid\" href=\"/ngr-login-register-frontend/phone-number\" class=\"govuk-link\">Add</a>")
+      rows(2).value.content.toString must include(s"<a id=\"number-linkid\" href=\"/ngr-login-register-frontend/phone-number?mode=$confirmContactDetailsMode\" class=\"govuk-link\">Add</a>")
       rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA")
     }
 

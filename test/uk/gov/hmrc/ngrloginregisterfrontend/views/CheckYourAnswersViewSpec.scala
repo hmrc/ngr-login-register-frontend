@@ -36,7 +36,7 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
   val layout: Layout = MockitoSugar.mock[Layout]
   val button: saveAndContinueButton = mock[saveAndContinueButton]
   val injectedView: CheckYourAnswersView = injector.instanceOf[CheckYourAnswersView]
-  lazy val contactDetailsSummaryList: SummaryList = createContactDetailSummaryRows(RatepayerRegistrationValuation(CredId("12345"), Some(testRegistrationModel)))
+  lazy val contactDetailsSummaryList: SummaryList = createContactDetailSummaryRows(RatepayerRegistrationValuation(CredId("12345"), Some(testRegistrationModel)), checkYourAnswersMode)
   lazy val trnSummaryList: SummaryList = SummaryList(Seq(summarise(NGRSummaryListRow("Self Assessment Unique Taxpayer Reference", None, Seq.empty, Some(Link(Call("GET", routes.ConfirmUTRController.show.url), "sautr-linkid", provideTRN))))))
 
   val heading = "Register for the business rates valuation service"

@@ -43,7 +43,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
                                        )(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
-  def show(): Action[AnyContent] = {
+  def show(mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val addressForm = ratepayerOpt
@@ -56,18 +56,18 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
             county = None,
             postcode = address.postcode)))
           .getOrElse(form())
-        Ok(addressView(addressForm))
+        Ok(addressView(addressForm, mode))
       }
     }
   }
 
-  def submit(): Action[AnyContent] =
+  def submit(mode: String): Action[AnyContent] =
     Action.async { implicit request =>
       Address.form()
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(BadRequest(addressView(formWithErrors))),
+            Future.successful(BadRequest(addressView(formWithErrors, mode))),
           findAddress => {
             addressLookupConnector.findAddressByPostcode(findAddress.postcode.value, Some((findAddress.line1 + " " +  findAddress.line2 + " " +  findAddress.town + " " +  findAddress.county).replace("None", ""))) map {
               case AddressLookupErrorResponse(e: BadRequestException) =>
@@ -77,7 +77,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
               case AddressLookupSuccessResponse(recordSet) =>
                 val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-                Redirect(routes.AddressSearchResultController.show(page = 1)).withSession(addressAndPostcodeSession)
+                Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)
             }
           })
     }

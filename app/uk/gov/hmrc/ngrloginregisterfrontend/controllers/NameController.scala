@@ -36,7 +36,7 @@ class NameController  @Inject()(
                                  authenticate: AuthJourney,
                                  mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
-  def show: Action[AnyContent] = {
+  def show(mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val nameForm = ratepayerOpt
@@ -44,20 +44,23 @@ class NameController  @Inject()(
           .flatMap(_.name)
           .map(name => form().fill(Name(name.value)))
           .getOrElse(form())
-        Ok(nameView(nameForm))
+        Ok(nameView(nameForm, mode))
       }
     }
   }
 
-  def submit(): Action[AnyContent] =
+  def submit(mode: String): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       Name.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(nameView(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(nameView(formWithErrors, mode))),
           name => {
             connector.changeName(CredId(request.credId.getOrElse("")), name)
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+            if (mode.equals("CYA"))
+              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+            else
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }

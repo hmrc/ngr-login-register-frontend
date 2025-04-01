@@ -50,7 +50,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer), name)))
+          Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "CCD"), name)))
 
         case None =>
           citizenDetailsConnector.getPersonDetails(authNino).flatMap {
@@ -69,7 +69,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
               val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
 
               connector.upsertRatepayer(ratepayerData).map { _ =>
-                Ok(view(createContactDetailSummaryRows(ratepayerData), nameValue))
+                Ok(view(createContactDetailSummaryRows(ratepayerData, "CCD"), nameValue))
               }
           }
       }

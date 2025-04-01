@@ -33,10 +33,10 @@
  saveAndContinueButton: saveAndContinueButton
 )
 
-@(phoneForm: Form[PhoneNumber])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(phoneForm: Form[PhoneNumber], mode: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = Some(messages("phoneNumber.pageTitle"))) {
-@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.PhoneNumberController.submit, Symbol("autoComplete") -> "off") {
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.PhoneNumberController.submit(mode), Symbol("autoComplete") -> "off") {
  @if(phoneForm.errors.nonEmpty) {
   @govukErrorSummary(ErrorSummaryViewModel(phoneForm))
  }

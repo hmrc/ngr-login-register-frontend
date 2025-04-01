@@ -46,7 +46,7 @@ class NameViewSpec  extends ViewBaseSpec {
     val form = Name
       .form()
       .fillAndValidate(Name("Jake"))
-    lazy val htmlF = nameView.f(form)(request, messages, mockConfig)
+    lazy val htmlF = nameView.f(form, confirmContactDetailsMode)(request, messages, mockConfig)
 
     "htmlF is not empty" in {
       htmlF.toString() must not be empty
@@ -56,10 +56,10 @@ class NameViewSpec  extends ViewBaseSpec {
       val form = Name
         .form()
         .fillAndValidate(Name("Jake"))
-      val htmlApply = nameView.apply(form).body
-      val htmlRender = nameView.render(form, request, messages, mockConfig).body
+      val htmlApply = nameView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = nameView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(nameView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(nameView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
@@ -70,10 +70,10 @@ class NameViewSpec  extends ViewBaseSpec {
       val form = Name
         .form()
         .fillAndValidate(Name(""))
-      val htmlApply = nameView.apply(form).body
-      val htmlRender = nameView.render(form, request, messages, mockConfig).body
+      val htmlApply = nameView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = nameView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(nameView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(nameView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
@@ -85,10 +85,10 @@ class NameViewSpec  extends ViewBaseSpec {
       val form = Name
         .form()
         .fillAndValidate(Name("!name"))
-      val htmlApply = nameView.apply(form).body
-      val htmlRender = nameView.render(form, request, messages, mockConfig).body
+      val htmlApply = nameView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = nameView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(nameView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(nameView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading
@@ -100,10 +100,10 @@ class NameViewSpec  extends ViewBaseSpec {
       val form = Name
         .form()
         .fillAndValidate(Name("Scala source code can be compiled to Java bytecode and run on a Java virtual machine JVM. Scala can also be transpiled to JavaScript to run in a browser or compiled directly to a native executable. When running on the JVM Scala provides language interoperability"))
-      val htmlApply = nameView.apply(form).body
-      val htmlRender = nameView.render(form, request, messages, mockConfig).body
+      val htmlApply = nameView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = nameView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(nameView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(nameView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading)   mustBe heading

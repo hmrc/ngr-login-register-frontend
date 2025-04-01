@@ -33,7 +33,7 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData with Summ
   val layout: Layout = MockitoSugar.mock[Layout]
   val button: saveAndContinueButton = mock[saveAndContinueButton]
   val injectedView: ConfirmContactDetailsView = injector.instanceOf[ConfirmContactDetailsView]
-  val summaryList: SummaryList = createContactDetailSummaryRows(RatepayerRegistrationValuation(CredId("12345"), Some(testRegistrationModel)))//controller.createSummaryRows(personDetailsResponse, AuthenticatedUserRequest(request, None, None, Some("yes@ef.com"), None, None, None, Nino(hasNino = true, Some(""))))
+  val summaryList: SummaryList = createContactDetailSummaryRows(RatepayerRegistrationValuation(CredId("12345"), Some(testRegistrationModel)), confirmContactDetailsMode)
   lazy val controller: ConfirmContactDetailsController = inject[ConfirmContactDetailsController]
 
   val navTitle = "Manage your business rates valuation"

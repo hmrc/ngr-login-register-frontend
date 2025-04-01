@@ -37,7 +37,7 @@ class EmailController @Inject()(emailView: EmailView,
                                )(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
-  def show: Action[AnyContent] = {
+  def show(mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val emailForm = ratepayerOpt
@@ -46,20 +46,23 @@ class EmailController @Inject()(emailView: EmailView,
           .map(email => form().fill(Email(email.value)))
           .getOrElse(form())
 
-        Ok(emailView(emailForm))
+        Ok(emailView(emailForm, mode))
       }
     }
   }
 
-  def submit(): Action[AnyContent] =
+  def submit(mode: String): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       Email.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(emailView(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(emailView(formWithErrors, mode))),
           email => {
             connector.changeEmail(CredId(request.credId.getOrElse("")), email)
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+            if (mode.equals("CYA"))
+              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+            else
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }

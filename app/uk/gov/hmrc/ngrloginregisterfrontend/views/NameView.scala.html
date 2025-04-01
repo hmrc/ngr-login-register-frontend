@@ -31,10 +31,10 @@
   saveAndContinueButton: saveAndContinueButton
 )
 
-@(nameForm: Form[Name])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(nameForm: Form[Name], mode: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = Some(messages("name.pageTitle"))) {
-  @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.NameController.submit, Symbol("autoComplete") -> "off") {
+  @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.NameController.submit(mode), Symbol("autoComplete") -> "off") {
     @if(nameForm.errors.nonEmpty) {
       @govukErrorSummary(ErrorSummaryViewModel(nameForm))
     }
