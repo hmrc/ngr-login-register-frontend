@@ -116,11 +116,11 @@ class NinoControllerSpec extends ControllerSpecSupport {
       }
 
       "Submit valid non matching nino display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "AA000003E")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
+        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.NinoController.submit).withFormUrlEncodedBody(("nino-value", "AA000003C")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = authNino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
-        content must include("Enter a National Insurance number in the correct format")
+        content must include("Enter a valid national insurance number")
       }
 
       "Submit with no nino and display error message" in {

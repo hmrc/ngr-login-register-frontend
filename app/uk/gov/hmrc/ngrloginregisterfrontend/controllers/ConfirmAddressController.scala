@@ -61,9 +61,10 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
               sessionManager.getSessionValue(request.session, sessionManager.chosenAddressIdKey)
                 .map(Json.parse(_).as[Address])
                 .map(connector.changeAddress(CredId(request.credId.getOrElse("")), _))
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+            }else{
+              Future.successful(Redirect(routes.FindAddressController.show))
             }
-
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }
