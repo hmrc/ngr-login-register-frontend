@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.hmrcfrontend.config.ContactFrontendConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardPage
 @import uk.gov.hmrc.govukfrontend.views.html.components._
@@ -29,7 +30,7 @@
     hmrcStandardPage: HmrcStandardPage,
     hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
     fullWidthLayout: FullWidthLayout,
-)
+)(implicit cfConfig: ContactFrontendConfig)
 
 @(pageTitle: Option[String] = None,
   showBackLink: Boolean = true,
@@ -58,7 +59,7 @@
 ),
     backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None,
     banners = Banners(
-    phaseBanner = Some(standardBetaBanner("appConfig.betaFeedbackUrl")),
+    phaseBanner = Some(standardBetaBanner()),
     ),
 )
 )(content)
