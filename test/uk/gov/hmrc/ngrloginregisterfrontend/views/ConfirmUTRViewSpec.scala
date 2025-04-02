@@ -33,7 +33,8 @@ class ConfirmUTRViewSpec extends ViewBaseSpec {
   lazy val controller: ConfirmUTRController = inject[ConfirmUTRController]
 
   val hint: String = "Register for the business rates valuation service"
-  val title: String = "Confirm your Self Assessment Unique Taxpayer Reference"
+  val title = "Confirm your Self Assessment Unique Taxpayer Reference - GOV.UK"
+  val head: String = "Confirm your Self Assessment Unique Taxpayer Reference"
   val body: String = "We will display the last 3 digits of your Unique Taxpayer Reference (UTR). You can provide this UTR to join up the accounts you use to pay tax."
   val sautr: String = "Self Assessment Unique Taxpayer Reference"
   val yes: String = "Yes, I want to provide this UTR"
@@ -42,8 +43,9 @@ class ConfirmUTRViewSpec extends ViewBaseSpec {
   val errorMessage: String = "Please select an option"
 
   object Selectors {
+    val title = "head > title"
     val hint: String = "#main-content > div > div > form > span"
-    val title: String = "#main-content > div > div > form > h1"
+    val heading: String = "#main-content > div > div > form > h1"
     val body: String = "#main-content > div > div > form > p"
     val sautr: String = "#main-content > div > div > form > dl > div > dt"
     val yes: String = "#main-content > div > div > form > div > div > div:nth-child(1) > label"
@@ -97,8 +99,9 @@ class ConfirmUTRViewSpec extends ViewBaseSpec {
       htmlApply mustBe htmlRender
       htmlF must not be empty
       lazy implicit val document: Document = Jsoup.parse(view(form, summaryList, radios)(request, messages, mockConfig).body)
-      elementText(Selectors.hint) mustBe hint
       elementText(Selectors.title) mustBe title
+      elementText(Selectors.hint) mustBe hint
+      elementText(Selectors.heading) mustBe head
       elementText(Selectors.body) mustBe body
       elementText(Selectors.sautr) mustBe sautr
       elementText(Selectors.yes) mustBe yes

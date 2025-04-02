@@ -31,6 +31,7 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
 
   lazy val confirmAddressView: ConfirmAddressView = inject[ConfirmAddressView]
   lazy val backLink = "Back"
+  lazy val title = "Do you want to use this address? - GOV.UK"
   lazy val content = "Register for the business rates valuation service"
   lazy val heading = "Do you want to use this address?"
   lazy val yesLabel = "Yes"
@@ -48,6 +49,7 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
   val radio: Radios = buildRadios(form, ngrRadio)
 
   object Selectors {
+    val title = "head > title"
     val caption = "#main-content > div > div > form > span"
     val heading = "#main-content > div > div > form > h1"
     val yesLabel = "#main-content > div > div > form > div > div > div:nth-child(1) > label"
@@ -73,6 +75,7 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
       htmlApply mustBe htmlRender
       htmlApply.contains(message) shouldBe true
       lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      elementText(Selectors.title) mustBe title
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -91,6 +94,7 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
       htmlApply mustBe htmlRender
       htmlApply.contains(message) shouldBe true
       lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      elementText(Selectors.title) mustBe title
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -107,6 +111,7 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
       htmlApply mustBe htmlRender
       htmlApply.contains(unselectedRadioMessage) shouldBe true
       lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      elementText(Selectors.title) mustBe title
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading

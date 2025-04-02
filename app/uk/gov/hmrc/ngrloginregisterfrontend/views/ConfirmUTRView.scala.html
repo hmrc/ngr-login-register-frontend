@@ -31,7 +31,7 @@ formHelper: FormWithCSRF
 
 @(form: Form[ConfirmUTR], summaryList: SummaryList, radios: Radios)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("confirmContactDetails.pageTitle")), showBackLink = true) {
+@layout(pageTitle = Some(messages("confirmUtr.pageTitle")), showBackLink = true) {
 
   @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmUTRController.submit, Symbol("autoComplete") -> "off") {
   @if(form.errors.nonEmpty) {
