@@ -87,7 +87,7 @@ AddressSearchResult.hint    = Showing {0} to {1} of {2} items.
 AddressSearchResult.search  = Search again
 AddressSearchResult.link    = Select property
 
-confirmAddress.pageTitle = Confirm Address
+confirmAddress.pageTitle = Do you want to use this address?
 confirmAddress.caption   = Register for the business rates valuation service
 confirmAddress.heading   = Do you want to use this address?
 confirmAddress.body = We will send all letters to this address
