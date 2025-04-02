@@ -26,10 +26,10 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 
 trait SummaryListHelper {
-  def createContactDetailSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList =
-    createContactDetailSummaryRows(ratepayerRegistrationValuation, "")
+  def createContactDetailSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation, mode: String)(implicit messages: Messages): SummaryList =
+    createContactDetailSummaryRows(ratepayerRegistrationValuation, mode, "")
 
-  def createContactDetailSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation, classes: String)(implicit messages: Messages): SummaryList = {
+  def createContactDetailSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation, mode: String, classes: String)(implicit messages: Messages): SummaryList = {
     val address = ratepayerRegistrationValuation.ratepayerRegistration
       .flatMap(_.address)
       .map(address => {
@@ -43,20 +43,20 @@ trait SummaryListHelper {
         .map(value => Seq(value.toString))
         .getOrElse(Seq.empty)
 
-    SummaryList(rows = deriveNGRSummaryRows(getValue(_.name.map(_.value)), getValue(_.email.map(_.value)), getValue(_.contactNumber.map(_.value)), address),
+    SummaryList(rows = deriveNGRSummaryRows(getValue(_.name.map(_.value)), getValue(_.email.map(_.value)), getValue(_.contactNumber.map(_.value)), address, mode),
       classes = classes)
   }
 
-  def deriveNGRSummaryRows(name: Seq[String], email: Seq[String], phone: Seq[String], address: Seq[String])(implicit messages: Messages): Seq[SummaryListRow] = {
+  private def deriveNGRSummaryRows(name: Seq[String], email: Seq[String], phone: Seq[String], address: Seq[String], mode: String)(implicit messages: Messages): Seq[SummaryListRow] = {
     def getUrl(route: String, linkId: String, messageKey: String): Option[Link] =
       Some(Link(Call("GET", route), linkId, messageKey))
 
     Seq(
-      NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, name, getUrl(routes.NameController.show.url, "name-linkid", "Change")),
-      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, email, getUrl(routes.EmailController.show.url, "email-linkid", "Change")),
-      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, phone, getUrl(routes.PhoneNumberController.show.url, "number-linkid",
+      NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, name, getUrl(routes.NameController.show(mode).url, "name-linkid", "Change")),
+      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, email, getUrl(routes.EmailController.show(mode).url, "email-linkid", "Change")),
+      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, phone, getUrl(routes.PhoneNumberController.show(mode).url, "number-linkid",
         if (phone.isEmpty) "confirmContactDetails.add" else "confirmContactDetails.change")),
-      NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")), address, getUrl(routes.FindAddressController.show.url, "address-linkid", "Change"))
+      NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")), address, getUrl(routes.FindAddressController.show(mode).url, "address-linkid", "Change"))
     ).map(summarise)
   }
 }

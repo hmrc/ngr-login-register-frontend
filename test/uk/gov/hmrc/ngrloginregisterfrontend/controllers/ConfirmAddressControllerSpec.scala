@@ -21,9 +21,9 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.Session
+import play.api.mvc.{Call, Session}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
@@ -32,7 +32,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
 
 class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSupport with TestData {
-  lazy val submitUrl: String = routes.ConfirmAddressController.submit.url
+  lazy val submitRoute: Call = routes.ConfirmAddressController.submit(confirmContactDetailsMode)
   lazy val chosenAddressIdKey: String = "NGR-Chosen-Address-Key"
   lazy val view: ConfirmAddressView = inject[ConfirmAddressView]
   val pageTitle = "Confirm Address"
@@ -52,7 +52,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
     "method show" must {
       "Return OK and the correct view" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
-        val result = controller().show()(authenticatedFakeRequest)
+        val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -60,9 +60,9 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
     }
 
     "method submit" must {
-      "Successfully submit when selected no" in {
+      "Successfully submit when selected no and redirect to confirm contact details" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", "No"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
@@ -70,11 +70,25 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
         })
         status(result) mustBe SEE_OTHER
         verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+      }
+
+      "Successfully submit when selected no and redirect to check your answers" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit(checkYourAnswersMode))
+          .withFormUrlEncodedBody(("confirm-address-radio", "No"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
+        })
+        status(result) mustBe SEE_OTHER
+        verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
+        redirectLocation(result) shouldBe Some(routes.CheckYourAnswersController.show.url)
       }
 
       "Direct to confirm your contact details when the chosen address doesn't exist" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
@@ -86,16 +100,17 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
 
       "Submit with radio buttons unselected and display error message" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", ""))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
       }
-      "Successfully submit when selected yes" in {
+
+      "Successfully submit when selected yes and redirect to confirm contact details" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit)
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
@@ -103,6 +118,19 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
         })
         status(result) mustBe SEE_OTHER
         verify(mockNGRConnector, times(1)).changeAddress(any(), any())(any())
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+      }
+
+      "Successfully submit when selected yes and redirect to check your answers" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit(checkYourAnswersMode))
+          .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
+        })
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(routes.CheckYourAnswersController.show.url)
       }
     }
   }

@@ -62,12 +62,12 @@ class FindAddressViewSpec extends ViewBaseSpec {
       val form = FindAddress
         .form()
         .fillAndValidate(FindAddress(Postcode("TQ5 9BW"), None))
-      val htmlApply = findAddressView.apply(form).body
-      val htmlRender = findAddressView.render(form, request, messages, mockConfig).body
-      val htmlF = findAddressView.f(form)(request, messages, mockConfig).body
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlF = findAddressView.f(form, confirmContactDetailsMode)(request, messages, mockConfig).body
       htmlF must not be empty
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(findAddressView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -80,12 +80,12 @@ class FindAddressViewSpec extends ViewBaseSpec {
       val form = FindAddress
         .form()
         .fillAndValidate(FindAddress(Postcode("TQ59BW"), None))
-      val htmlApply = findAddressView.apply(form).body
-      val htmlRender = findAddressView.render(form, request, messages, mockConfig).body
-      val htmlF = findAddressView.f(form)(request, messages, mockConfig).body
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlF = findAddressView.f(form, confirmContactDetailsMode)(request, messages, mockConfig).body
       htmlF must not be empty
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(findAddressView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -98,12 +98,12 @@ class FindAddressViewSpec extends ViewBaseSpec {
       val form = FindAddress
         .form()
         .fillAndValidate(FindAddress(Postcode("TQ5 9BW"), Some("5")))
-      val htmlApply = findAddressView.apply(form).body
-      val htmlRender = findAddressView.render(form, request, messages, mockConfig).body
-      val htmlF = findAddressView.f(form)(request, messages, mockConfig).body
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlF = findAddressView.f(form, confirmContactDetailsMode)(request, messages, mockConfig).body
       htmlF must not be empty
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(findAddressView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -116,10 +116,10 @@ class FindAddressViewSpec extends ViewBaseSpec {
       val form = FindAddress
         .form()
         .fillAndValidate(FindAddress(Postcode(""), None))
-      val htmlApply = findAddressView.apply(form).body
-      val htmlRender = findAddressView.render(form, request, messages, mockConfig).body
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(findAddressView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -133,10 +133,10 @@ class FindAddressViewSpec extends ViewBaseSpec {
       val form = FindAddress
         .form()
         .fillAndValidate(FindAddress(Postcode("AAA9 9AA"), None))
-      val htmlApply = findAddressView.apply(form).body
-      val htmlRender = findAddressView.render(form, request, messages, mockConfig).body
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(findAddressView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -150,10 +150,10 @@ class FindAddressViewSpec extends ViewBaseSpec {
       val form = FindAddress
         .form()
         .fillAndValidate(FindAddress(Postcode("AA9 9AA"), Some(over100Characters)))
-      val htmlApply = findAddressView.apply(form).body
-      val htmlRender = findAddressView.render(form, request, messages, mockConfig).body
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(findAddressView(form)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading

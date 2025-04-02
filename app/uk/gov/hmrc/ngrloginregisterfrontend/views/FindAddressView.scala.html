@@ -29,11 +29,11 @@ inputText: components.InputText,
 saveAndContinueButton: saveAndContinueButton
 )
 
-@(form: Form[FindAddress])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(form: Form[FindAddress], mode: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 
 @layout(pageTitle = Some(messages("findAddress.pageTitle"))) {
-@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.FindAddressController.submit, Symbol("autoComplete") -> "off") {
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.FindAddressController.submit(mode), Symbol("autoComplete") -> "off") {
 @if(form.errors.nonEmpty) {
 @govukErrorSummary(ErrorSummaryViewModel(form))
 }
@@ -50,7 +50,7 @@ label =   messages("findAddress.postcode.label"),
 isVisible = true,
 classes = Some("govuk-!-width-one-third")
 )
-<p class="govuk-body"><a class="govuk-link" href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ManualAddressController.show">@messages("findAddress.manual")</a></p>
+<p class="govuk-body"><a class="govuk-link" href="@uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ManualAddressController.show(mode)">@messages("findAddress.manual")</a></p>
 
 @inputText(
 form  =   form,

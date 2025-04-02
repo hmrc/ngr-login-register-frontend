@@ -47,7 +47,10 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "govuk-!-margin-bottom-9"), createTRNSummaryRows(ratepayer), name)))
+          Future.successful(Ok(view(
+            createContactDetailSummaryRows(ratepayerRegistrationValuation = ratepayer, mode= "CYA", classes ="govuk-!-margin-bottom-9"),
+            createTRNSummaryRows(ratepayer),
+            name)))
         case None =>
           Future.failed(new RuntimeException(s"Can not find CredId: ${credId.value} in the database"))
       }

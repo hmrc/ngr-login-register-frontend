@@ -55,7 +55,8 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
       totalAddress = returnedAddressList.length,
       pageTop = PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       pageBottom = PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
-      addressSearchResultTable = Table()
+      addressSearchResultTable = Table(),
+      mode = confirmContactDetailsMode
     )
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
@@ -64,7 +65,8 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
       returnedAddressList.length,
       PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
-      Table())(request, messages, mockConfig
+      Table(),
+      confirmContactDetailsMode)(request, messages, mockConfig
     )
     lazy val htmlRender = addressSearchResultView.render(
       postcode = postcode,
@@ -75,7 +77,8 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
       request = request,
       messages = messages,
       appConfig = mockConfig,
-      addressSearchResultTable = Table()
+      addressSearchResultTable = Table(),
+      mode = confirmContactDetailsMode
     )
 
     "htmlF is not empty" in {
@@ -114,7 +117,8 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
       totalAddress = returnedAddressList.length,
       pageTop = PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       pageBottom = PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
-        addressSearchResultTable = Table()
+      addressSearchResultTable = Table(),
+      mode = confirmContactDetailsMode
     )
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
@@ -123,7 +127,8 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
       returnedAddressList.length,
       PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
-      Table()
+      Table(),
+      confirmContactDetailsMode
     )(request, messages, mockConfig)
 
     "htmlF is not empty" in {
@@ -135,7 +140,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
 
     "have the correct caption and heading" in {
       elementText(Selectors.caption) mustBe caption
-      elementText(Selectors.heading)   mustBe heading(postcode)
+      elementText(Selectors.heading) mustBe heading(postcode)
     }
 
     "The paginate buttons are rendered" which{
@@ -155,7 +160,8 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
       totalAddress = returnedAddressList.length,
       pageTop = PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       pageBottom = PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
-      addressSearchResultTable = Table()
+      addressSearchResultTable = Table(),
+      mode = confirmContactDetailsMode
     )
     lazy implicit val document: Document = Jsoup.parse(view.body)
     lazy val htmlF = addressSearchResultView.f(
@@ -164,7 +170,8 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
       returnedAddressList.length,
       PaginationData.pageTop(currentPage = currentPage, pageSize = pageSize, returnedAddressList.length),
       PaginationData.pageBottom(currentPage = currentPage, pageSize = pageSize) + 1,
-      Table())(request, messages, mockConfig
+      Table(),
+      confirmContactDetailsMode)(request, messages, mockConfig
     )
 
     "htmlF is not empty" in {
@@ -176,7 +183,7 @@ class AddressSearchResultViewSpec extends ViewBaseSpec {
 
     "have the correct caption and heading" in {
       elementText(Selectors.caption) mustBe caption
-      elementText(Selectors.heading)   mustBe heading(postcode)
+      elementText(Selectors.heading) mustBe heading(postcode)
     }
   }
 }

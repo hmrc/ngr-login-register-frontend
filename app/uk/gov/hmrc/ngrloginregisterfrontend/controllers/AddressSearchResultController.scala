@@ -39,7 +39,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   private lazy val defaultPageSize: Int = 15
 
-  def show(page: Int = 1): Action[AnyContent] = {
+  def show(page: Int = 1, mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
      val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
        .map(
@@ -54,13 +54,21 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
         PaginationData.getPage(currentPage = currentPage, pageSize = pageSize, list = address)
       }
 
-      def zipWithIndex(currentPage: Int,pageSize: Int, address: Seq[String]): Seq[(String, String)] =
-        splitAddressByPage(currentPage, pageSize, address).zipWithIndex.map(
-        x => (x._1, if(page > 1){routes.AddressSearchResultController.selectedAddress(x._2 + defaultPageSize).url} else {routes.AddressSearchResultController.selectedAddress(x._2).url})
-      )
+      def zipWithIndex(currentPage: Int,pageSize: Int, address: Seq[String]): Seq[(String, String)] = {
+        val url = (i: Int) => if (page > 1) {
+          routes.AddressSearchResultController.selectedAddress(i + defaultPageSize, mode).url
+        } else {
+          routes.AddressSearchResultController.selectedAddress(i, mode).url
+        }
+        splitAddressByPage(currentPage, pageSize, address).zipWithIndex.map(x => (x._1, url(x._2)))
+      }
 
       def generateTable(addressList:AddressSearchResult): Table  = {
-        TableData(headers = Seq(TableHeader("Address", "govuk-table__caption--m", colspan = Some(2))), rows = zipWithIndex(page, defaultPageSize, addressList.address).map(stringValue => Seq(TableRowText(stringValue._1), TableRowLink(stringValue._2, "Select Property")))).toTable
+        TableData(
+          headers = Seq(TableHeader("Address", "govuk-table__caption--m", colspan = Some(2))),
+          rows = zipWithIndex(page, defaultPageSize, addressList.address)
+            .map(stringValue => Seq(TableRowText(stringValue._1), TableRowLink(stringValue._2, "Select Property")))
+        ).toTable
       }
 
        def pageBottom: Int = PaginationData.pageBottom(currentPage = page, pageSize = defaultPageSize)
@@ -72,20 +80,20 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
         totalAddress = address.length,
         pageTop = pageTop,
         pageBottom = pageBottom + (if (pageTop == 0) 0 else 1),
-        addressSearchResultTable = generateTable(AddressSearchResult(address)
-       )
+        addressSearchResultTable = generateTable(AddressSearchResult(address)),
+        mode = mode
       )))
     }
   }
 
-  def selectedAddress(index: Int): Action[AnyContent] = {
+  def selectedAddress(index: Int, mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
         .map(Json.parse(_).as[Seq[LookedUpAddress]])
         .map(_.apply(index))
         .map(address =>
           Future.successful(
-            Redirect(routes.ConfirmAddressController.show).withSession(sessionManager.setChosenAddress(request.session, address))
+            Redirect(routes.ConfirmAddressController.show(mode)).withSession(sessionManager.setChosenAddress(request.session, address))
           )
         )
         .getOrElse(Future.failed(new RuntimeException("Address not found at index")))

@@ -44,18 +44,18 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
   private val yesButton: NGRRadioButtons = NGRRadioButtons("Yes", Yes)
   private val noButton: NGRRadioButtons = NGRRadioButtons("No", No)
   private val ngrRadio: NGRRadio = NGRRadio(NGRRadioName("confirm-address-radio"), Seq(yesButton, noButton))
-  def show(): Action[AnyContent] =
+  def show(mode: String): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(confirmAddressView(getAddressFromSession(request.session), form, buildRadios(form, ngrRadio))))
+      Future.successful(Ok(confirmAddressView(getAddressFromSession(request.session), form, buildRadios(form, ngrRadio), mode)))
     }
 
-  def submit(): Action[AnyContent] =
+  def submit(mode: String): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(BadRequest(confirmAddressView(getAddressFromSession(request.session), formWithErrors, buildRadios(formWithErrors, ngrRadio)))),
+            Future.successful(BadRequest(confirmAddressView(getAddressFromSession(request.session), formWithErrors, buildRadios(formWithErrors, ngrRadio), mode))),
           confirmAddressForm => {
             if (confirmAddressForm.radioValue.equals("Yes")) {
               sessionManager.getSessionValue(request.session, sessionManager.chosenAddressIdKey)
@@ -63,7 +63,10 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
                 .map(connector.changeAddress(CredId(request.credId.getOrElse("")), _))
             }
 
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+            if (mode.equals("CYA"))
+              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+            else
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
     }

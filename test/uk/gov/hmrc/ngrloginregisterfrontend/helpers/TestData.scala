@@ -101,6 +101,8 @@ trait TestData {
     location = None
   )
 
+  lazy val confirmContactDetailsMode = "CCD"
+  lazy val checkYourAnswersMode = "CYA"
 
   val contactNumberModel: PhoneNumber = PhoneNumber("0300 200 3310")
   val nameModel: Name = Name("Lovely Fella")

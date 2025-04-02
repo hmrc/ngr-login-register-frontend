@@ -18,13 +18,15 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.Play.materializer
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
+import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, RatepayerRegistration}
@@ -32,9 +34,9 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 
 import scala.concurrent.Future
 
-class EmailControllerSpec extends ControllerSpecSupport {
+class EmailControllerSpec extends ControllerSpecSupport with TestData {
 
-  lazy val emailRoute: String = routes.EmailController.submit.url
+  lazy val emailRoute: Call = routes.EmailController.submit(confirmContactDetailsMode)
   lazy val emailView: EmailView = inject[EmailView]
 
   val pageTitle = "Enter email address"
@@ -51,7 +53,7 @@ class EmailControllerSpec extends ControllerSpecSupport {
       "Return OK and the correct view" in {
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(None))
-        val result = controller().show()(authenticatedFakeRequest)
+        val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -62,7 +64,7 @@ class EmailControllerSpec extends ControllerSpecSupport {
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(Some(model)))
-        val result = controller().show()(authenticatedFakeRequest)
+        val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -71,12 +73,25 @@ class EmailControllerSpec extends ControllerSpecSupport {
 
     "method submit" must {
       "Successfully submit valid email and redirect to confirm contact details" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.EmailController.submit).withFormUrlEncodedBody(("email-value", "test@test.co.uk")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(emailRoute)
+          .withFormUrlEncodedBody(("email-value", "test@test.co.uk"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+      }
+
+      "Successfully submit valid email and redirect to check your answers" in {
+        val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.EmailController.submit(checkYourAnswersMode))
+          .withFormUrlEncodedBody(("email-value", "test@test.co.uk"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(routes.CheckYourAnswersController.show.url)
       }
 
       "Submit with no email address and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.EmailController.submit).withFormUrlEncodedBody(("email-value", "")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(emailRoute)
+          .withFormUrlEncodedBody(("email-value", ""))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -84,7 +99,9 @@ class EmailControllerSpec extends ControllerSpecSupport {
       }
 
       "Submit incorrect email address format and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.EmailController.submit).withFormUrlEncodedBody(("email-value", "@test.co.uk")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(emailRoute)
+          .withFormUrlEncodedBody(("email-value", "@test.co.uk"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -92,7 +109,9 @@ class EmailControllerSpec extends ControllerSpecSupport {
       }
 
       "Submit incorrect email address with total garbage and display error message" in {
-        val result = controller().submit()(AuthenticatedUserRequest(FakeRequest(routes.EmailController.submit).withFormUrlEncodedBody(("email-value", "diuewqhiupdhewtest@test.co.uktest@test.co.uk")).withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(emailRoute)
+          .withFormUrlEncodedBody(("email-value", "diuewqhiupdhewtest@test.co.uktest@test.co.uk"))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
