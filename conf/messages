@@ -104,6 +104,7 @@ nino.label                    = National Insurance number
 nino.hint                     = It’s on your National Insurance card, benefit letter, payslip or P60. For example, ‘QQ 12 34 56 C’
 nino.empty.error              = Enter your National Insurance number
 nino.invalidFormat.error      = Enter a National Insurance number in the correct format
+nino.unmatched.error          = Enter a valid National Insurance number
 
 checkYourAnswers.pageTitle = Check your answers
 checkYourAnswers.body.1 = Contact details

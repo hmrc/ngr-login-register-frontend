@@ -33,6 +33,7 @@ class NinoViewSpec  extends ViewBaseSpec {
   lazy val continueButton      = "Continue"
   lazy val emptyErrorMessage   = "Error: Enter your National Insurance number"
   lazy val invalidErrorMessage = "Error: Enter a National Insurance number in the correct format"
+  lazy val unmatchedErrorMessage = "Error: Enter a valid National Insurance number"
 
   object Selectors {
     val backLink = "body > div > a"
@@ -102,6 +103,23 @@ class NinoViewSpec  extends ViewBaseSpec {
       elementText(Selectors.label)   mustBe label
       elementText(Selectors.hint)   mustBe hint
       elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show valid unmatched nino error correctly" in {
+      val form = Nino
+        .form("AA000003D")
+        .fillAndValidate(Nino("AA000009D"))
+      val htmlApply = ninoView.apply(form).body
+      val htmlRender = ninoView.render(form, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(ninoView(form)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading)   mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.hint)   mustBe hint
+      elementText(Selectors.errorMessage) mustBe unmatchedErrorMessage
       elementText(Selectors.continueButton) mustBe continueButton
     }
   }
