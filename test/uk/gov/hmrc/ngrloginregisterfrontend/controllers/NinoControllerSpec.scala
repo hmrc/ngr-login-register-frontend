@@ -132,7 +132,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
-        content must include("Enter a valid national insurance number")
+        content must include("Enter a valid National Insurance number")
       }
 
       "Submit with no nino and display error message" in {
