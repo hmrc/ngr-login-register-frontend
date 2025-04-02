@@ -31,7 +31,7 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
 
   lazy val confirmAddressView: ConfirmAddressView = inject[ConfirmAddressView]
   lazy val backLink = "Back"
-  lazy val title = "Do you want to use this address?"
+  lazy val title = "Do you want to use this address? - GOV.UK"
   lazy val content = "Register for the business rates valuation service"
   lazy val heading = "Do you want to use this address?"
   lazy val yesLabel = "Yes"

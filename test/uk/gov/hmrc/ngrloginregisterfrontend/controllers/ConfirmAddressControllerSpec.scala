@@ -35,7 +35,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
   lazy val submitRoute: Call = routes.ConfirmAddressController.submit(confirmContactDetailsMode)
   lazy val chosenAddressIdKey: String = "NGR-Chosen-Address-Key"
   lazy val view: ConfirmAddressView = inject[ConfirmAddressView]
-  val pageTitle = "Confirm Address"
+  val pageTitle = "Do you want to use this address?"
   lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson14.as[Seq[LookedUpAddressWrapper]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
   val session: Session = Session(Map(chosenAddressIdKey -> addressJsonResponse.toString()))
