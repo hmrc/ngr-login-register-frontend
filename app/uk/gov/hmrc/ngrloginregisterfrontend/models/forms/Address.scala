@@ -35,37 +35,45 @@ object Address extends CommonFormValidators {
 
   private val maxLineLength: Int = 128
   private val maxCityLength: Int = 64
-  private lazy val postcodeEmptyError    = "ManualAddressSearch.postalCode.error.invalid"
+  private lazy val postcodeEmptyError    = "ManualAddressSearch.postalCode.error.empty"
   private lazy val invalidPostcodeError  = "ManualAddressSearch.postalCode.error.invalid"
-  val postcode                   = "postcode-value"
 
   def form():Form[Address] =
     Form(
       mapping(
         "AddressLine1" -> text()
-            .verifying(
-              firstError(maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength)))),
-        "AddressLine2" -> optional(
-            text()
-              .verifying(
-                firstError(maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength)))
-              )
+          .verifying(
+            firstError(
+              maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength))
+            )
           ),
-        "City" ->
+        "AddressLine2" -> optional(
           text()
             .verifying(
-              firstError(maxLength(maxCityLength, maxLengthErrorMessage(maxCityLength)))),
+              firstError(
+                maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength))
+              )
+            )
+        ),
+        "City" -> text()
+            .verifying(
+              firstError(
+                maxLength(maxCityLength, maxLengthErrorMessage(maxCityLength))
+              )
+            ),
         "County" -> optional(
           text()
             .verifying(
-              firstError(maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength)))
+              firstError(
+                maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength))
+              )
             )
         ),
         "PostalCode" ->
           text()
             .verifying(
               firstError(
-                isNotEmpty(postcode, postcodeEmptyError),
+                isNotEmpty("PostalCode", postcodeEmptyError),
                 regexp(postcodeRegexPattern.pattern(), invalidPostcodeError)
               )
             ) .transform[Postcode](Postcode.apply, _.value)
