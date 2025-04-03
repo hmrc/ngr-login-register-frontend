@@ -32,14 +32,14 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
                                          authenticate: AuthJourney,
                                          sessionManager: SessionManager,
                                          connector: NGRConnector,
-                                         mcc: MessagesControllerComponents)(implicit appConfig: AppConfig)
+                                         mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
   private val yesButton: NGRRadioButtons = NGRRadioButtons("Yes", Yes)
   private val noButton: NGRRadioButtons = NGRRadioButtons("No", No)
@@ -57,18 +57,25 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
           formWithErrors =>
             Future.successful(BadRequest(confirmAddressView(getAddressFromSession(request.session), formWithErrors, buildRadios(formWithErrors, ngrRadio), mode))),
           confirmAddressForm => {
-            if (confirmAddressForm.radioValue.equals("Yes")) {
-              sessionManager.getSessionValue(request.session, sessionManager.chosenAddressIdKey)
-                .map(Json.parse(_).as[Address])
-                .map(connector.changeAddress(CredId(request.credId.getOrElse("")), _))
+            updateAddress(confirmAddressForm.radioValue, mode).map { _ =>
+              if (mode == "CYA") {
+                Redirect(routes.CheckYourAnswersController.show)
+              } else {
+                Redirect(routes.ConfirmContactDetailsController.show)
+              }
             }
-
-            if (mode.equals("CYA"))
-              Future.successful(Redirect(routes.CheckYourAnswersController.show))
-            else
-              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
           }
         )
+    }
+
+  private def updateAddress(value: String, mode:String)(implicit request: AuthenticatedUserRequest[_]): Future[Unit] =
+    if (value == "Yes") {
+      sessionManager.getSessionValue(request.session, sessionManager.chosenAddressIdKey)
+        .map(Json.parse(_).as[Address])
+        .map(connector.changeAddress(CredId(request.credId.getOrElse("")), _).map(_ => ()))
+        .getOrElse(Future.unit)
+    } else {
+        Future.successful(Redirect(routes.FindAddressController.show(mode)))
     }
 
   private def getAddressFromSession(session: Session): String =

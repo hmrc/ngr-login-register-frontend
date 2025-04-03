@@ -25,11 +25,13 @@ import play.api.mvc.{Call, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
-import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.{HeaderNames, HttpResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddressWrapper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
+
+import scala.concurrent.Future
 
 class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSupport with TestData {
   lazy val submitRoute: Call = routes.ConfirmAddressController.submit(confirmContactDetailsMode)
@@ -46,7 +48,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
     mockSessionManager,
     mockNGRConnector,
     mcc
-  )(mockConfig)
+  )(mockConfig, ec)
 
   "ConfirmAddressController" must {
     "method show" must {
@@ -61,7 +63,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
 
     "method submit" must {
       "Successfully submit when selected no and redirect to confirm contact details" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
         val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", "No"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
@@ -74,7 +75,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
       }
 
       "Successfully submit when selected no and redirect to check your answers" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+
         val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit(checkYourAnswersMode))
           .withFormUrlEncodedBody(("confirm-address-radio", "No"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
@@ -109,7 +110,10 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
       }
 
       "Successfully submit when selected yes and redirect to confirm contact details" in {
+        val httpResponse = HttpResponse(OK, "Updated Successfully")
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        when(mockNGRConnector.changeAddress(any(), any())(any()))
+          .thenReturn(Future.successful(httpResponse))
         val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
@@ -122,7 +126,10 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
       }
 
       "Successfully submit when selected yes and redirect to check your answers" in {
+        val httpResponse = HttpResponse(OK, "Updated Successfully")
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(addressJsonResponse.toString()))
+        when(mockNGRConnector.changeAddress(any(), any())(any()))
+          .thenReturn(Future.successful(httpResponse))
         val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit(checkYourAnswersMode))
           .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
