@@ -36,8 +36,10 @@ class ManualAddressViewSpec extends ViewBaseSpec {
   lazy val townOrCityLabel  = "Town or city"
   lazy val countyLabel      = "County (optional)"
   lazy val postcodeLabel    = "Postcode"
-  lazy val postcodeFormErrorNotSupplied  = "Provide a real UK postcode"
-  lazy val postcodeErrorNotSupplied  = "Error: Provide a real UK postcode"
+  lazy val postcodeFormErrorNotSupplied  = "Enter postcode"
+  lazy val postcodeErrorNotSupplied  = "Error: Enter postcode"
+  lazy val postcodeFormErrorInvalid  = "Enter a full UK postcode"
+  lazy val postcodeErrorInvalid  = "Error: Enter a full UK postcode"
 
 
   val caption = "Register for the business rates valuation service"
@@ -144,8 +146,8 @@ class ManualAddressViewSpec extends ViewBaseSpec {
       lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.heading) mustBe heading
-      elementText(Selectors.formErrorMessage) mustBe postcodeFormErrorNotSupplied
-      elementText(Selectors.errorMessage) mustBe postcodeErrorNotSupplied
+      elementText(Selectors.formErrorMessage) mustBe postcodeFormErrorInvalid
+      elementText(Selectors.errorMessage) mustBe postcodeErrorInvalid
     }
   }
 }
