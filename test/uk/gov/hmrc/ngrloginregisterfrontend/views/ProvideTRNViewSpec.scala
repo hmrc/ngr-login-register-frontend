@@ -37,7 +37,7 @@ class ProvideTRNViewSpec extends ViewBaseSpec {
   val typeofTrnBulletContent = "Individual rate payers can provide either:"
   val bullet1 = "Self-assessment Unique Tax Reference (UTR)"
   val bullet2 = "National Insurance number (NINO)"
-  val disclaimer = "It is a legal requirement to provide a TRN. While you can provide one later, we advise you to do so as soon as possible."
+  val disclaimer = "It is recommended you provide a TRN when you register for the service."
   val buttonText = "Continue"
 
   object Selectors {
