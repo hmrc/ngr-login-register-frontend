@@ -78,7 +78,7 @@ provide.TRN.types.content = The type of TRN you provide will depend on whether y
 provide.TRN.bullet.content = Individual rate payers can provide either:
 provide.TRN.bullet.firstBullet = Self-assessment Unique Tax Reference (UTR)
 provide.TRN.bullet.secondBullet = National Insurance number (NINO)
-provide.TRN.disclaimer = It is a legal requirement to provide a TRN. While you can provide one later, we advise you to do so as soon as possible.
+provide.TRN.disclaimer = It is recommended you provide a TRN when you register for the service.
 
 AddressSearchResult.table.heading = Address
 AddressSearchResult.pageTitle = Search results for {0}
