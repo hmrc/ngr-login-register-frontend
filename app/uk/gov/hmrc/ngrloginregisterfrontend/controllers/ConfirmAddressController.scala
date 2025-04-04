@@ -57,7 +57,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
           formWithErrors =>
             Future.successful(BadRequest(confirmAddressView(getAddressFromSession(request.session), formWithErrors, buildRadios(formWithErrors, ngrRadio), mode))),
           confirmAddressForm => {
-            updateAddress(confirmAddressForm.radioValue, mode).map { _ =>
+            updateAddress(confirmAddressForm.radioValue).map { _ =>
               if (mode == "CYA") {
                 Redirect(routes.CheckYourAnswersController.show)
               } else {
@@ -68,15 +68,16 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
         )
     }
 
-  private def updateAddress(value: String, mode:String)(implicit request: AuthenticatedUserRequest[_]): Future[Unit] =
+  private def updateAddress(value: String)(implicit request: AuthenticatedUserRequest[_]): Future[Unit] =
     if (value == "Yes") {
       sessionManager.getSessionValue(request.session, sessionManager.chosenAddressIdKey)
         .map(Json.parse(_).as[Address])
         .map(connector.changeAddress(CredId(request.credId.getOrElse("")), _).map(_ => ()))
         .getOrElse(Future.unit)
     } else {
-        Future.successful(Redirect(routes.FindAddressController.show(mode)))
+      Future.unit
     }
+
 
   private def getAddressFromSession(session: Session): String =
     sessionManager.getSessionValue(session, sessionManager.chosenAddressIdKey)
