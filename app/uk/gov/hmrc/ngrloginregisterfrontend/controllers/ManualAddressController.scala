@@ -69,7 +69,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
           formWithErrors =>
             Future.successful(BadRequest(addressView(formWithErrors, mode))),
           findAddress => {
-            addressLookupConnector.findAddressByPostcode(findAddress.postcode.value, Some((findAddress.line1 + " " +  findAddress.line2 + " " +  findAddress.town + " " +  findAddress.county).replace("None", ""))) map {
+            addressLookupConnector.findAddressByPostcode(findAddress.postcode.value, setFilter(findAddress)) map {
               case AddressLookupErrorResponse(e: BadRequestException) =>
                 BadRequest(e.message)
               case AddressLookupErrorResponse(_) =>
@@ -82,4 +82,17 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
           })
     }
 
+  def setFilter(findAddress: Address): Option[String] = {
+    val filterString = Seq(findAddress.line1,
+      findAddress.line2.getOrElse(""),
+      findAddress.town,
+      findAddress.county.getOrElse("")
+    ).filter(_.nonEmpty)
+      .mkString(" ")
+
+    if (filterString.nonEmpty)
+      Some(filterString)
+    else
+      None
+  }
 }
