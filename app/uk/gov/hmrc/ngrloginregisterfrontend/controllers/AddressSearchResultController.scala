@@ -18,24 +18,27 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result, Session}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.SessionTimeoutHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               authenticate: AuthJourney,
                                               mcc: MessagesControllerComponents,
                                               sessionManager: SessionManager
-                                             )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+                                             )(implicit appConfig: AppConfig)
+  extends FrontendController(mcc) with I18nSupport with SessionTimeoutHelper {
 
   private lazy val defaultPageSize: Int = 15
 
@@ -88,15 +91,31 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def selectedAddress(index: Int, mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
-        .map(Json.parse(_).as[Seq[LookedUpAddress]])
-        .map(_.apply(index))
-        .map(address =>
-          Future.successful(
-            Redirect(routes.ConfirmAddressController.show(mode)).withSession(sessionManager.setChosenAddress(request.session, address))
-          )
-        )
-        .getOrElse(Future.failed(new RuntimeException("Address not found at index")))
+      getSession(sessionManager, request.session, sessionManager.addressLookupResponseKey) match {
+        case Right(addressListOpt) => setChosenAddress(addressListOpt, index, request.session, mode)
+        case Left(result) => Future.successful(result)
+      }
     }
+  }
+
+  private def setChosenAddress(addressListOpt: Option[String], index: Int, session: Session, mode: String): Future[Result] = {
+    getSelectedAddress(addressListOpt, index)
+      .map(address =>
+        Future.successful(
+          Redirect(routes.ConfirmAddressController.show(mode)).withSession(sessionManager.setChosenAddress(session, address))
+        )
+      )
+      .getOrElse(Future.failed(new RuntimeException("Address not found at index")))
+  }
+
+  private def getSelectedAddress(addressListOpt: Option[String], index: Int): Option[LookedUpAddress] = {
+    addressListOpt
+      .map(Json.parse(_).as[Seq[LookedUpAddress]])
+      .flatMap(addresses =>
+        Try(addresses.apply(index)) match {
+          case Failure(e) => None
+          case Success(address) => Some(address)
+        }
+      )
   }
 }
