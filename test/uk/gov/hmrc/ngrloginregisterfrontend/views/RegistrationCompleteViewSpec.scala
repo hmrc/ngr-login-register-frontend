@@ -52,6 +52,12 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
     "The RegistrationCompleteView view" should {
       "Render a page with the appropriate message" when {
         "a recovery ID is present" in {
+          val htmlApply = testView.apply(Some("12345"), "testEmail@emailProvider.com").body
+          val htmlRender = testView.render(Some("12345"), "testEmail@emailProvider.com", request, messages, mockConfig).body
+          val htmlF = testView.f(Some("12345"), "testEmail@emailProvider.com")(request, messages, mockConfig).body
+          htmlF must not be empty
+          htmlApply mustBe htmlRender
+          htmlApply.contains(bodyP2) mustBe true
           lazy implicit val document: Document = Jsoup.parse(testView(Some("12345"), "testEmail@emailProvider.com")(request, messages, mockConfig).body)
           elementText(Selectors.navTitle) mustBe title
           elementText(Selectors.backLink) mustBe backLink

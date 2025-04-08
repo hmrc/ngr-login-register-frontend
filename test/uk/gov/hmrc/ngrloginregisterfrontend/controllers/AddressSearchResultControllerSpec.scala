@@ -107,12 +107,18 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
       }
 
       "Address index out of bounds exception thrown" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
-        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-ChosenAddressIdKey" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
         val exception = intercept[RuntimeException] {
-          controller().selectedAddress(1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession).futureValue
+          controller().selectedAddress(20, confirmContactDetailsMode)(authenticatedFakeRequestWithSession).futureValue
         }
         exception.getMessage must include("Address not found at index")
+      }
+
+      "Return SEE OTHER when address search results isn't in the session and redirect to confirm contact details" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
+        val result = controller().selectedAddress(1, checkYourAnswersMode)(authenticatedFakeRequestWithSession)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show.url)
       }
     }
   }
