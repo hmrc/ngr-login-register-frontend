@@ -35,7 +35,7 @@ object Address extends CommonFormValidators {
 
   private val maxLineLength: Int = 128
   private val maxCityLength: Int = 64
-  private lazy val postcodeEmptyError    = "ManualAddressSearch.postalCode.error.invalid"
+  private lazy val postcodeEmptyError    = "ManualAddressSearch.postalCode.error.empty"
   private lazy val invalidPostcodeError  = "ManualAddressSearch.postalCode.error.invalid"
   val postcode                   = "postcode-value"
 
@@ -44,7 +44,11 @@ object Address extends CommonFormValidators {
       mapping(
         "AddressLine1" -> text()
             .verifying(
-              firstError(maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength)))),
+              firstError(
+                isNotEmpty("AddressLine1", "ManualAddressSearch.line1.error.required"),
+                maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength))
+              )
+            ),
         "AddressLine2" -> optional(
             text()
               .verifying(
@@ -54,7 +58,11 @@ object Address extends CommonFormValidators {
         "City" ->
           text()
             .verifying(
-              firstError(maxLength(maxCityLength, maxLengthErrorMessage(maxCityLength)))),
+              firstError(
+                isNotEmpty("City", "ManualAddressSearch.city.error.required"),
+                maxLength(maxCityLength, maxLengthErrorMessage(maxCityLength))
+              )
+            ),
         "County" -> optional(
           text()
             .verifying(
