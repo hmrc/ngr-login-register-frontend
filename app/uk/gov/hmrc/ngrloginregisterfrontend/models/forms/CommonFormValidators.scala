@@ -63,8 +63,8 @@ trait CommonFormValidators  {
         Invalid(errorKey, value)
     }
 
-  protected def isMatchingNino(authNino:String, nino: String, errorKey: String): Constraint[String] =
-    Constraint{
+  protected def isMatchingNino(authNino: String, nino: String, errorKey: String): Constraint[String] =
+    Constraint {
       case nino if nino.filterNot(_.isWhitespace).matches(authNino) =>
         Valid
       case _ =>
