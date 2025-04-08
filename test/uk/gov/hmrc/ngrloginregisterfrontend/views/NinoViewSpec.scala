@@ -33,7 +33,7 @@ class NinoViewSpec  extends ViewBaseSpec {
   lazy val continueButton      = "Continue"
   lazy val emptyErrorMessage   = "Error: Enter your National Insurance number"
   lazy val invalidErrorMessage = "Error: Enter a National Insurance number in the correct format"
-  lazy val unmatchedErrorMessage = "Error: Enter a valid National Insurance number"
+  lazy val unmatchedErrorMessage = "Error: National Insurance number does not match our records. Enter a valid National Insurance number"
 
   object Selectors {
     val backLink = "body > div > a"
