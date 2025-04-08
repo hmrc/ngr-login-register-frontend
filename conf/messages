@@ -138,7 +138,6 @@ ManualAddressSearch.line2.heading = Address line 2 (optional)
 ManualAddressSearch.city.heading = Town or city
 ManualAddressSearch.city.error.required = Enter town or city
 ManualAddressSearch.county.heading = County (optional)
-ManualAddressSearch.city.error.length = City must be 64 characters or less
 ManualAddressSearch.postalCode.heading = Postcode
 ManualAddressSearch.postalCode.error.empty = Enter postcode
 ManualAddressSearch.postalCode.error.invalid = Enter a full UK postcode
