@@ -100,17 +100,6 @@ with IntegrationPatience {
 
   lazy implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-//  def fakeRequestWithSessionEmpAndCar(empNumber: Int, carNumber: Int): FakeRequest[AnyContentAsEmpty.type] =
-//    FakeRequest("", "").withSession(("emp_seq", empNumber.toString), ("car_seq", carNumber.toString))
-//
-//  def fakeRequestWithSessionEmpAndCarAndJourney(
-//                                                 empNumber: Int,
-//                                                 carNumber: Int,
-//                                                 journey: String
-//                                               ): FakeRequest[AnyContentAsEmpty.type] =
-//    FakeRequest("", "")
-//      .withSession(("emp_seq", empNumber.toString), ("car_seq", carNumber.toString), ("journey", journey))
-
   lazy val authenticatedFakeRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
     AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(true, Some("")))
 
