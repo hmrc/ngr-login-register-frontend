@@ -36,8 +36,14 @@ class ManualAddressViewSpec extends ViewBaseSpec {
   lazy val townOrCityLabel  = "Town or city"
   lazy val countyLabel      = "County (optional)"
   lazy val postcodeLabel    = "Postcode"
-  lazy val postcodeFormErrorNotSupplied  = "Provide a real UK postcode"
-  lazy val postcodeErrorNotSupplied  = "Error: Provide a real UK postcode"
+  lazy val postcodeFormErrorNotSupplied  = "Enter postcode"
+  lazy val postcodeErrorNotSupplied  = "Error: Enter postcode"
+  lazy val postcodeFormErrorInvalid  = "Enter a full UK postcode"
+  lazy val postcodeErrorInvalid  = "Error: Enter a full UK postcode"
+  lazy val addressLine1FormErrorNotSupplied  = "Enter address line 1, typically the building and street"
+  lazy val addressLine1ErrorNotSupplied  = "Error: Enter address line 1, typically the building and street"
+  lazy val townFormErrorNotSupplied  = "Enter town or city"
+  lazy val townErrorNotSupplied  = "Error: Enter town or city"
 
 
   val caption = "Register for the business rates valuation service"
@@ -50,8 +56,9 @@ class ManualAddressViewSpec extends ViewBaseSpec {
     val countyLabel        = "#main-content > div > div > form > div:nth-child(5) > label"
     val postcodeLabel      = "#main-content > div > div > form > div:nth-child(6) > label"
     val backLink = "body > div > a"
-    val errorMessage = "#PostalCode-error"
-    val postcodeErrorMessage = "#property-name-value-error"
+    val postcodeErrorMessage = "#PostalCode-error"
+    val addressLine1ErrorMessage = "#AddressLine1-error"
+    val townErrorMessage = "#City-error"
     val formErrorMessage = "#main-content > div > div > form > div.govuk-error-summary > div > div > ul > li > a"
   }
 
@@ -131,7 +138,7 @@ class ManualAddressViewSpec extends ViewBaseSpec {
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.formErrorMessage) mustBe postcodeFormErrorNotSupplied
-      elementText(Selectors.errorMessage) mustBe postcodeErrorNotSupplied
+      elementText(Selectors.postcodeErrorMessage) mustBe postcodeErrorNotSupplied
     }
 
     "show invalid postcode format error correctly " in {
@@ -144,8 +151,36 @@ class ManualAddressViewSpec extends ViewBaseSpec {
       lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.heading) mustBe heading
-      elementText(Selectors.formErrorMessage) mustBe postcodeFormErrorNotSupplied
-      elementText(Selectors.errorMessage) mustBe postcodeErrorNotSupplied
+      elementText(Selectors.formErrorMessage) mustBe postcodeFormErrorInvalid
+      elementText(Selectors.postcodeErrorMessage) mustBe postcodeErrorInvalid
+    }
+
+    "show missing address line1 error correctly " in {
+      val form = Address
+        .form()
+        .fillAndValidate(Address(line1 = "", line2 = None, town = "Worthing", county = None, postcode = Postcode("AA9 9AA")))
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.formErrorMessage) mustBe addressLine1FormErrorNotSupplied
+      elementText(Selectors.addressLine1ErrorMessage) mustBe addressLine1ErrorNotSupplied
+    }
+
+    "show missing town error correctly " in {
+      val form = Address
+        .form()
+        .fillAndValidate(Address(line1 = "99", line2 = None, town = "", county = None, postcode = Postcode("AA9 9AA")))
+      val htmlApply = findAddressView.apply(form, confirmContactDetailsMode).body
+      val htmlRender = findAddressView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(findAddressView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.formErrorMessage) mustBe townFormErrorNotSupplied
+      elementText(Selectors.townErrorMessage) mustBe townErrorNotSupplied
     }
   }
 }
