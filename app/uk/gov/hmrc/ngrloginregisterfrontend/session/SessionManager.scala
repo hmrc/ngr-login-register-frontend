@@ -47,12 +47,12 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
   }
 
   def setChosenAddress(session: Session, address: LookedUpAddress): Session = {
-    val splitIndex: Int = if (address.lines.size > 2) address.lines.size / 2 else 1
+    val splitIndex: Int = if (address.lines.size % 2 > 0) address.lines.size / 2 + 1 else address.lines.size / 2
     val lineSeq = address.lines.splitAt(splitIndex)
-    val line1 = lineSeq._1.mkString(", ")
-    val line2 = if (lineSeq._2.isEmpty) None else Some(lineSeq._2.mkString(", "))
+    val line1 = lineSeq._1.mkString(" ")
+    val line2 = if (lineSeq._2.isEmpty) None else Some(lineSeq._2.mkString(" "))
     val ngrAddress = Address(
-      line1, line2, address.town,None, Postcode(address.postcode))
+      line1, line2, address.town, None, Postcode(address.postcode))
     updateSession(session, chosenAddressIdKey, Json.toJson(ngrAddress).toString())
   }
 

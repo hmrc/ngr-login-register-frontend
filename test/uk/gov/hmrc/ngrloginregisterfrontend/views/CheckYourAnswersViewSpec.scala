@@ -58,20 +58,20 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
 
   object Selectors {
     val backLink = "body > div > a"
-    val heading = "#main-content > div > div > span"
-    val pageTitle = "#main-content > div > div > h1"
-    val body1 = "#main-content > div > div > h2:nth-child(3)"
-    val body1ContentTitle = "#main-content > div > div > p:nth-child(4)"
-    val body2 = "#main-content > div > div > h2:nth-child(6)"
-    val contactName = "#main-content > div > div > dl:nth-child(5) > div:nth-child(1) > dt"
-    val email = "#main-content > div > div > dl:nth-child(5) > div:nth-child(2) > dt"
-    val phone = "#main-content > div > div > dl:nth-child(5) > div:nth-child(3) > dt"
-    val address = "#main-content > div > div > dl:nth-child(5) > div:nth-child(4) > dt"
+    val heading = "#main-content > div > div > form > span"
+    val pageTitle = "#main-content > div > div > form > h1"
+    val body1 = "#main-content > div > div > form > h2:nth-child(3)"
+    val body1ContentTitle = "#main-content > div > div > form > p:nth-child(4)"
+    val body2 = "#main-content > div > div > form > h2:nth-child(6)"
+    val contactName = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(1) > dt"
+    val email = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(2) > dt"
+    val phone = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(3) > dt"
+    val address = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(4) > dt"
     val addressChangeLink = "#address-linkid"
-    val sautr = "#main-content > div > div > dl:nth-child(7) > div > dt"
+    val sautr = "#main-content > div > div > form > dl:nth-child(7) > div > dt"
     val provideTRNLink = "#sautr-linkid"
-    val body3 = "#main-content > div > div > h2:nth-child(8)"
-    val body3Content = "#main-content > div > div > p:nth-child(9)"
+    val body3 = "#main-content > div > div > form > h2:nth-child(8)"
+    val body3Content = "#main-content > div > div > form > p:nth-child(9)"
     val continue = "#continue"
   }
 
@@ -80,7 +80,7 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
     mockConfig.features.welshLanguageSupportEnabled(false)
   }
 
-  "ConfirmContactDetailsView" when {
+  "CheckYourAnswersView" when {
 
     "produce the same output for apply() and render()" in {
       val htmlApply = injectedView.apply(contactDetailsSummaryList, trnSummaryList, "name").body
@@ -113,7 +113,6 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
         elementText(Selectors.continue) mustBe continue
       }
     }
-
   }
 
 }
