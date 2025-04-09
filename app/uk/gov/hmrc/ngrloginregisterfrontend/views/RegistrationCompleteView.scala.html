@@ -31,10 +31,6 @@
 @Messages("registrationComplete.p1") <strong>@recoveryId.getOrElse("TestRecoveryId")</strong>
 }
 
-@buttonContent = {
-@Messages("registrationComplete.button")
-}
-
 @layout(pageTitle = Some(messages("registrationComplete.title"))) {
 
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.RegistrationCompleteController.submit(recoveryId), Symbol("autoComplete") -> "off") {
