@@ -33,7 +33,7 @@
     @Messages("registrationComplete.p1") @recoveryId.getOrElse("TestRecoveryId")
 }
 
-@layout(pageTitle = Some(messages("registrationComplete.title"))) {
+@layout(pageTitle = Some(messages("registrationComplete.title")), showBackLink = false) {
 
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.RegistrationCompleteController.submit(recoveryId), Symbol("autoComplete") -> "off") {
 
