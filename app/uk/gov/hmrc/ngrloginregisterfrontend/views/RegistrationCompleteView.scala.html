@@ -17,18 +17,20 @@
 @import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components._
 @import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.ngrloginregisterfrontend.views.html.components.printLink
 
 
 @this(layout: Layout,
       govukPanel: GovukPanel,
       formHelper: FormWithCSRF,
-      saveAndContinueButton: saveAndContinueButton
+      saveAndContinueButton: saveAndContinueButton,
+      printLink: printLink
 )
 
 @(recoveryId: Option[String], email: String)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
 
 @panelContent = {
-@Messages("registrationComplete.p1") <strong>@recoveryId.getOrElse("TestRecoveryId")</strong>
+    @Messages("registrationComplete.p1") @recoveryId.getOrElse("TestRecoveryId")
 }
 
 @layout(pageTitle = Some(messages("registrationComplete.title"))) {
@@ -40,9 +42,7 @@ title = Text(Messages("registrationComplete.title")),
 content = HtmlContent(panelContent)
 ))
 
-<p class="govuk-body govuk-!-display-none-print">
-    <a href="javascript:window.print()" class="govuk-link">@Messages("registrationComplete.printLink")</a>
-</p>
+@printLink(messages("registrationComplete.printLink"))
 
 <p class="govuk-body">@Messages("registrationComplete.p2", email)</p>
 <p class="govuk-body">@Messages("registrationComplete.p3")</p>

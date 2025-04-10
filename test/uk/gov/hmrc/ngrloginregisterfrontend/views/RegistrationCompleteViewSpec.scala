@@ -30,7 +30,7 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
   val heading = "Registration Successful"
   val body1Id = "Your service recovery number is 12345"
   val bodyP2 = "We’ve sent details about this registration to testEmail@emailProvider.com"
-  val bodyP3 = "We’ve also sent a welcome email which has a guide to using this account."
+  val bodyP3 = "We’ve also sent a welcome email which has a guide to using your account."
   val bodyP4 = "Your service recovery number is 12345. You will need this if you have a problem signing in to the service using Government Gateway."
   val bodyH2 = "What happens next"
   val bodyP5 = "Use your Government Gateway ID details next time you sign in to your manage your business rates valuation account"
