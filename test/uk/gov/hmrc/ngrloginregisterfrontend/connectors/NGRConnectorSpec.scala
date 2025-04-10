@@ -335,12 +335,12 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
       val responseBody = """{"status": "OK"}""" // Example successful response
       val mockResponse = mock[HttpResponse]
       when(mockResponse.status).thenReturn(200) // OK
-      val url = s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/is-registered"
+      val url = s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/register-account"
       when(mockHttpClientV2.post(ArgumentMatchers.eq(url"$url"))(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.execute[HttpResponse](any(), any())).thenReturn(Future.successful(mockResponse))
       when(mockResponse.body).thenReturn(responseBody)
-      val result = ngrConnector.isRegistered(credId)
+      val result = ngrConnector.registerAccount(credId)
       whenReady(result) { registered =>
         registered shouldBe true
       }
@@ -350,12 +350,12 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
       val mockResponse = mock[HttpResponse]
 
       when(mockResponse.status).thenReturn(404) // Not Found
-      val url = s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/is-registered"
+      val url = s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/register-account"
       when(mockHttpClientV2.post(ArgumentMatchers.eq(url"$url"))(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.execute[HttpResponse](any(), any())).thenReturn(Future.successful(mockResponse))
 
-      val result = ngrConnector.isRegistered(credId)
+      val result = ngrConnector.registerAccount(credId)
 
       recoverToSucceededIf[Exception] {
         result

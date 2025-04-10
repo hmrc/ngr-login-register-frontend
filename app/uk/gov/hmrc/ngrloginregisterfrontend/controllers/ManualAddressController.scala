@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.http.BadRequestException
@@ -41,7 +42,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
                                         authenticate: AuthJourney,
                                         mcc: MessagesControllerComponents,
                                        )(implicit appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport {
+  extends FrontendController(mcc) with I18nSupport with Logging {
 
   def show(mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>

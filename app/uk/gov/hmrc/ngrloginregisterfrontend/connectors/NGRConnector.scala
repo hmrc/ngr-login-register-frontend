@@ -170,9 +170,9 @@ class NGRConnector @Inject()(http: HttpClientV2,
       }
   }
 
-  def isRegistered(credId: CredId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def registerAccount(credId: CredId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
-    http.post(url("is-registered"))
+    http.post(url("register-account"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
       .map { response =>
