@@ -62,7 +62,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
         case Some(credId) =>
           connector.isRegistered(CredId(credId))
           //TODO call Registered Controller
-          Future.successful(Redirect(routes.ProvideTRNController.show()))
+          Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
         case _ =>
           Future.failed(new RuntimeException("No Cred ID found in request"))
       }

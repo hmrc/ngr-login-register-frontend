@@ -28,6 +28,7 @@ GET        /confirm-utr                         uk.gov.hmrc.ngrloginregisterfron
 POST       /confirm-utr                         uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.submit
 GET        /feature-not-implemented             uk.gov.hmrc.ngrloginregisterfrontend.controllers.FeatureNotImplementedController.show(journeyId:Option[String])
 GET        /check-answers                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckYourAnswersController.show
+POST       /check-answers                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckYourAnswersController.submit
 GET        /manual-find-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ManualAddressController.show(mode: String)
 POST       /manual-find-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ManualAddressController.submit(mode: String)
 GET        /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.show(recoveryId:Option[String])

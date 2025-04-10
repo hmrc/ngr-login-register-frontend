@@ -42,18 +42,25 @@ class SessionManagerSpec extends TestSupport with TestData {
       sessionManager.getSessionValue(sessionManager.setChosenAddress(session, address), chosenAddressKeyId) mustBe Some(expectedAddressStr)
     }
 
-    "set a chosen address correctly when addressLookup gives 2 address lines" in {
+    "set a chosen address correctly when addressLookup gives 1 line in lines" in {
+      val addressLookup: LookedUpAddress = LookedUpAddress(lines = Seq("Line1"), town = "town", postcode = "SW12 6RE", county = None)
+      val actual = sessionManager.getSessionValue(sessionManager.setChosenAddress(session, addressLookup), chosenAddressKeyId)
+      actual.isDefined shouldBe true
+      actual.get shouldBe """{"line1":"Line1","town":"town","postcode":{"value":"SW12 6RE"}}"""
+    }
+
+    "set a chosen address correctly when addressLookup gives 2 lines in lines" in {
       val addressLookup: LookedUpAddress = LookedUpAddress(lines = Seq("Line1", "Line2"), town = "town", postcode = "SW12 6RE", county = None)
       val actual = sessionManager.getSessionValue(sessionManager.setChosenAddress(session, addressLookup), chosenAddressKeyId)
       actual.isDefined shouldBe true
       actual.get shouldBe """{"line1":"Line1","line2":"Line2","town":"town","postcode":{"value":"SW12 6RE"}}"""
     }
 
-    "set a chosen address correctly when addressLookup gives 5 address lines" in {
+    "set a chosen address correctly when addressLookup gives 5 lines in  lines" in {
       val addressLookup: LookedUpAddress = LookedUpAddress(lines = Seq("Line1", "Line2", "Line3", "Line4", "Line5"),town = "town", postcode =  "SW12 6RE", county = None)
       val actual = sessionManager.getSessionValue(sessionManager.setChosenAddress(session, addressLookup), chosenAddressKeyId)
       actual.isDefined shouldBe true
-      actual.get shouldBe """{"line1":"Line1, Line2","line2":"Line3, Line4, Line5","town":"town","postcode":{"value":"SW12 6RE"}}"""
+      actual.get shouldBe """{"line1":"Line1 Line2 Line3","line2":"Line4 Line5","town":"town","postcode":{"value":"SW12 6RE"}}"""
     }
 
     "set address lookup response" in {
