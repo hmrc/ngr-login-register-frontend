@@ -107,10 +107,12 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
 
     "Calling the submit function return a 303 and the correct redirect location" in {
       mockRequest(true)
-      when(mockNGRConnector.isRegistered(any())(any())).thenReturn(Future.successful(true))
+      when(mockNGRConnector.registerAccount(any())(any())).thenReturn(Future.successful(true))
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) shouldBe Some(routes.RegistrationCompleteController.show(Some("234567")).url)
     }
+
+
   }
 }

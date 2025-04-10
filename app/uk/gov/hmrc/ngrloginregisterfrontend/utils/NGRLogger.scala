@@ -21,6 +21,8 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 
 import javax.inject.Inject
 
+//TODO After speaking to Michael Wolfendale this can confuse where logs have come from in kibana we can make them more specific
+
 @Singleton
 class NGRLogger @Inject()(appConfig: AppConfig) {
   private lazy val loggerName: String = appConfig.getString("application.logger.name")

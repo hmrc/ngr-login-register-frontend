@@ -60,7 +60,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
     authenticate.authWithUserDetails.async { implicit request =>
       request.credId match {
         case Some(credId) =>
-          connector.isRegistered(CredId(credId))
+          connector.registerAccount(CredId(credId))
           //TODO call Registered Controller
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
         case _ =>
