@@ -57,7 +57,7 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
   val continue = "Accept and register"
 
   object Selectors {
-    val backLink = "body > form > div > a"
+    val backLink = "body > div > a"
     val heading = "#main-content > div > div > form > span"
     val pageTitle = "#main-content > div > div > form > h1"
     val body1 = "#main-content > div > div > form > h2:nth-child(3)"
