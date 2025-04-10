@@ -42,7 +42,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
                                         authenticate: AuthJourney,
                                         mcc: MessagesControllerComponents,
                                        )(implicit appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport with Logging {
+  extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
