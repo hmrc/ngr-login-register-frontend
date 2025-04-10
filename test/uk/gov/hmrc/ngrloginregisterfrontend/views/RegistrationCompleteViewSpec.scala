@@ -25,12 +25,11 @@ import org.jsoup.nodes.Document
 class RegistrationCompleteViewSpec extends ViewBaseSpec {
   val layout: Layout = MockitoSugar.mock[Layout]
   lazy val testView: RegistrationCompleteView = inject[RegistrationCompleteView]
-  lazy val backLink = "Back"
   val title = "Manage your business rates valuation"
   val heading = "Registration Successful"
   val body1Id = "Your service recovery number is 12345"
   val bodyP2 = "We’ve sent details about this registration to testEmail@emailProvider.com"
-  val bodyP3 = "We’ve also sent a welcome email which has a guide to using this account."
+  val bodyP3 = "We’ve also sent a welcome email which has a guide to using your account."
   val bodyP4 = "Your service recovery number is 12345. You will need this if you have a problem signing in to the service using Government Gateway."
   val bodyH2 = "What happens next"
   val bodyP5 = "Use your Government Gateway ID details next time you sign in to your manage your business rates valuation account"
@@ -60,7 +59,6 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
           htmlApply.contains(bodyP2) mustBe true
           lazy implicit val document: Document = Jsoup.parse(testView(Some("12345"), "testEmail@emailProvider.com")(request, messages, mockConfig).body)
           elementText(Selectors.navTitle) mustBe title
-          elementText(Selectors.backLink) mustBe backLink
           elementText(Selectors.headingSelector) mustBe heading
           elementText(Selectors.body1Selector) mustBe body1Id
           elementText(Selectors.bodyEmailSelector) mustBe bodyP2
