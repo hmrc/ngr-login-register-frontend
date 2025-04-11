@@ -59,6 +59,12 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
         val content = contentAsString(result)
         content must include(pageTitle)
       }
+      "Direct to confirm your contact details when the chosen address doesn't exist in the session and mode is check your answers" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
+        val result = controller().show(checkYourAnswersMode)(authenticatedFakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+      }
     }
 
     "method submit" must {
@@ -75,7 +81,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
       }
 
       "Successfully submit when selected no and redirect to check your answers" in {
-
         val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit(checkYourAnswersMode))
           .withFormUrlEncodedBody(("confirm-address-radio", "No"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
@@ -87,9 +92,9 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
         redirectLocation(result) shouldBe Some(routes.CheckYourAnswersController.show.url)
       }
 
-      "Direct to confirm your contact details when the chosen address doesn't exist" in {
+      "Direct to confirm your contact details when the chosen address doesn't exist and mode is check your answers" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
-        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
+        val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
         result.map(result => {
@@ -107,6 +112,15 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
         status(result) mustBe BAD_REQUEST
         val content = contentAsString(result)
         content must include(pageTitle)
+      }
+
+      "Direct to confirm your contact details when submit with radio buttons unselected also the chosen address doesn't exist in the session" in {
+        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
+        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(submitRoute)
+          .withFormUrlEncodedBody(("confirm-address-radio", ""))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
       }
 
       "Successfully submit when selected yes and redirect to confirm contact details" in {
