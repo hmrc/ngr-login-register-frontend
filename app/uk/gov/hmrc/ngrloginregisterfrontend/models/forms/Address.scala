@@ -45,7 +45,6 @@ object Address extends CommonFormValidators {
         "AddressLine1" -> text()
             .verifying(
               firstError(
-                isNotEmpty("AddressLine1", "ManualAddressSearch.line1.error.required"),
                 maxLength(maxLineLength, maxLengthErrorMessage(maxLineLength))
               )
             ),
@@ -59,7 +58,6 @@ object Address extends CommonFormValidators {
           text()
             .verifying(
               firstError(
-                isNotEmpty("City", "ManualAddressSearch.city.error.required"),
                 maxLength(maxCityLength, maxLengthErrorMessage(maxCityLength))
               )
             ),

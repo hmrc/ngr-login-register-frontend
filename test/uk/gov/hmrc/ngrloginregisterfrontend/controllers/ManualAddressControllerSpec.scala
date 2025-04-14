@@ -125,6 +125,27 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
         redirectLocation(result) shouldBe Some(routes.AddressSearchResultController.show(page = 1, checkYourAnswersMode).url)
       }
 
+      "Successfully submit only valid postcode was entered and redirect to address search result page with mode as check your answers" in {
+        when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
+        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
+        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))))
+        val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ManualAddressController.submit(checkYourAnswersMode))
+          .withFormUrlEncodedBody(
+            "AddressLine1" -> "",
+            "AddressLine2" -> "",
+            "City" -> "",
+            "PostalCode" -> "AA00 0AA"
+          )
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
+        result.map(result => {
+          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
+          result.session.get(postcodeKey) mustBe Some("AA00 0AA")
+        })
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(routes.AddressSearchResultController.show(page = 1, checkYourAnswersMode).url)
+      }
+
       "Successfully submit valid postcode but AddressLookup throws a BadRequestException" in {
         when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
         when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
@@ -191,34 +212,6 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
         val content = contentAsString(result)
         content must include(pageTitle)
         content must include("Enter a full UK postcode")
-      }
-
-      "Submit with no address line1 and display error message" in {
-        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(manualAddressRoute)
-          .withFormUrlEncodedBody(
-            "AddressLine1" -> "",
-            "City" -> "Worthing",
-            "PostalCode" -> "W126WA"
-          )
-          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        status(result) mustBe BAD_REQUEST
-        val content = contentAsString(result)
-        content must include(pageTitle)
-        content must include("Enter address line 1, typically the building and street")
-      }
-
-      "Submit with no town and display error message" in {
-        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(manualAddressRoute)
-          .withFormUrlEncodedBody(
-            "AddressLine1" -> "99",
-            "City" -> "",
-            "PostalCode" -> "W126WA"
-          )
-          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        status(result) mustBe BAD_REQUEST
-        val content = contentAsString(result)
-        content must include(pageTitle)
-        content must include("Enter town or city")
       }
     }
   }
