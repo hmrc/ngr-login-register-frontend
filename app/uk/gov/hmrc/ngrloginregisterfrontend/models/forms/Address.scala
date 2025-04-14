@@ -71,6 +71,7 @@ object Address extends CommonFormValidators {
         ),
         "PostalCode" ->
           text()
+            .transform[String](_.strip(), identity)
             .verifying(
               firstError(
                 isNotEmpty(postcode, postcodeEmptyError),
