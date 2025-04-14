@@ -24,6 +24,8 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.SessionTimeoutHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
@@ -36,6 +38,7 @@ import scala.util.{Failure, Success, Try}
 class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               authenticate: AuthJourney,
                                               mcc: MessagesControllerComponents,
+                                              ngrFindAddressRepo: NgrFindAddressRepo,
                                               sessionManager: SessionManager
                                              )(implicit appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionTimeoutHelper {
@@ -44,12 +47,24 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def show(page: Int = 1, mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-     val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
-       .map(
-         Json.parse(_).as[Seq[LookedUpAddress]]
-         .map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
-       )
-       .getOrElse(Seq.empty)
+
+      ngrFindAddressRepo.findByCredId(CredId(request.credId.getOrElse(""))).flatMap{
+        case addresses  if addresses.isEmpty =>
+        case _ =>
+      }
+
+      val address: Future[Seq[String]] =
+        ngrFindAddressRepo.findByCredId(CredId(request.credId.getOrElse(""))).map {
+          lookUpAddresses =>
+            lookUpAddresses.map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
+        }
+
+//     val address: Seq[String] =  sessionManager.getSessionValue(request.session, sessionManager.addressLookupResponseKey)
+//       .map(
+//         Json.parse(_).as[Seq[LookedUpAddress]]
+//         .map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
+//       )
+//       .getOrElse(Seq.empty)
 
       val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
       val totalPages: Int = math.ceil(address.length.toFloat / defaultPageSize.toFloat).toInt

@@ -23,8 +23,11 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup._
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookUpAddresses
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
@@ -37,8 +40,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class FindAddressController @Inject()(findAddressView: FindAddressView,
                                       addressLookupConnector: AddressLookupConnector,
                                       sessionManager: SessionManager,
-                                      logger: NGRLogger,
                                       authenticate: AuthJourney,
+                                      ngrFindAddressRepo: NgrFindAddressRepo,
                                       mcc: MessagesControllerComponents
                                      )(implicit ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
@@ -50,7 +53,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
   }
 
   def submit(mode: String): Action[AnyContent] =
-    Action.async { implicit request =>
+    authenticate.authWithUserDetails.async { implicit request =>
       FindAddress.form()
         .bindFromRequest()
         .fold(
@@ -64,6 +67,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
               case AddressLookupSuccessResponse(recordSet) =>
                 val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
+                ngrFindAddressRepo.upsert(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), addressList = recordSet.candidateAddresses.map(address => address.address).toList))
                 Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)
             }
           })
