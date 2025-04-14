@@ -37,6 +37,7 @@ object FindAddress extends CommonFormValidators {
     Form(
       mapping(
         postcode -> text()
+          .transform[String](_.strip(), identity)
           .verifying(
             firstError(
               isNotEmpty(postcode, postcodeEmptyError),
