@@ -20,10 +20,10 @@ import com.mongodb.client.model.Indexes.descending
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, ReplaceOptions}
-import play.api.{Logger, Logging}
+import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.ngrloginregisterfrontend.config.{AppConfig, FrontendAppConfig}
+import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookUpAddresses, LookedUpAddress}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 

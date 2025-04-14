@@ -24,6 +24,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookUpAddresses
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ManualAddressView
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address.form
@@ -77,7 +78,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
               case AddressLookupErrorResponse(_) =>
                 InternalServerError
               case AddressLookupSuccessResponse(recordSet) =>
-                ngrFindAddressRepo.upsert(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), addressList = recordSet.candidateAddresses.map(address => address.address).toList))
+                ngrFindAddressRepo.upsert(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), addressList = recordSet.candidateAddresses.map(address => address.address)))
                 val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
                 Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)

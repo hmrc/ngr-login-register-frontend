@@ -37,6 +37,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
     addressSearchResultView,
     mockAuthJourney,
     mcc,
+    mockNgrFindAddressRepo,
     mockSessionManager
   )
 
