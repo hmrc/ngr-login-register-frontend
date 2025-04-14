@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
 import uk.gov.hmrc.http.BadRequestException
@@ -25,11 +24,11 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ManualAddressView
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ManualAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
