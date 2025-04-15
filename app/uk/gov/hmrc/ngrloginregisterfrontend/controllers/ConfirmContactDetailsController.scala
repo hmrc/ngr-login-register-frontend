@@ -41,11 +41,11 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper {
 
-  def show(): Action[AnyContent] =
+  def show(manualEmail: Option[String] = None): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
       val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
-      val email = Email(request.email.getOrElse(""))
+      val email = Email(manualEmail.getOrElse(request.email.getOrElse("")))
 
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>

@@ -60,7 +60,7 @@ class NameController  @Inject()(
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else
-              Future.successful(Redirect(routes.ConfirmContactDetailsController.show))
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show(None)))
           }
         )
     }

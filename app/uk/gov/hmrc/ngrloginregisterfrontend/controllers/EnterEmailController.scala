@@ -15,41 +15,36 @@
  */
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
-
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EnterEmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import scala.concurrent.Future
 
 @Singleton
-class StartController @Inject()(view: StartView,
-                                mcc: MessagesControllerComponents,
-                                sessionManager: SessionManager,
-                                authenticate: AuthJourney
-                               )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
-
-  val redirect: Action[AnyContent] = Action.async {
-    Future.successful(Redirect(routes.StartController.show))
-  }
-
-  val show: Action[AnyContent] = Action.async { implicit request =>
-    val updateSession = sessionManager.setJourneyId(request.session, sessionManager.generateJourneyId)
-    Future.successful(Ok(view()).withSession(updateSession))
-  }
+class EnterEmailController @Inject()(view: EnterEmailView,
+                                     mcc: MessagesControllerComponents,
+                                     authenticate: AuthJourney)
+                                    (implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+  def show(): Action[AnyContent] =
+    authenticate.authWithUserDetails.async { implicit request =>
+      Future.successful(Ok(view(form())))
+    }
 
   def submit(): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      if (request.email.isEmpty) {
-        Future.successful(Redirect(routes.EnterEmailController.show))
-      } else {
-        Future.successful(Redirect(routes.ConfirmContactDetailsController.show(None)))
-      }
+      form()
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+          email => {
+            Future.successful(Redirect(routes.ConfirmContactDetailsController.show(Some(email.value))))
+          }
+        )
     }
   }
 
