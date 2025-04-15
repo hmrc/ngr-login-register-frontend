@@ -18,14 +18,15 @@ package uk.gov.hmrc.ngrloginregisterfrontend.repo
 
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookUpAddresses
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 
 import java.time.Instant
 
 
-class NgrFindAddressRepoSpec extends TestSupport with TestData
+class NgrFindAddressRepoSpec extends TestSupport
   with DefaultPlayMongoRepositorySupport[LookUpAddresses] {
   lazy val repository: NgrFindAddressRepo = app.injector.instanceOf[NgrFindAddressRepo]
 
@@ -34,53 +35,29 @@ class NgrFindAddressRepoSpec extends TestSupport with TestData
     await(repository.ensureIndexes())
   }
 
-  val time = Instant.now()
-
-  private val credId: CredId = CredId("12345")
-
-  private val lookUpAddresses: LookUpAddresses = LookUpAddresses(credId = credId, createdAt = time,  List(
+  val lookUpAddresses3: LookUpAddresses = LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode("W126WA"),  List(
     addressLookupAddress,
     addressLookupAddress,
     addressLookupAddress)
   )
-
-  private val lookUpAddresses2: LookUpAddresses = LookUpAddresses(credId = credId, createdAt = time, List(
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress,
-    addressLookupAddress)
-  )
-
-
 
   "repository" can {
     "save a new ratepayerRegistration" when {
       "correct ratepayer has been supplied" in {
-        val isSuccessful = await(repository.upsert(lookUpAddresses))
+        val isSuccessful = await(repository.upsertLookupAddresses(lookUpAddresses3))
 
         isSuccessful shouldBe true
 
-        val actual = await(repository.findByCredId(credId)).get
+        val actual = await(repository.findByCredId(credId))
 
-        val actualWithoutTimestamp = actual.copy(createdAt = time)
-        val expectWithoutTimeStamp = lookUpAddresses.copy(createdAt = time)
-
-        actualWithoutTimestamp shouldBe expectWithoutTimeStamp
+        actual shouldBe lookUpAddresses3
       }
 
       "missing credId" in {
-        val Addresses: LookUpAddresses = lookUpAddresses.copy(credId = CredId(null))
+        val Addresses: LookUpAddresses = lookUpAddresses3.copy(credId = CredId(null))
 
         val exception = intercept[IllegalStateException] {
-          await(repository.upsert(Addresses))
+          await(repository.upsertLookupAddresses(Addresses))
         }
 
         exception.getMessage contains "Addresses have not been inserted" shouldBe true

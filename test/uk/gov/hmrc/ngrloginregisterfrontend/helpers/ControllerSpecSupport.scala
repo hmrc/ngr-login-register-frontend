@@ -32,7 +32,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
 import scala.concurrent.ExecutionContext
 
-trait ControllerSpecSupport extends TestSupport{
+trait ControllerSpecSupport extends TestSupport with TestData{
 
   implicit lazy val msgs: Messages          = MessagesImpl(Lang("en"), inject[MessagesApi])
   val mockAuthJourney: AuthJourney          = mock[AuthJourney]
@@ -42,7 +42,6 @@ trait ControllerSpecSupport extends TestSupport{
   val mockNGRLogger: NGRLogger              = mock[NGRLogger]
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-  val credId: CredId = CredId("1234")
 
   mockRequest()
 

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup
 
 import play.api.libs.json._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.models.JsonFormatUtils
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 
@@ -48,7 +49,7 @@ object LookedUpAddressWrapper {
   implicit val reads: Reads[LookedUpAddressWrapper] = Json.reads[LookedUpAddressWrapper]
 }
 
-case class LookUpAddresses(credId:CredId, createdAt: Instant = Instant.now(), addressList:Seq[LookedUpAddress])
+case class LookUpAddresses(credId:CredId, createdAt: Instant = Instant.now(), postcode: Postcode, addressList:Seq[LookedUpAddress] = Seq.empty)
 
 object LookUpAddresses {
   implicit val format: Format[LookUpAddresses] = Json.format[LookUpAddresses]

@@ -23,10 +23,15 @@ import play.api.libs.json.Json
 import play.api.mvc.Session
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddressWrapper
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookUpAddresses, LookedUpAddressWrapper}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
-class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestData {
+import java.time.Instant
+import scala.concurrent.Future
+
+class AddressSearchResultControllerSpec extends ControllerSpecSupport {
 
   lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1, confirmContactDetailsMode).url
   lazy val addressSearchResultView: AddressSearchResultView = inject[AddressSearchResultView]
@@ -47,10 +52,67 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
   val addressLookupResponses32: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson32.as[Seq[LookedUpAddressWrapper]]
   val expectAddressesJsonString32: String = Json.toJson(addressLookupResponses32.map(_.address)).toString()
 
+  val lookUpAddressesEmpty: LookUpAddresses = LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode("W126WA"),  List.empty)
+
+
+  val lookUpAddresses14: LookUpAddresses = LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode("W126WA"), List(
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress)
+  )
+
+  val lookUpAddresses32: LookUpAddresses = LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode("W126WA"), List(
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress,
+    addressLookupAddress)
+  )
+
+
   "Address Search Result Controller" must {
     "method show" must {
       "Return OK and the correct view when theirs 14 address on page 1" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
+        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(lookUpAddresses14))
         val result = controller().show(page = 1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -61,6 +123,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
 
       "Correctly display page number and number for no address" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
+        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(lookUpAddressesEmpty))
         val result = controller().show(page = 1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -69,6 +132,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport with TestD
 
       "Correctly display page number and number of address's on page 2" in {
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
+        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(lookUpAddresses32))
         val result = controller().show(page = 2, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
         status(result) mustBe OK

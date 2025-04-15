@@ -43,6 +43,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 trait TestSupport extends PlaySpec
 with GuiceOneAppPerSuite
+with TestData
 with Matchers
 with MockitoSugar
 with Injecting

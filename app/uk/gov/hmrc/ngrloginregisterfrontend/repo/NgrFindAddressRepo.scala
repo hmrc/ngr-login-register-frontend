@@ -21,12 +21,15 @@ import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, ReplaceOptions}
 import play.api.Logging
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, Postcode}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookUpAddresses, LookedUpAddress}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,7 +64,7 @@ case class  NgrFindAddressRepo @Inject()(mongo: MongoComponent,
 
   override lazy val requiresTtlIndex: Boolean = false
 
-  def upsert(lookUpAddresses: LookUpAddresses): Future[Boolean] = {
+  def upsertLookupAddresses(lookUpAddresses: LookUpAddresses): Future[Boolean] = {
     val errorMsg = s"Addresses have not been inserted"
 
     collection.replaceOne(
@@ -79,10 +82,10 @@ case class  NgrFindAddressRepo @Inject()(mongo: MongoComponent,
     }
   }
 
-  def findByCredId(credId: CredId): Future[Seq[LookedUpAddress]] = {
+  def findByCredId(credId: CredId): Future[LookUpAddresses] = {
     collection.find(
       equal("credId.value", credId.value)
-    ).headOption().map(addresses => addresses.map(address => address.addressList).getOrElse(List.empty))
+    ).headOption().map(addresses => addresses.getOrElse(LookUpAddresses(credId = credId, postcode = Postcode(""))))
   }
 
 }

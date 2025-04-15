@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc._
+import play.filters.csrf.CSRF.ErrorHandler
 import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
@@ -47,11 +49,13 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def show(page: Int = 1, mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      val postcode: String = sessionManager.getSessionValue(request.session, sessionManager.postcodeKey).getOrElse("")
       ngrFindAddressRepo.findByCredId(CredId(request.credId.getOrElse(""))).flatMap {
-        case addresses if addresses.isEmpty => Future.successful(createPaginateView(Seq.empty, postcode, page, mode))
+        case addresses if addresses.addressList.isEmpty =>
+          val postcode: String = addresses.postcode.value
+          Future.successful(createPaginateView(Seq.empty, postcode, page, mode))
         case addresses =>
-          val address:Seq[String] = addresses.map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
+          val address:Seq[String] = addresses.addressList.map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
+          val postcode: String = addresses.postcode.value
           Future.successful(createPaginateView(address, postcode, page, mode))
       }
     }

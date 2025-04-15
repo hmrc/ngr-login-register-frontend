@@ -66,7 +66,15 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
               case AddressLookupSuccessResponse(recordSet) =>
                 val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-                ngrFindAddressRepo.upsert(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), addressList = recordSet.candidateAddresses.map(address => address.address)))
+
+                ngrFindAddressRepo.upsertLookupAddresses(
+                  LookUpAddresses(
+                    credId = CredId(request.credId.getOrElse("")),
+                    postcode = Postcode(findAddress.postcode.value),
+                    addressList = recordSet.candidateAddresses.map(address => address.address)
+                  )
+                )
+
                 Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)
             }
           })

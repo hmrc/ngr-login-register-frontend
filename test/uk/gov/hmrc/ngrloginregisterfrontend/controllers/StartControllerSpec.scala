@@ -17,7 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.Mockito.when
-import play.api.http.Status.OK
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
@@ -32,6 +32,12 @@ class StartControllerSpec extends ControllerSpecSupport {
     "return OK and the correct view for a GET" in {
       val result = controller.show()(authenticatedFakeRequest)
       status(result) mustBe OK
+    }
+
+    "redirect to start page when route / is hit" in {
+      val result = controller.redirect()(authenticatedFakeRequest)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.StartController.show.url)
     }
 
     "redirect when start button pressed" in {

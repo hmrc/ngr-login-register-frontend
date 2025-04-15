@@ -78,7 +78,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
               case AddressLookupErrorResponse(_) =>
                 InternalServerError
               case AddressLookupSuccessResponse(recordSet) =>
-                ngrFindAddressRepo.upsert(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), addressList = recordSet.candidateAddresses.map(address => address.address)))
+                ngrFindAddressRepo.upsertLookupAddresses(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), postcode = findAddress.postcode, addressList = recordSet.candidateAddresses.map(address => address.address)))
                 val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
                 val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
                 Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)

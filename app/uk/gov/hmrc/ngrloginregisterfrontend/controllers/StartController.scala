@@ -31,8 +31,7 @@ class StartController @Inject()(view: StartView,
                                 sessionManager: SessionManager
                                )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
-  val redirect: Action[AnyContent] = Action.async { implicit request =>
-    val updateSession = sessionManager.setJourneyId(request.session, sessionManager.generateJourneyId)
+  val redirect: Action[AnyContent] = Action.async {
     Future.successful(Redirect(routes.StartController.show))
   }
 
