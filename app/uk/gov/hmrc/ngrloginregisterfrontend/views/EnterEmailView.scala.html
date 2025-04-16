@@ -31,7 +31,7 @@
 
 @(emailForm: Form[Email])(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("enterEmail.pageTitle"))) {
+@layout(pageTitle = Some(messages("email.pageTitle")), showBackLink = false) {
 
     @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.EnterEmailController.submit, Symbol("autoComplete") -> "off") {
 
@@ -41,15 +41,15 @@
 
         <span class="govuk-caption-l">@messages("name.caption")</span>
         <h1 class="govuk-heading-l">
-            @messages("enterEmail.heading")
+            @messages("email.heading")
         </h1>
-        <p class="govuk-body">@messages("enterEmail.subheading")</p>
+        <p class="govuk-body">@messages("email.subheading")</p>
 
         @inputText(
             form  =   emailForm,
             id    =  "email-value",
             name  =  "email-value",
-            label =   messages("enterEmail.label"),
+            label =   messages("email.label"),
             isVisible = true,
             classes = Some("govuk-input--width-full")
         )
