@@ -17,7 +17,11 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup
 
 import play.api.libs.json._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.models.JsonFormatUtils
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+
+import java.time.Instant
 
 final case class AddressLookupResponseModel(candidateAddresses: Seq[LookedUpAddressWrapper]) {
   lazy val noOfHits: Int = candidateAddresses.size
@@ -43,6 +47,12 @@ final case class LookedUpAddressWrapper(
 
 object LookedUpAddressWrapper {
   implicit val reads: Reads[LookedUpAddressWrapper] = Json.reads[LookedUpAddressWrapper]
+}
+
+case class LookUpAddresses(credId:CredId, createdAt: Instant = Instant.now(), postcode: Postcode, addressList:Seq[LookedUpAddress] = Seq.empty)
+
+object LookUpAddresses {
+  implicit val format: Format[LookUpAddresses] = Json.format[LookUpAddresses]
 }
 
 case class LookedUpAddress(lines: Seq[String], town: String, county: Option[String], postcode: String)

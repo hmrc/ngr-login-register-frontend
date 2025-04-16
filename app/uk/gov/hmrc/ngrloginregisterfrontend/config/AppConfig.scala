@@ -29,11 +29,13 @@ trait AppConfig {
   def getString(key: String): String
   val addressLookupUrl: String
   val centralAuthServerUrl: String
+  val timeToLive: String
 }
 
 @Singleton
 class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) extends AppConfig {
   override val features = new Features()(config)
+  override val timeToLive: String = sc.getString("time-to-live.time")
   override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")
   override val citizenDetailsUrl: String = sc.baseUrl("citizen-details")
   override val nextGenerationRatesUrl: String = sc.baseUrl("next-generation-rates")

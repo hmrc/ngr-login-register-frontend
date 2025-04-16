@@ -26,21 +26,22 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
 import scala.concurrent.ExecutionContext
 
-trait ControllerSpecSupport extends TestSupport{
+trait ControllerSpecSupport extends TestSupport with TestData{
 
   implicit lazy val msgs: Messages          = MessagesImpl(Lang("en"), inject[MessagesApi])
   val mockAuthJourney: AuthJourney          = mock[AuthJourney]
+  val mockNgrFindAddressRepo : NgrFindAddressRepo = mock[NgrFindAddressRepo]
   val mockNGRConnector: NGRConnector        = mock[NGRConnector]
   val mockSessionManager: SessionManager    = mock[SessionManager]
   val mockNGRLogger: NGRLogger              = mock[NGRLogger]
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-  val credId: CredId = CredId("1234")
 
   mockRequest()
 

@@ -18,17 +18,19 @@ package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookedUpAddress, LookedUpAddressWrapper, Uprn}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookUpAddresses, LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino, PhoneNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, CredId, TRNReferenceNumber}
 
-import java.time.LocalDate
+import java.time.{Instant, LocalDate}
 
 trait TestData {
+  val credId: CredId = CredId("1234")
+  val time = Instant.now()
 
   val testAddressModel: Address =
     Address(line1 = "99",
