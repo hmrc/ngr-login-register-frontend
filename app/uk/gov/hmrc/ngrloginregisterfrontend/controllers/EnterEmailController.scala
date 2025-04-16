@@ -21,18 +21,18 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EnterEmailView
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.Future
 
 @Singleton
-class EnterEmailController @Inject()(view: EnterEmailView,
+class EnterEmailController @Inject()(view: EmailView,
                                      mcc: MessagesControllerComponents,
                                      authenticate: AuthJourney)
                                     (implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
   def show(): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      Future.successful(Ok(view(form())))
+      Future.successful(Ok(view(form(), "enterEmail")))
     }
 
   def submit(): Action[AnyContent] = {
@@ -40,7 +40,7 @@ class EnterEmailController @Inject()(view: EnterEmailView,
       form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, "enterEmail"))),
           email => {
             Future.successful(Redirect(routes.ConfirmContactDetailsController.show(Some(email.value))))
           }

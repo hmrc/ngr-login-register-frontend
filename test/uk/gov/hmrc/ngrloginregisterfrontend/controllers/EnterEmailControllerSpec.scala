@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EnterEmailView
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
@@ -27,7 +27,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 
 class EnterEmailControllerSpec extends ControllerSpecSupport with TestData {
 
-  lazy val view: EnterEmailView = inject[EnterEmailView]
+  lazy val view: EmailView = inject[EmailView]
   def controller() = new EnterEmailController(view, mcc, mockAuthJourney)
 
   "Email Controller" must {
