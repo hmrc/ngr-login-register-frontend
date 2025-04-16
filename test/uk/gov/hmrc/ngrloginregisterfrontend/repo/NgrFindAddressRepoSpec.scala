@@ -51,7 +51,7 @@ class NgrFindAddressRepoSpec extends TestSupport
 
         val actual = await(repository.findByCredId(credId))
 
-        actual shouldBe lookUpAddresses3
+        actual shouldBe Some(lookUpAddresses3)
       }
 
       "missing credId" in {
@@ -79,11 +79,7 @@ class NgrFindAddressRepoSpec extends TestSupport
       "credId doesn't exist in mongoDB" in {
         val actual = await(repository.findByCredId(credId))
 
-        actual mustBe defined
-
-        val response = actual.get.copy(createdAt = time)
-
-        response shouldBe LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode(""))
+        actual mustBe None
       }
     }
 
@@ -94,6 +90,13 @@ class NgrFindAddressRepoSpec extends TestSupport
 
         actual mustBe defined
         actual mustBe Some(expectedAddress)
+      }
+
+      "return none when index out of bound" in {
+        await(repository.upsertLookupAddresses(lookUpAddresses3))
+        val actual = await(repository.findChosenAddressByCredId(credId, 10))
+
+        actual mustBe None
       }
     }
   }

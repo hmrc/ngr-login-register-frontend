@@ -167,7 +167,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
       "set a chosen address correctly when addressLookup gives 2 lines in lines" in {
         val addressLookup: LookedUpAddress = LookedUpAddress(lines = Seq("Line1", "Line2"), town = "town", postcode = "SW12 6RE", county = None)
         val actual: Address = controller().convertLookedUpAddressToNGRAddress(addressLookup)
-        actual shouldBe Address("Line1", Some("line2"), "town", None, Postcode("SW12 6RE"))
+        actual shouldBe Address("Line1", Some("Line2"), "town", None, Postcode("SW12 6RE"))
       }
 
       "set a chosen address correctly when addressLookup gives 5 lines in  lines" in {
