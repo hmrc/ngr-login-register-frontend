@@ -21,19 +21,16 @@ import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, ReplaceOptions}
 import play.api.Logging
-import play.api.http.Status.INTERNAL_SERVER_ERROR
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, Postcode}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookUpAddresses, LookedUpAddress}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 
-import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 case class  NgrFindAddressRepo @Inject()(mongo: MongoComponent,
@@ -82,10 +79,20 @@ case class  NgrFindAddressRepo @Inject()(mongo: MongoComponent,
     }
   }
 
-  def findByCredId(credId: CredId): Future[LookUpAddresses] = {
+  def findByCredId(credId: CredId): Future[Option[LookUpAddresses]] = {
     collection.find(
       equal("credId.value", credId.value)
-    ).headOption().map(addresses => addresses.getOrElse(LookUpAddresses(credId = credId, postcode = Postcode(""))))
+    ).headOption()
   }
 
+  def findChosenAddressByCredId(credId: CredId, index: Int): Future[Option[LookedUpAddress]] = {
+    findByCredId(credId).map(addressesOpt =>
+      addressesOpt.flatMap(addresses =>
+        Try(addresses.addressList.apply(index)) match {
+          case Failure(e) => None
+          case Success(address) => Some(address)
+        }
+      )
+    )
+  }
 }

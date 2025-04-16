@@ -20,30 +20,25 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.Session
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookUpAddresses, LookedUpAddressWrapper}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 
-import java.time.Instant
 import scala.concurrent.Future
 
 class AddressSearchResultControllerSpec extends ControllerSpecSupport {
 
   lazy val addressSearchResultRoute: String = routes.AddressSearchResultController.show(page = 1, confirmContactDetailsMode).url
   lazy val addressSearchResultView: AddressSearchResultView = inject[AddressSearchResultView]
-  lazy val addressResponseKey: String = mockSessionManager.addressLookupResponseKey
   val pageTitle = s"Search results for CH27RH"
 
   def controller() = new AddressSearchResultController(
     addressSearchResultView,
     mockAuthJourney,
     mcc,
-    mockNgrFindAddressRepo,
-    mockSessionManager
+    mockNgrFindAddressRepo
   )
 
   val addressLookupResponses14: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson14.as[Seq[LookedUpAddressWrapper]]
@@ -111,8 +106,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport {
   "Address Search Result Controller" must {
     "method show" must {
       "Return OK and the correct view when theirs 14 address on page 1" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
-        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(lookUpAddresses14))
+        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(Some(lookUpAddresses14)))
         val result = controller().show(page = 1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -122,8 +116,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport {
       }
 
       "Correctly display page number and number for no address" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
-        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(lookUpAddressesEmpty))
+        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(Some(lookUpAddressesEmpty)))
         val result = controller().show(page = 1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
         status(result) mustBe OK
         val content = contentAsString(result)
@@ -131,10 +124,8 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport {
       }
 
       "Correctly display page number and number of address's on page 2" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
-        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(lookUpAddresses32))
+        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(Some(lookUpAddresses32)))
         val result = controller().show(page = 2, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
         status(result) mustBe OK
         val content = contentAsString(result)
         content must    include("Previous")
@@ -143,47 +134,33 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport {
       }
 
       "Correctly display page number and number of address's on page 3" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
-        val result = controller().show(page = 3, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString32))
+        val result = controller().show(page = 3, confirmContactDetailsMode)(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must    include("Previous")
         content must    include ("Showing <strong>31</strong> to <strong>32</strong> of <strong>32</strong> items.")
         content mustNot include("Next")
       }
+
+      "Return SEE OTHER and redirect to find address when there is no addresses in mongoDB" in {
+        when(mockNgrFindAddressRepo.findByCredId(any())).thenReturn(Future(None))
+        val result = controller().show(page = 1, confirmContactDetailsMode)(authenticatedFakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.FindAddressController.show(confirmContactDetailsMode).url)
+      }
     }
 
     "method selectedAddress" must {
-      "Return SEE OTHER and correctly store address to the session with mode as confirm contact details" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
-        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
-        val result = controller().selectedAddress(1, confirmContactDetailsMode)(authenticatedFakeRequestWithSession)
+      "Return SEE OTHER and pass chosen property index to confirm your address page with mode as confirm contact details" in {
+        val result = controller().selectedAddress(1, confirmContactDetailsMode)(authenticatedFakeRequest)
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show(confirmContactDetailsMode).url)
+        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show(confirmContactDetailsMode, 1).url)
       }
 
-      "Return SEE OTHER and correctly store address to the session with mode as check your answers" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
-        when(mockSessionManager.setChosenAddress(any(), any())) thenReturn Session(Map("NGR-Chosen-Address-Key" -> "20, Long Rd, Bournemouth, Dorset, BN110AA"))
-        val result = controller().selectedAddress(1, checkYourAnswersMode)(authenticatedFakeRequestWithSession)
+      "Return SEE OTHER and pass chosen property index to confirm your address page with mode as check your answers" in {
+        val result = controller().selectedAddress(1, checkYourAnswersMode)(authenticatedFakeRequest)
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show(checkYourAnswersMode).url)
-      }
-
-      "Address index out of bounds exception thrown" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(Some(expectAddressesJsonString14))
-        val exception = intercept[RuntimeException] {
-          controller().selectedAddress(20, confirmContactDetailsMode)(authenticatedFakeRequestWithSession).futureValue
-        }
-        exception.getMessage must include("Address not found at index")
-      }
-
-      "Return SEE OTHER when address search results isn't in the session and redirect to confirm contact details" in {
-        when(mockSessionManager.getSessionValue(any(), any())).thenReturn(None)
-        val result = controller().selectedAddress(1, checkYourAnswersMode)(authenticatedFakeRequestWithSession)
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show.url)
+        redirectLocation(result) mustBe Some(routes.ConfirmAddressController.show(checkYourAnswersMode, 1).url)
       }
     }
   }

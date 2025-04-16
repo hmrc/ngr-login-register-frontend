@@ -17,14 +17,11 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.repo
 
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.test.Helpers.await
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookUpAddresses
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-
-import java.time.Instant
 
 
 class NgrFindAddressRepoSpec extends TestSupport
@@ -36,15 +33,18 @@ class NgrFindAddressRepoSpec extends TestSupport
     await(repository.ensureIndexes())
   }
 
+  val expectedAddress = addressLookupAddress.copy(lines = Seq("Apt 3", "103 Test road"))
+
   val lookUpAddresses3: LookUpAddresses = LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode("W126WA"),  List(
     addressLookupAddress,
     addressLookupAddress,
-    addressLookupAddress)
+    expectedAddress
+    )
   )
 
   "repository" can {
-    "save a new ratepayerRegistration" when {
-      "correct ratepayer has been supplied" in {
+    "save a new LookUpAddresses" when {
+      "correct LookUpAddresses has been supplied" in {
         val isSuccessful = await(repository.upsertLookupAddresses(lookUpAddresses3))
 
         isSuccessful shouldBe true
@@ -65,22 +65,36 @@ class NgrFindAddressRepoSpec extends TestSupport
       }
     }
 
-    "find a ratepayer by cred id" when {
-      "correct ratepayer has been returned" in {
+    "find LookUpAddresses by cred id" when {
+      "correct LookUpAddresses has been returned" in {
         await(repository.upsertLookupAddresses(lookUpAddresses3))
         val isSuccessful = await(repository.findByCredId(credId))
 
-        val respoonse = isSuccessful.copy(createdAt = time)
+        isSuccessful mustBe defined
+        val response = isSuccessful.get.copy(createdAt = time)
         val expected = lookUpAddresses3.copy(createdAt = time)
-        respoonse shouldBe expected
+        response shouldBe expected
+      }
+
+      "credId doesn't exist in mongoDB" in {
+        val actual = await(repository.findByCredId(credId))
+
+        actual mustBe defined
+
+        val response = actual.get.copy(createdAt = time)
+
+        response shouldBe LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode(""))
       }
     }
 
-    "credId doesn't exist in mongoDB" in {
-      val actual = await(repository.findByCredId(credId))
-       val response =  actual.copy(createdAt = time)
+    "find a chosen LookedUpAddress by cred id" when {
+      "correct LookedUpAddress has been returned" in {
+        await(repository.upsertLookupAddresses(lookUpAddresses3))
+        val actual = await(repository.findChosenAddressByCredId(credId, 2))
 
-      response shouldBe LookUpAddresses(credId = credId, createdAt = time, postcode = Postcode(""))
+        actual mustBe defined
+        actual mustBe Some(expectedAddress)
+      }
     }
   }
 }

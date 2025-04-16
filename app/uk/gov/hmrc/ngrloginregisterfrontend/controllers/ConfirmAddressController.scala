@@ -17,18 +17,17 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRRadio.buildRadios
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmAddressForm.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
-import uk.gov.hmrc.ngrloginregisterfrontend.utils.SessionTimeoutHelper
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -38,61 +37,52 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
                                          authenticate: AuthJourney,
-                                         sessionManager: SessionManager,
+                                         ngrFindAddressRepo: NgrFindAddressRepo,
                                          connector: NGRConnector,
                                          mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport with SessionTimeoutHelper {
+  extends FrontendController(mcc) with I18nSupport {
   private val yesButton: NGRRadioButtons = NGRRadioButtons("Yes", Yes)
   private val noButton: NGRRadioButtons = NGRRadioButtons("No", No)
   private val ngrRadio: NGRRadio = NGRRadio(NGRRadioName("confirm-address-radio"), Seq(yesButton, noButton))
-  def show(mode: String): Action[AnyContent] =
+  def show(mode: String, index: Int): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      getAddressFromSession match {
-        case Right(addressOpt) => Future.successful(Ok(confirmAddressView(getChosenAddressString(addressOpt), form, buildRadios(form, ngrRadio), mode)))
-        case Left(result) => Future.successful(result)
+      ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.getOrElse("")), index).flatMap {
+        case None =>
+          Future.successful(Redirect(routes.FindAddressController.show(mode)))
+        case Some(address) =>
+          Future.successful(Ok(confirmAddressView(address.toString, index, form, buildRadios(form, ngrRadio), mode)))
       }
     }
 
-  def submit(mode: String): Action[AnyContent] =
+  def submit(mode: String, index: Int): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
       def redirectPage(mode: String): Result = if (mode == "CYA") Redirect(routes.CheckYourAnswersController.show) else Redirect(routes.ConfirmContactDetailsController.show)
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            getAddressFromSession match {
-              case Right(addressOpt) => Future.successful(BadRequest(confirmAddressView(getChosenAddressString(addressOpt), formWithErrors, buildRadios(formWithErrors, ngrRadio), mode)))
-              case Left(result) => Future.successful(result)
-            },
-          confirmAddressForm => {
-            val result:Result = if (confirmAddressForm.radioValue.equals("Yes")) {
-              updateAddress().fold(result => result, _ => redirectPage(mode))
-            } else {
-              redirectPage(mode)
-            }
-            Future.successful(result)
-          }
-        )
+
+      ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.getOrElse("")), index).flatMap {
+        case None =>
+          Future.successful(Redirect(routes.FindAddressController.show(mode)))
+        case Some(address) =>
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                Future.successful(BadRequest(confirmAddressView(address.toString, index, formWithErrors, buildRadios(formWithErrors, ngrRadio), mode))),
+              confirmAddressForm => {
+                if (confirmAddressForm.radioValue.equals("Yes"))
+                  connector.changeAddress(CredId(request.credId.getOrElse("")), convertLookedUpAddressToNGRAddress(address))
+                    .map(_ => redirectPage(mode))
+                else
+                  Future.successful(redirectPage(mode))
+              }
+            )
+      }
     }
 
-  private def updateAddress()(implicit request: AuthenticatedUserRequest[_]): Either[Result, Unit] =
-    getAddressFromSession match {
-        case Right(addressOpt) =>
-          addressOpt
-            .map(connector.changeAddress(CredId(request.credId.getOrElse("")), _))
-            .map(_ => Right())
-            .getOrElse(Right())
-        case Left(result) => Left(result)
-      }
-
-  private def getChosenAddressString(addressOpt: Option[Address]): String =
-    addressOpt
-    .map(address => s"${address.line1}, ${address.line2.map(line2 => s"$line2,").getOrElse("")} ${address.town} ${address.postcode}")
-    .getOrElse("")
-
-  private def getAddressFromSession()(implicit request: AuthenticatedUserRequest[_]): Either[Result, Option[Address]] =
-    getSession(sessionManager, request.session, sessionManager.chosenAddressIdKey)
-      .fold(result => Left(result), addressStrOpt => Right(addressStrOpt.map(Json.parse(_).as[Address])))
-
-
+  private[controllers] def convertLookedUpAddressToNGRAddress(lookedUpAddress: LookedUpAddress): Address = {
+    val splitIndex: Int = if (lookedUpAddress.lines.size % 2 > 0) lookedUpAddress.lines.size / 2 + 1 else lookedUpAddress.lines.size / 2
+    val lineSeq = lookedUpAddress.lines.splitAt(splitIndex)
+    val line1 = lineSeq._1.mkString(" ")
+    val line2 = if (lineSeq._2.isEmpty) None else Some(lineSeq._2.mkString(" "))
+    Address(line1, line2, lookedUpAddress.town, lookedUpAddress.county, Postcode(lookedUpAddress.postcode))
+  }
 }

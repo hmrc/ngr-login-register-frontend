@@ -30,11 +30,11 @@ govukRadios : GovukRadios,
 saveAndContinueButton: saveAndContinueButton
 )
 
-@(address: String, form: Form[ConfirmAddressForm], ngrRadio: Radios, mode: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(address: String, index: Int, form: Form[ConfirmAddressForm], ngrRadio: Radios, mode: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 
 @layout(pageTitle = Some(messages("confirmAddress.pageTitle"))) {
-@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmAddressController.submit(mode), Symbol("autoComplete") -> "off") {
+@formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmAddressController.submit(mode, index), Symbol("autoComplete") -> "off") {
 @if(form.errors.nonEmpty) {
 @govukErrorSummary(ErrorSummaryViewModel(form))
 }

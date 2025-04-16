@@ -16,45 +16,36 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
-import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc._
-import play.filters.csrf.CSRF.ErrorHandler
 import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
-import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
-import uk.gov.hmrc.ngrloginregisterfrontend.utils.SessionTimeoutHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.AddressSearchResultView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               authenticate: AuthJourney,
                                               mcc: MessagesControllerComponents,
-                                              ngrFindAddressRepo: NgrFindAddressRepo,
-                                              sessionManager: SessionManager
+                                              ngrFindAddressRepo: NgrFindAddressRepo
                                              )(implicit appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport with SessionTimeoutHelper {
+  extends FrontendController(mcc) with I18nSupport {
 
   private lazy val defaultPageSize: Int = 15
 
   def show(page: Int = 1, mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
       ngrFindAddressRepo.findByCredId(CredId(request.credId.getOrElse(""))).flatMap {
-        case addresses if addresses.addressList.isEmpty =>
-          val postcode: String = addresses.postcode.value
-          Future.successful(createPaginateView(Seq.empty, postcode, page, mode))
-        case addresses =>
-          val address:Seq[String] = addresses.addressList.map(address => s"${address.lines.mkString(", ")}, ${address.town}, ${address.postcode}")
+        case None =>
+          Future.successful(Redirect(routes.FindAddressController.show(mode)))
+        case Some(addresses) =>
+          val address:Seq[String] = addresses.addressList.map(_.toString)
           val postcode: String = addresses.postcode.value
           Future.successful(createPaginateView(address, postcode, page, mode))
       }
@@ -63,32 +54,8 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def selectedAddress(index: Int, mode: String): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      getSession(sessionManager, request.session, sessionManager.addressLookupResponseKey) match {
-        case Right(addressListOpt) => setChosenAddress(addressListOpt, index, request.session, mode)
-        case Left(result) => Future.successful(result)
-      }
+      Future.successful(Redirect(routes.ConfirmAddressController.show(mode, index)))
     }
-  }
-
-  private def setChosenAddress(addressListOpt: Option[String], index: Int, session: Session, mode: String): Future[Result] = {
-    getSelectedAddress(addressListOpt, index)
-      .map(address =>
-        Future.successful(
-          Redirect(routes.ConfirmAddressController.show(mode)).withSession(sessionManager.setChosenAddress(session, address))
-        )
-      )
-      .getOrElse(Future.failed(new RuntimeException("Address not found at index")))
-  }
-
-  private def getSelectedAddress(addressListOpt: Option[String], index: Int): Option[LookedUpAddress] = {
-    addressListOpt
-      .map(Json.parse(_).as[Seq[LookedUpAddress]])
-      .flatMap(addresses =>
-        Try(addresses.apply(index)) match {
-          case Failure(e) => None
-          case Success(address) => Some(address)
-        }
-      )
   }
 
   private def createPaginateView(address: Seq[String], postcode: String, page: Int, mode: String)(implicit request: RequestHeader): Result = {

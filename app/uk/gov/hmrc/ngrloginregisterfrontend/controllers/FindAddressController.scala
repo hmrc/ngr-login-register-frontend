@@ -17,7 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup._
@@ -28,7 +28,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
-import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.FindAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -38,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class FindAddressController @Inject()(findAddressView: FindAddressView,
                                       addressLookupConnector: AddressLookupConnector,
-                                      sessionManager: SessionManager,
                                       authenticate: AuthJourney,
                                       ngrFindAddressRepo: NgrFindAddressRepo,
                                       mcc: MessagesControllerComponents
@@ -64,9 +62,6 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
               case AddressLookupErrorResponse(_) =>
                 InternalServerError
               case AddressLookupSuccessResponse(recordSet) =>
-                val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
-                val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-
                 ngrFindAddressRepo.upsertLookupAddresses(
                   LookUpAddresses(
                     credId = CredId(request.credId.getOrElse("")),
@@ -75,7 +70,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
                   )
                 )
 
-                Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)
+                Redirect(routes.AddressSearchResultController.show(page = 1, mode))
             }
           })
     }
