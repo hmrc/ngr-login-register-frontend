@@ -54,20 +54,23 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
         connector.getRatepayer(credId).flatMap {
           case Some(ratepayer) =>
+            val maybeReg = ratepayer.ratepayerRegistration
+            val name = maybeReg.flatMap(_.name).map(_.value).getOrElse("")
+
+            def render(ratepayerToRender: RatepayerRegistrationValuation) =
+              Ok(view(createContactDetailSummaryRows(ratepayerToRender, "CCD"), name))
 
             if (manualEmail.nonEmpty) {
-              connector.changeEmail(credId, email).flatMap { _ =>
-                connector.getRatepayer(credId).flatMap {
-                  case Some(updatedRatepayer) =>
-                    val name = updatedRatepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-                    Future.successful(Ok(view(createContactDetailSummaryRows(updatedRatepayer, "CCD"), name)))
-
-                  case None => Future.successful(Status(NOT_FOUND))
-                }
+              maybeReg match {
+                case Some(reg) =>
+                  val updatedReg = reg.copy(email = Some(email))
+                  val updatedRatepayer = RatepayerRegistrationValuation(credId, Some(updatedReg))
+                  connector.changeEmail(credId, email).map(_ => render(updatedRatepayer))
+                case None =>
+                  Future.failed(new IllegalStateException("Missing ratepayerRegistration"))
               }
             } else {
-              val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-              Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "CCD"), name)))
+              Future.successful(render(ratepayer))
             }
 
           case None =>
