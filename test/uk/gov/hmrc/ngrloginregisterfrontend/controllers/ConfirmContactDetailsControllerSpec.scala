@@ -29,7 +29,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, ErrorResponse, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
 
@@ -49,7 +49,8 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
   override def beforeEach(): Unit = {
     super.beforeEach()
     mockRequest()
-    val ratepayer: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
+    val registration: RatepayerRegistration = RatepayerRegistration()
+    val ratepayer: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(registration))
     val response: Option[RatepayerRegistrationValuation] = Some(ratepayer)
     val httpResponse = HttpResponse(CREATED, "Created Successfully")
     when(mockNGRConnector.getRatepayer(any())(any()))
@@ -69,7 +70,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(404, "Not Found"))))
 
-      val result = controller().show()(fakeRequest)
+      val result = controller().show(Some("email@email.com"))(fakeRequest)
       status(result) mustBe 404
     }
 
@@ -82,7 +83,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
     "throw exception when nino is not found from auth" in {
       mockRequest(hasNino = false)
       val exception = intercept[RuntimeException] {
-        controller().show()(authenticatedFakeRequest).futureValue
+        controller().show(Some("email@email.com"))(authenticatedFakeRequest).futureValue
       }
       exception.getMessage mustBe "No nino found from auth"
     }
@@ -112,7 +113,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Right(personDetails)))
       when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(HttpResponse(CREATED, "Created Successfully")))
 
-      val result = controller().show()(fakeRequest)
+      val result = controller().show(Some("email@email.com"))(fakeRequest)
       status(result) mustBe OK
     }
 
@@ -146,6 +147,19 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) shouldBe Some(routes.ProvideTRNController.show().url)
+    }
+
+    "no email redirects to enter email" in {
+      mockRequest(authenticatedFakeRequest)
+      val result = controller().show()(authenticatedFakeRequest)
+      redirectLocation(result) shouldBe Some(routes.EnterEmailController.show.url)
+    }
+
+    "manual email should render" in {
+      mockRequest(authenticatedFakeRequest)
+      when(mockNGRConnector.changeEmail(any(), any())(any())).thenReturn(Future.successful(HttpResponse(CREATED, "Created Successfully")))
+      val result = controller().show(Some("email@email.com"))(authenticatedFakeRequest)
+      status(result) mustBe OK
     }
   }
 }

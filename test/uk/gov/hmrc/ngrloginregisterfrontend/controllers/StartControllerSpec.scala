@@ -17,7 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.Mockito.when
-import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.http.Status.OK
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
