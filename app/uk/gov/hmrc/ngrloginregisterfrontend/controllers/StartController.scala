@@ -43,14 +43,17 @@ class StartController @Inject()(view: StartView,
     Future.successful(Ok(view()).withSession(updateSession))
   }
 
-  def submit(): Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
-      if (request.email.isEmpty) {
-        Future.successful(Redirect(routes.EnterEmailController.show))
-      } else {
-        Future.successful(Redirect(routes.ConfirmContactDetailsController.show(None)))
-      }
+  def submit(): Action[AnyContent] =
+    Action.async {
+      Future.successful(Redirect(routes.ConfirmContactDetailsController.show(None)))
     }
-  }
+
+//    authenticate.authWithUserDetails.async { implicit request =>
+//      if (request.email.isEmpty) {
+//        Future.successful(Redirect(routes.EnterEmailController.show))
+//      } else {
+//        Future.successful(Redirect(routes.ConfirmContactDetailsController.show(None)))
+//      }
+//  }
 
 }

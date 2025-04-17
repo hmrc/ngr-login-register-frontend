@@ -35,9 +35,9 @@ class StartControllerSpec extends ControllerSpecSupport {
       status(result) mustBe OK
     }
 
-    "redirect to enter email when start button pressed" in {
+    "redirect to confirm contact details when start button pressed" in {
       val result = controller.submit()(authenticatedFakeRequest)
-      redirectLocation(result) mustBe Some(routes.EnterEmailController.show.url)
+      redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show(None).url)
       status(result) mustBe 303
     }
 

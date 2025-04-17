@@ -43,48 +43,54 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
   def show(manualEmail: Option[String] = None): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      val credId = CredId(request.credId.getOrElse(""))
-      val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
-      val email = Email(manualEmail.getOrElse(request.email.getOrElse("")))
 
-      connector.getRatepayer(credId).flatMap {
-        case Some(ratepayer) =>
+      if (request.email.isEmpty && manualEmail.isEmpty) {
+        Future.successful(Redirect(routes.EnterEmailController.show))
+      } else {
 
-          if (manualEmail.nonEmpty) {
-            connector.changeEmail(credId, email).flatMap { _ =>
-              connector.getRatepayer(credId).flatMap {
-                case Some(updatedRatepayer) =>
-                  val name = updatedRatepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-                  Future.successful(Ok(view(createContactDetailSummaryRows(updatedRatepayer, "CCD"), name)))
+        val credId = CredId(request.credId.getOrElse(""))
+        val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
+        val email = Email(manualEmail.getOrElse(request.email.getOrElse("")))
 
-                case None => Future.successful(Status(NOT_FOUND))
+        connector.getRatepayer(credId).flatMap {
+          case Some(ratepayer) =>
+
+            if (manualEmail.nonEmpty) {
+              connector.changeEmail(credId, email).flatMap { _ =>
+                connector.getRatepayer(credId).flatMap {
+                  case Some(updatedRatepayer) =>
+                    val name = updatedRatepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
+                    Future.successful(Ok(view(createContactDetailSummaryRows(updatedRatepayer, "CCD"), name)))
+
+                  case None => Future.successful(Status(NOT_FOUND))
+                }
               }
+            } else {
+              val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
+              Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "CCD"), name)))
             }
-          } else {
-            val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-            Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "CCD"), name)))
-          }
 
-        case None =>
-          citizenDetailsConnector.getPersonDetails(authNino).flatMap {
-            case Left(error) =>
-              Future.successful(Status(error.code)(Json.toJson(error)))
+          case None =>
+            citizenDetailsConnector.getPersonDetails(authNino).flatMap {
+              case Left(error) =>
+                Future.successful(Status(error.code)(Json.toJson(error)))
 
-            case Right(personDetails) =>
-              val nameValue = name(personDetails)
-              val ratepayerRegistration = RatepayerRegistration(
-                nino = Some(authNino),
-                name = Some(Name(nameValue)),
-                email = Some(email),
-                address = Some(buildAddress(personDetails))
-              )
+              case Right(personDetails) =>
+                val nameValue = name(personDetails)
+                val ratepayerRegistration = RatepayerRegistration(
+                  nino = Some(authNino),
+                  name = Some(Name(nameValue)),
+                  email = Some(email),
+                  address = Some(buildAddress(personDetails))
+                )
 
-              val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
+                val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
 
-              connector.upsertRatepayer(ratepayerData).map { _ =>
-                Ok(view(createContactDetailSummaryRows(ratepayerData, "CCD"), nameValue))
-              }
-          }
+                connector.upsertRatepayer(ratepayerData).map { _ =>
+                  Ok(view(createContactDetailSummaryRows(ratepayerData, "CCD"), nameValue))
+                }
+            }
+        }
       }
     }
   }
