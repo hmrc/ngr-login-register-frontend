@@ -26,7 +26,6 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookUpAddresses, LookedUpAddress}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}

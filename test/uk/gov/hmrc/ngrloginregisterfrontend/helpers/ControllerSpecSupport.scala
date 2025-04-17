@@ -47,11 +47,23 @@ trait ControllerSpecSupport extends TestSupport with TestData{
   def mockRequest(hasCredId: Boolean = false, hasNino: Boolean = true): Unit =
     when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
       override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
-        val authRequest = AuthenticatedUserRequest(request, None, None, None, if (hasCredId) Some("1234") else None, None, None, nino = if (hasNino) Nino(hasNino = true, Some("AA000003D")) else Nino(hasNino = false, None))
+        val authRequest = AuthenticatedUserRequest(request, None, None, Some("user@email.com"), if (hasCredId) Some("1234") else None, None, None, nino = if (hasNino) Nino(hasNino = true, Some("AA000003D")) else Nino(hasNino = false, None))
         block(authRequest)
       }
       override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
       override protected def executionContext: ExecutionContext = ec
     }
+
+
+  def mockRequest(authRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type]): Unit = {
+    when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
+      override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
+        block(authRequest.asInstanceOf[AuthenticatedUserRequest[A]])
+      }
+      override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+      override protected def executionContext: ExecutionContext = ec
+    }
+  }
+
 
 }

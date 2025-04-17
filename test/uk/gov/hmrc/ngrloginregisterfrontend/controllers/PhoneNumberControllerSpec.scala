@@ -77,7 +77,7 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport with TestData {
           .withFormUrlEncodedBody(("phoneNumber-value", "07953009506"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
       }
 
       "Successfully submit valid phone number and redirect to check your answers" in {

@@ -35,7 +35,15 @@
 @(emailForm: Form[Email], mode: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
     @layout(pageTitle = Some(messages("email.pageTitle"))) {
-        @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.EmailController.submit(mode), Symbol("autoComplete") -> "off") {
+
+    @formHelper(
+        action = if (mode == "enterEmail") {
+            uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.EnterEmailController.submit
+        } else {
+            uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.EmailController.submit(mode)
+        },
+        Symbol("autoComplete") -> "off"
+    ) {
             @if(emailForm.errors.nonEmpty) {
                 @govukErrorSummary(ErrorSummaryViewModel(emailForm))
             }

@@ -76,7 +76,7 @@ class NameControllerSpec extends ControllerSpecSupport with TestData {
           .withFormUrlEncodedBody(("name-value", "Jake"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
       }
 
       "Successfully submit valid name and redirect to check your answers" in {

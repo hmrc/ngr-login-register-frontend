@@ -53,7 +53,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   }
 
   def selectedAddress(index: Int, mode: String): Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
+    authenticate.authWithUserDetails.async { _ =>
       Future.successful(Redirect(routes.ConfirmAddressController.show(mode, index)))
     }
   }
