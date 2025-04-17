@@ -16,11 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.session
 
-import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -29,9 +25,6 @@ import javax.inject.{Inject, Singleton}
 class SessionManager @Inject()(mcc: MessagesControllerComponents) {
 
    private val journeyIdKey      : String = "NGR-JourneyId"
-   val chosenAddressIdKey: String = "NGR-Chosen-Address-Key"
-   val addressLookupResponseKey: String = "Address-Lookup-Response"
-   val postcodeKey: String = "Postcode-Key"
 
   def getSessionValue(session: Session, key: String): Option[String] =
     session.get(key)
@@ -44,24 +37,6 @@ class SessionManager @Inject()(mcc: MessagesControllerComponents) {
 
   def setJourneyId(session: Session, journeyId: String): Session = {
     updateSession(session, journeyIdKey, journeyId)
-  }
-
-  def setChosenAddress(session: Session, address: LookedUpAddress): Session = {
-    val splitIndex: Int = if (address.lines.size % 2 > 0) address.lines.size / 2 + 1 else address.lines.size / 2
-    val lineSeq = address.lines.splitAt(splitIndex)
-    val line1 = lineSeq._1.mkString(" ")
-    val line2 = if (lineSeq._2.isEmpty) None else Some(lineSeq._2.mkString(" "))
-    val ngrAddress = Address(
-      line1, line2, address.town, None, Postcode(address.postcode))
-    updateSession(session, chosenAddressIdKey, Json.toJson(ngrAddress).toString())
-  }
-
-  def setAddressLookupResponse(session: Session, addresses: Seq[LookedUpAddress]): Session = {
-    updateSession(session, addressLookupResponseKey, Json.toJson(addresses).toString())
-  }
-
-  def setPostcode(session: Session, postcode: Postcode): Session = {
-    updateSession(session, postcodeKey, postcode.value)
   }
 
   def generateJourneyId: String = {

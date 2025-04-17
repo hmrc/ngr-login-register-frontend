@@ -16,21 +16,21 @@ GET        /name                                uk.gov.hmrc.ngrloginregisterfron
 POST       /name                                uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.submit(mode: String)
 GET        /confirm-your-contact-details        uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show
 POST       /confirm-your-contact-details        uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.submit
-GET        /confirm-address                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.show(mode: String)
-POST       /confirm-address                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.submit(mode: String)
-GET        /address-search-results/:page        uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.show(page:Int, mode: String)
-GET        /select-address/:index               uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.selectedAddress(index:Int, mode: String)
+GET        /confirm-address/:index              uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.show(mode: String, index: Int)
+POST       /confirm-address/:index              uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.submit(mode: String, index: Int)
+GET        /address-search-results/:page        uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.show(page: Int, mode: String)
+GET        /select-address/:index               uk.gov.hmrc.ngrloginregisterfrontend.controllers.AddressSearchResultController.selectedAddress(index: Int, mode: String)
 GET        /provide-national-insurance-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.NinoController.show
 POST       /provide-national-insurance-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.NinoController.submit
 GET        /provide-your-tax-reference-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.show()
 POST       /provide-your-tax-reference-number   uk.gov.hmrc.ngrloginregisterfrontend.controllers.ProvideTRNController.submit()
 GET        /confirm-utr                         uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.show
 POST       /confirm-utr                         uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmUTRController.submit
-GET        /feature-not-implemented             uk.gov.hmrc.ngrloginregisterfrontend.controllers.FeatureNotImplementedController.show(journeyId:Option[String])
+GET        /feature-not-implemented             uk.gov.hmrc.ngrloginregisterfrontend.controllers.FeatureNotImplementedController.show(journeyId: Option[String])
 GET        /check-answers                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckYourAnswersController.show
 POST       /check-answers                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckYourAnswersController.submit
 GET        /manual-find-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ManualAddressController.show(mode: String)
 POST       /manual-find-address                 uk.gov.hmrc.ngrloginregisterfrontend.controllers.ManualAddressController.submit(mode: String)
-GET        /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.show(recoveryId:Option[String])
-POST       /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.submit(recoveryId:Option[String])
+GET        /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.show(recoveryId: Option[String])
+POST       /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.submit(recoveryId: Option[String])
 

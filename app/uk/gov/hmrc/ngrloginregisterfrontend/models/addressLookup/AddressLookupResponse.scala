@@ -55,7 +55,9 @@ object LookUpAddresses {
   implicit val format: Format[LookUpAddresses] = Json.format[LookUpAddresses]
 }
 
-case class LookedUpAddress(lines: Seq[String], town: String, county: Option[String], postcode: String)
+case class LookedUpAddress(lines: Seq[String], town: String, county: Option[String], postcode: String) {
+  override def toString: String = s"${lines.mkString(", ")}, $town, ${county.map(c => s"$c, ").getOrElse("")} $postcode"
+}
 
 object LookedUpAddress {
   implicit val format: Format[LookedUpAddress] = Json.format[LookedUpAddress]

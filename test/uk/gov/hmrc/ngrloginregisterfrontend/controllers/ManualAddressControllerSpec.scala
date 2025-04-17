@@ -22,7 +22,7 @@ import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.libs.json.JsResult.Exception
 import play.api.libs.json.{JsError, Json}
-import play.api.mvc.{Call, Session}
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
@@ -44,18 +44,14 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
   lazy val view: FindAddressView = inject[FindAddressView]
   val pageTitle = "What is the address?"
 
-  lazy val addressResponseKey: String = "Address-Lookup-Response"
-  lazy val postcodeKey: String = "Postcode-Key"
   lazy val addressLookupResponses: Seq[LookedUpAddressWrapper] = addressLookupResponsesJson14.as[Seq[LookedUpAddressWrapper]]
   lazy val expectAddressesJsonString = Json.toJson(addressLookupResponses.map(_.address)).toString()
-  val session: Session = Session(Map(addressResponseKey -> expectAddressesJsonString, postcodeKey -> "AA00 0AA"))
 
   def controller() = new ManualAddressController(
     manualAddressView,
     mockNGRConnector,
     mockAddressLookupConnector,
     mockNgrFindAddressRepo,
-    mockSessionManager,
     mockAuthJourney,
     mcc
   )( mockConfig, ec)
@@ -86,8 +82,7 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
     "method submit" must {
       "Successfully submit valid postcode and redirect to address search result page with mode as confirm contact details" in {
         when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockNgrFindAddressRepo.upsertLookupAddresses(any())).thenReturn(Future(true))
         when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))))
         val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(manualAddressRoute)
           .withFormUrlEncodedBody(
@@ -97,18 +92,13 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
             "PostalCode" -> "AA00 0AA"
           )
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        result.map(result => {
-          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
-          result.session.get(postcodeKey) mustBe Some("AA00 0AA")
-        })
         status(result) mustBe SEE_OTHER
         redirectLocation(result) shouldBe Some(routes.AddressSearchResultController.show(page = 1, confirmContactDetailsMode).url)
       }
 
       "Successfully submit valid postcode and redirect to address search result page with mode as check your answers" in {
         when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockNgrFindAddressRepo.upsertLookupAddresses(any())).thenReturn(Future(true))
         when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))))
         val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ManualAddressController.submit(checkYourAnswersMode))
           .withFormUrlEncodedBody(
@@ -118,18 +108,13 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
             "PostalCode" -> "AA00 0AA"
           )
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        result.map(result => {
-          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
-          result.session.get(postcodeKey) mustBe Some("AA00 0AA")
-        })
         status(result) mustBe SEE_OTHER
         redirectLocation(result) shouldBe Some(routes.AddressSearchResultController.show(page = 1, checkYourAnswersMode).url)
       }
 
       "Successfully submit only valid postcode was entered and redirect to address search result page with mode as check your answers" in {
         when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockNgrFindAddressRepo.upsertLookupAddresses(any())).thenReturn(Future(true))
         when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))))
         val result = controller().submit(checkYourAnswersMode)(AuthenticatedUserRequest(FakeRequest(routes.ManualAddressController.submit(checkYourAnswersMode))
           .withFormUrlEncodedBody(
@@ -139,17 +124,12 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
             "PostalCode" -> "AA00 0AA"
           )
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        result.map(result => {
-          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
-          result.session.get(postcodeKey) mustBe Some("AA00 0AA")
-        })
         status(result) mustBe SEE_OTHER
         redirectLocation(result) shouldBe Some(routes.AddressSearchResultController.show(page = 1, checkYourAnswersMode).url)
       }
 
       "Successfully submit valid postcode but AddressLookup throws a BadRequestException" in {
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockNgrFindAddressRepo.upsertLookupAddresses(any())).thenReturn(Future(true))
         when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse(new BadRequestException(""))))
         val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(manualAddressRoute)
           .withFormUrlEncodedBody(
@@ -159,16 +139,11 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
             "PostalCode" -> "W126WA"
           )
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        result.map(result => {
-          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
-          result.session.get(postcodeKey) mustBe Some("BN110AA")
-        })
         status(result) mustBe BAD_REQUEST
       }
 
       "Successfully submit valid postcode but AddressLookup throws an error" in {
-        when(mockSessionManager.setAddressLookupResponse(any(), any())).thenReturn(session)
-        when(mockSessionManager.setPostcode(any(), any())).thenReturn(session)
+        when(mockNgrFindAddressRepo.upsertLookupAddresses(any())).thenReturn(Future(true))
         when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse(Exception(JsError("INVALID JSON")))))
         val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(manualAddressRoute)
           .withFormUrlEncodedBody(
@@ -178,10 +153,6 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
             "PostalCode" -> "W126WA"
           )
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        result.map(result => {
-          result.session.get(addressResponseKey) mustBe Some(expectAddressesJsonString)
-          result.session.get(postcodeKey) mustBe Some("BN110AA")
-        })
         status(result) mustBe INTERNAL_SERVER_ERROR
       }
 

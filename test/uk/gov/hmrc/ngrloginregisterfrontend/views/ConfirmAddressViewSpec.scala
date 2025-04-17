@@ -68,13 +68,13 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
 
     "produce the same output for apply() and render() with yes radio selected" in {
       val form = ConfirmAddressForm.form.fillAndValidate(ConfirmAddressForm("Yes"))
-      val htmlApply = confirmAddressView.apply(chosenAddress, form, radio, confirmContactDetailsMode).body
-      val htmlRender = confirmAddressView.render(chosenAddress, form, radio, confirmContactDetailsMode, request, messages, mockConfig).body
-      val htmlF = confirmAddressView.f(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body
+      val htmlApply = confirmAddressView.apply(chosenAddress, 1, form, radio, confirmContactDetailsMode).body
+      val htmlRender = confirmAddressView.render(chosenAddress, 1, form, radio, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlF = confirmAddressView.f(chosenAddress, 1, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body
       htmlF must not be empty
       htmlApply mustBe htmlRender
       htmlApply.contains(message) shouldBe true
-      lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, 1, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.title) mustBe title
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
@@ -87,13 +87,13 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
 
     "produce the same output for apply() and render() with no radio selected" in {
       val form = ConfirmAddressForm.form.fillAndValidate(ConfirmAddressForm("No"))
-      val htmlApply = confirmAddressView.apply(chosenAddress, form, radio, confirmContactDetailsMode).body
-      val htmlRender = confirmAddressView.render(chosenAddress, form, radio, confirmContactDetailsMode,request, messages, mockConfig).body
-      val htmlF = confirmAddressView.f(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body
+      val htmlApply = confirmAddressView.apply(chosenAddress, 1, form, radio, confirmContactDetailsMode).body
+      val htmlRender = confirmAddressView.render(chosenAddress, 1, form, radio, confirmContactDetailsMode,request, messages, mockConfig).body
+      val htmlF = confirmAddressView.f(chosenAddress, 1, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body
       htmlF must not be empty
       htmlApply mustBe htmlRender
       htmlApply.contains(message) shouldBe true
-      lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, 1, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.title) mustBe title
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
@@ -106,11 +106,11 @@ class ConfirmAddressViewSpec extends ViewBaseSpec {
 
     "show unselected radio error correctly" in {
       val form = ConfirmAddressForm.form.fillAndValidate(ConfirmAddressForm(""))
-      val htmlApply = confirmAddressView.apply(chosenAddress, form, radio, confirmContactDetailsMode).body
-      val htmlRender = confirmAddressView.render(chosenAddress, form, radio, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlApply = confirmAddressView.apply(chosenAddress, 1, form, radio, confirmContactDetailsMode).body
+      val htmlRender = confirmAddressView.render(chosenAddress, 1, form, radio, confirmContactDetailsMode, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
       htmlApply.contains(unselectedRadioMessage) shouldBe true
-      lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(confirmAddressView(chosenAddress, 1, form, radio, confirmContactDetailsMode)(request, messages, mockConfig).body)
       elementText(Selectors.title) mustBe title
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption

@@ -17,20 +17,18 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Session}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookUpAddresses
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ManualAddressView
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
-import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ManualAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
@@ -40,7 +38,6 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
                                         connector: NGRConnector,
                                         addressLookupConnector: AddressLookupConnector,
                                         ngrFindAddressRepo: NgrFindAddressRepo,
-                                        sessionManager: SessionManager,
                                         authenticate: AuthJourney,
                                         mcc: MessagesControllerComponents,
                                        )(implicit appConfig: AppConfig, ec: ExecutionContext)
@@ -79,9 +76,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
                 InternalServerError
               case AddressLookupSuccessResponse(recordSet) =>
                 ngrFindAddressRepo.upsertLookupAddresses(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), postcode = findAddress.postcode, addressList = recordSet.candidateAddresses.map(address => address.address)))
-                val addressLookupResponseSession = sessionManager.setAddressLookupResponse(request.session, recordSet.candidateAddresses.map(address => address.address))
-                val addressAndPostcodeSession: Session = sessionManager.setPostcode(addressLookupResponseSession, Postcode(findAddress.postcode.value))
-                Redirect(routes.AddressSearchResultController.show(page = 1, mode)).withSession(addressAndPostcodeSession)
+                Redirect(routes.AddressSearchResultController.show(page = 1, mode))
             }
           })
     }
