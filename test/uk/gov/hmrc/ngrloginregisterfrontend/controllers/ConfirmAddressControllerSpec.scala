@@ -78,7 +78,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
         })
         status(result) mustBe SEE_OTHER
         verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
       }
 
       "Successfully submit when selected no and redirect to check your answers" in {
@@ -138,7 +138,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
         })
         status(result) mustBe SEE_OTHER
         verify(mockNGRConnector, times(1)).changeAddress(any(), any())(any())
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
       }
 
       "Successfully submit when selected yes and redirect to check your answers" in {

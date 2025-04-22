@@ -41,39 +41,62 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper {
 
-  def show(): Action[AnyContent] =
+  def show(manualEmail: Option[String] = None): Action[AnyContent] = {
     authenticate.authWithUserDetails.async { implicit request =>
-      val credId = CredId(request.credId.getOrElse(""))
-      val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
-      val email = Email(request.email.getOrElse(""))
 
-      connector.getRatepayer(credId).flatMap {
-        case Some(ratepayer) =>
-          val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(createContactDetailSummaryRows(ratepayer, "CCD"), name)))
+      if (request.email.isEmpty && manualEmail.isEmpty) {
+        Future.successful(Redirect(routes.EnterEmailController.show))
+      } else {
 
-        case None =>
-          citizenDetailsConnector.getPersonDetails(authNino).flatMap {
-            case Left(error) =>
-              Future.successful(Status(error.code)(Json.toJson(error)))
+        val credId = CredId(request.credId.getOrElse(""))
+        val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
+        val email = Email(manualEmail.getOrElse(request.email.getOrElse("")))
 
-            case Right(personDetails) =>
-              val nameValue = name(personDetails)
-              val ratepayerRegistration = RatepayerRegistration(
-                nino = Some(authNino),
-                name = Some(Name(nameValue)),
-                email = Some(email),
-                address = Some(buildAddress(personDetails))
-              )
+        connector.getRatepayer(credId).flatMap {
+          case Some(ratepayer) =>
+            val maybeReg = ratepayer.ratepayerRegistration
+            val name = maybeReg.flatMap(_.name).map(_.value).getOrElse("")
 
-              val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
+            def render(ratepayerToRender: RatepayerRegistrationValuation) =
+              Ok(view(createContactDetailSummaryRows(ratepayerToRender, "CCD"), name))
 
-              connector.upsertRatepayer(ratepayerData).map { _ =>
-                Ok(view(createContactDetailSummaryRows(ratepayerData, "CCD"), nameValue))
+            if (manualEmail.nonEmpty) {
+              maybeReg match {
+                case Some(reg) =>
+                  val updatedReg = reg.copy(email = Some(email))
+                  val updatedRatepayer = RatepayerRegistrationValuation(credId, Some(updatedReg))
+                  connector.changeEmail(credId, email).map(_ => render(updatedRatepayer))
+                case None =>
+                  Future.failed(new IllegalStateException("Missing ratepayerRegistration"))
               }
-          }
+            } else {
+              Future.successful(render(ratepayer))
+            }
+
+          case None =>
+            citizenDetailsConnector.getPersonDetails(authNino).flatMap {
+              case Left(error) =>
+                Future.successful(Status(error.code)(Json.toJson(error)))
+
+              case Right(personDetails) =>
+                val nameValue = name(personDetails)
+                val ratepayerRegistration = RatepayerRegistration(
+                  nino = Some(authNino),
+                  name = Some(Name(nameValue)),
+                  email = Some(email),
+                  address = Some(buildAddress(personDetails))
+                )
+
+                val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
+
+                connector.upsertRatepayer(ratepayerData).map { _ =>
+                  Ok(view(createContactDetailSummaryRows(ratepayerData, "CCD"), nameValue))
+                }
+            }
+        }
       }
     }
+  }
 
   private def buildAddress(personDetails: PersonDetails): Address =
     Address(

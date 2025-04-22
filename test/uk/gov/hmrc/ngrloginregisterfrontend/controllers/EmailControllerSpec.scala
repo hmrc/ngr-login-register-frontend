@@ -77,7 +77,7 @@ class EmailControllerSpec extends ControllerSpecSupport with TestData {
           .withFormUrlEncodedBody(("email-value", "test@test.co.uk"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show.url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
       }
 
       "Successfully submit valid email and redirect to check your answers" in {

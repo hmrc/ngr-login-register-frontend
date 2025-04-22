@@ -56,7 +56,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
 
   def submit(mode: String, index: Int): Action[AnyContent] =
     authenticate.authWithUserDetails.async { implicit request =>
-      def redirectPage(mode: String): Result = if (mode == "CYA") Redirect(routes.CheckYourAnswersController.show) else Redirect(routes.ConfirmContactDetailsController.show)
+      def redirectPage(mode: String): Result = if (mode == "CYA") Redirect(routes.CheckYourAnswersController.show) else Redirect(routes.ConfirmContactDetailsController.show(None))
 
       ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.getOrElse("")), index).flatMap {
         case None =>

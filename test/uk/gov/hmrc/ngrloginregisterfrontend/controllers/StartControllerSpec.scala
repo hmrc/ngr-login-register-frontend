@@ -17,15 +17,16 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.Mockito.when
-import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.http.Status.OK
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ControllerSpecSupport
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 
 class StartControllerSpec extends ControllerSpecSupport {
   lazy val startView: StartView = inject[StartView]
-  lazy val controller: StartController = inject[StartController]
   val testUUID = "00ce4ed2-a446-444b-905f-3cc148a1f831"
+
+  def controller = new StartController(startView, mcc, mockSessionManager, mockAuthJourney)
 
 
   "Start Controller" must {
@@ -34,15 +35,9 @@ class StartControllerSpec extends ControllerSpecSupport {
       status(result) mustBe OK
     }
 
-    "redirect to start page when route / is hit" in {
-      val result = controller.redirect()(authenticatedFakeRequest)
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.StartController.show.url)
-    }
-
-    "redirect when start button pressed" in {
+    "redirect to confirm contact details when start button pressed" in {
       val result = controller.submit()(authenticatedFakeRequest)
-      redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show.url)
+      redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show(None).url)
       status(result) mustBe 303
     }
 
