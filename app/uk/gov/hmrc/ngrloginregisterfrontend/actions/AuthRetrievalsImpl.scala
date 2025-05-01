@@ -17,12 +17,18 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
 import com.google.inject.ImplementedBy
+import org.apache.pekko.http.scaladsl.model.HttpHeader.ParsingResult.Ok
+import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
@@ -30,7 +36,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject()(
                                val authConnector: AuthConnector,
-                               mcc: MessagesControllerComponents
+                               ngrConnector: NGRConnector,
+                               mcc: MessagesControllerComponents,
+                               authenticate: AuthJourney,
                               )(implicit ec: ExecutionContext) extends AuthRetrievals
   with AuthorisedFunctions {
 
@@ -72,7 +80,96 @@ class AuthRetrievalsImpl @Inject()(
 
   override protected def executionContext: ExecutionContext = ec
   // $COVERAGE-ON$
+
+
+  def isRegistered():Action[AnyContent] = authenticate.authWithUserDetails.async { implicit request =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    val credId = CredId(request.credId.getOrElse(""))
+    val isRegisteredResult = for {
+      user <- ngrConnector.getRatepayer(credId)
+      isRegistered <- user.map( ratepayerReg => ratepayerReg.ratepayerRegistration.map( registration => registration.isRegistered.getOrElse(false))).getOrElse(false)
+    }yield isRegistered
+
+
+
+  }
+
+//  def isRegistered(route: Call): Action[AnyContent] = authenticate.authWithUserDetails.async { implicit request =>
+//    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+//    val credId = CredId(request.credId.getOrElse(""))
+//    for {
+//      maybeUser <- ngrConnector.getRatepayer(credId)
+//      result <- maybeUser match {
+//        case Some(user) =>
+//          for {
+//            registration <- user.ratepayerRegistration
+//            result <- if (registration.isRegistered.getOrElse(false)) {
+//              redirectToDashboard()
+//            } else {
+//             routes.StartController.show
+//            }
+//          } yield result
+//
+//        case None =>
+//          Future.successful(Redirect(routes.StartController.show))
+//      }
+//    } yield result
+//  }
+//
+//  def redirectToDashboard(): Result = {
+//   Redirect(routes.StartController.show)
+//  }
+
+
+//  def isRegistered(): Future[Result] = authenticate.authWithUserDetails.async { implicit request =>
+//    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+//    val credId = CredId(request.credId.getOrElse(""))
+//
+//    ngrConnector.getRatepayer(credId).flatMap {
+//      case Some(user) =>
+//        user.ratepayerRegistration.flatMap { registration =>
+//          if (registration.isRegistered.getOrElse(false)) {
+//            redirectToDashboard()
+//          } else {
+//            redirectToDashboard()
+//          }
+//        }
+//
+//      case None =>
+//        Future.successful(Redirect(routes.StartController.show))
+//    }
+//  }
+//
+//  def redirectToDashboard(): Future[Result] = {
+//    Future.successful(Redirect(routes.StartController.show))
+//  }
+
+//  def isRegistered(): Action[AnyContent] = authenticate.authWithUserDetails.async { implicit request =>
+//    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+//    val credId = CredId(request.credId.getOrElse(""))
+//
+//    ngrConnector.getRatepayer(credId).flatMap {
+//      case Some(user) =>
+//        for {
+//          registration <- user.ratepayerRegistration
+//        } yield {
+//          if (registration.isRegistered.getOrElse(false)) {
+//            Redirect(routes.StartController.show)
+//          } else {
+//
+//            Future.successful(routes.StartController.show)
+//          }
+//        }
+//
+//      case None =>
+//        Future.successful(Redirect(routes.StartController.show)) // Or handle user not found differently
+//    }
+//  }
+
+
 }
+
+
 
 @ImplementedBy(classOf[AuthRetrievalsImpl])
 trait AuthRetrievals extends ActionBuilder[AuthenticatedUserRequest, AnyContent] with ActionFunction[Request, Request]

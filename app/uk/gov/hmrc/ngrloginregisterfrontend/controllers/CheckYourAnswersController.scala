@@ -36,15 +36,16 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            authenticate: AuthJourney,
-                                           connector: NGRConnector,
+                                           ngrConnector: NGRConnector,
                                            mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+     authenticate.authWithUserDetails.async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
+      ngrConnector.getRatepayer(credId)
 
-      connector.getRatepayer(credId).flatMap {
+      ngrConnector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
           Future.successful(Ok(view(
@@ -60,7 +61,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
     authenticate.authWithUserDetails.async { implicit request =>
       request.credId match {
         case Some(credId) =>
-          connector.registerAccount(CredId(credId))
+          ngrConnector.registerAccount(CredId(credId))
           //TODO call Registered Controller
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
         case _ =>
