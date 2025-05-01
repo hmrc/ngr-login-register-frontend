@@ -50,21 +50,21 @@ class NGRSummaryListRowSpec extends TestSupport {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
       val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.name", None, Seq("Jimley Jackson"), None)
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
-      result shouldBe SummaryListRow(Key(Text("Name"), ""), Value(HtmlContent("Jimley Jackson")), "", None)
+      result shouldBe SummaryListRow(Key(Text("Name"), ""), Value(HtmlContent("<span id=\"checkyouranswers.name-id\">Jimley Jackson</span>")), "", None)
     }
 
     "will generate a SummaryListRow with a separated lines if the value is set as multiple strings in CheckYourAnswersRow" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
       val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.address", None, Seq("Line1", "Line2"), None)
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
-      result shouldBe SummaryListRow(Key(Text("Address"), ""), Value(HtmlContent("Line1</br>Line2")), "", None)
+      result shouldBe SummaryListRow(Key(Text("Address"), ""), Value(HtmlContent("<span id=\"checkyouranswers.address-id\">Line1</br>Line2</span>")), "", None)
     }
 
     "will generate a SummaryListRow with an Action" in {
       implicit val messages: Messages = messagesAPI.preferred(fakeGetRequest)
       val voaSummaryListRow: NGRSummaryListRow = NGRSummaryListRow("checkYourAnswers.address", None, Seq("Line1", "Line2"), Some(Link(Call("GET", "url"), "id", "Change")))
       val result = NGRSummaryListRow.summarise(voaSummaryListRow)
-      result shouldBe SummaryListRow(Key(Text("Address"), ""), Value(HtmlContent("Line1</br>Line2")), "", Some(Actions("", List(ActionItem("url", Text("Change"), None, "", Map("id" -> "id"))))))
+      result shouldBe SummaryListRow(Key(Text("Address"), ""), Value(HtmlContent("<span id=\"checkyouranswers.address-id\">Line1</br>Line2</span>")), "", Some(Actions("", List(ActionItem("url", Text("Change"), None, "", Map("id" -> "id"))))))
     }
 
     "will generate a minimum SummaryListRow with an Action" in {
