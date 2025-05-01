@@ -46,7 +46,7 @@ object NGRSummaryListRow {
     checkYourAnswerRow.value match {
       case seqOfString if seqOfString.nonEmpty => SummaryListRow(
         key     = key,
-        value   = Value(content = HtmlContent(s"""<a id="$idMaker-id">${seqOfString.map(Messages(_)).mkString("</br>")}</a>""")),
+        value   = Value(content = HtmlContent(s"""<span id="$idMaker-id">${seqOfString.map(Messages(_)).mkString("</br>")}</span>""")),
         actions = checkYourAnswerRow.changeLink match {
           case Some(changeLink) => Some(
             Actions(items = Seq(ActionItem(
