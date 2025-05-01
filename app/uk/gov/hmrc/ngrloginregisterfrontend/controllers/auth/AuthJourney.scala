@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth
 
-import play.api.mvc.{Action, ActionBuilder, AnyContent, DefaultActionBuilder, Request}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.AuthRetrievals
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 
 import javax.inject.Inject
 
 class AuthJourney @Inject() (
                               authAction: AuthRetrievals,
-                              registrationAction: RegistrationAction,
                               defaultActionBuilder: DefaultActionBuilder
                             ) {
   val authWithUserDetails: ActionBuilder[AuthenticatedUserRequest, AnyContent] =
-    defaultActionBuilder  andThen authAction
+    defaultActionBuilder  andThen authAction andThen
+
+
 
 }

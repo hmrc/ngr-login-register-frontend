@@ -18,7 +18,6 @@ package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
 import com.google.inject.ImplementedBy
 import play.api.mvc.Results.Redirect
-import play.api.mvc.Results.logger.logger
 import play.api.mvc.{Action, _}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Action
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,27 +40,24 @@ class RegistrationActionImpl @Inject()(
                                     mcc: MessagesControllerComponents
                                   )(implicit ec: ExecutionContext)  extends  RegistrationAction{
 
-  override def invokeBlock[A]()(request: Request[A], block: AuthenticatedUserRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
     authenticate.authWithUserDetails.async { implicit request =>
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      val credId = CredId(request.credId.getOrElse(""))
-      for {
-        maybeUser <- ngrConnector.getRatepayer(credId)
-        result <- maybeUser match {
-          case Some(user) =>
-            for {
-              registration <- user.ratepayerRegistration
-              res <- if (registration.isRegistered.getOrElse(false)) {
-                redirectToDashboard()
-              } else {
-                redirectToDashboard()
-              }
-            } yield res
-          case None =>
-            Future.successful(Redirect(routes.StartController.show))
-        }
-      } yield result
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    val credId = CredId(request.credId.getOrElse(""))
+    val isRegisteredResult: Future[Boolean] = ngrConnector.getRatepayer(credId).map { ratepayerValuationOpt =>
+      // Navigate through the nested Options to get to isRegistered
+      ratepayerValuationOpt
+        .flatMap(_.ratepayerRegistration)
+        .flatMap(_.isRegistered)
+        .getOrElse(false)
     }
+
+    isRegisteredResult.map { isRegistered =>
+      isRegistered match
+      case true => redirectToDashboard
+      case _ => redirectToDashboard
+    }
+
   }
 
   def redirectToDashboard(): Future[Result] = {
@@ -71,6 +67,7 @@ class RegistrationActionImpl @Inject()(
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
 
   override protected def executionContext: ExecutionContext = ec
+
 
 }
 
