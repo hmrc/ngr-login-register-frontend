@@ -41,7 +41,7 @@ class NinoController @Inject()(
   extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
         case Some(ratepayer) =>
@@ -59,7 +59,7 @@ class NinoController @Inject()(
   }
 
   def submit(): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
       Nino.form(authNino)
         .bindFromRequest()

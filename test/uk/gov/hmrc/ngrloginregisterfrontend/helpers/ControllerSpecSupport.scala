@@ -46,7 +46,7 @@ trait ControllerSpecSupport extends TestSupport with TestData{
   mockRequest()
 
   def mockRequest(hasCredId: Boolean = false, hasNino: Boolean = true): Unit =
-    when(mockIsRegisteredCheck andThen mockAuthJourney) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
+    when(mockAuthJourney andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
       override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
         val authRequest = AuthenticatedUserRequest(request, None, None, Some("user@email.com"), if (hasCredId) Some("1234") else None, None, None, nino = if (hasNino) Nino(hasNino = true, Some("AA000003D")) else Nino(hasNino = false, None))
         block(authRequest)
@@ -57,7 +57,7 @@ trait ControllerSpecSupport extends TestSupport with TestData{
 
 
     def mockRequest(authRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type]): Unit = {
-      when(mockIsRegisteredCheck andThen mockAuthJourney) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
+      when(mockAuthJourney  andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
         override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] = {
           block(authRequest.asInstanceOf[AuthenticatedUserRequest[A]])
         }

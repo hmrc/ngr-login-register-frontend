@@ -34,12 +34,12 @@ class ProvideTRNController @Inject()(view: ProvideTRNView,
   extends FrontendController(mcc) with I18nSupport {
 
   def show(): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate){ implicit request =>
+    (authenticate andThen isRegisteredCheck){ implicit request =>
       Ok(view())
     }
 
   def submit() : Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate) {
+    (authenticate andThen isRegisteredCheck) {
       Redirect(routes.ConfirmUTRController.show)
     }
 

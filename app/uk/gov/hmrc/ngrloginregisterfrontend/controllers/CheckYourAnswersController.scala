@@ -42,7 +42,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
       ngrConnector.getRatepayer(credId)
 
@@ -59,11 +59,10 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
     }
 
   def submit(): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       request.credId match {
         case Some(credId) =>
           ngrConnector.registerAccount(CredId(credId))
-          //TODO call Registered Controller
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
         case _ =>
           Future.failed(new RuntimeException("No Cred ID found in request"))

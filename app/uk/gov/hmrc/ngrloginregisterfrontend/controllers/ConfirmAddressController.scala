@@ -46,7 +46,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
   private val noButton: NGRRadioButtons = NGRRadioButtons("No", No)
   private val ngrRadio: NGRRadio = NGRRadio(NGRRadioName("confirm-address-radio"), Seq(yesButton, noButton))
   def show(mode: String, index: Int): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.getOrElse("")), index).flatMap {
         case None =>
           Future.successful(Redirect(routes.FindAddressController.show(mode)))
@@ -56,7 +56,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
     }
 
   def submit(mode: String, index: Int): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       def redirectPage(mode: String): Result = if (mode == "CYA") Redirect(routes.CheckYourAnswersController.show) else Redirect(routes.ConfirmContactDetailsController.show(None))
 
       ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.getOrElse("")), index).flatMap {

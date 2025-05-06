@@ -39,7 +39,7 @@ class PhoneNumberController @Inject()(
                                        mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap { ratepayerRegistrationValuation =>
         ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
           contactNumber => contactNumber.contactNumber.map(
@@ -52,7 +52,7 @@ class PhoneNumberController @Inject()(
 
 
   def submit(mode: String): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       PhoneNumber.form()
         .bindFromRequest()
         .fold(

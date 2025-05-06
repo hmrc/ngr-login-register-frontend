@@ -68,8 +68,8 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
     }
 
     "return the correct status when no ratepayer is found and citizen details fail" in {
-      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(404, "Not Found"))))
+      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
 
       val result = controller().show(Some("email@email.com"))(fakeRequest)
       status(result) mustBe 404
@@ -110,8 +110,8 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
           country = Some("UK")
         )
       )
-      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Right(personDetails)))
+      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
       when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(HttpResponse(CREATED, "Created Successfully")))
 
       val result = controller().show(Some("email@email.com"))(fakeRequest)

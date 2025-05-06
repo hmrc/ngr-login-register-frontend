@@ -43,7 +43,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper {
 
   def show(manualEmail: Option[String] = None): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
 
       if (request.email.isEmpty && manualEmail.isEmpty) {
         Future.successful(Redirect(routes.EnterEmailController.show))
@@ -115,7 +115,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
   ).flatten.mkString(" ")
 
   def submit(): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async {
+    (authenticate andThen isRegisteredCheck).async {
       Future.successful(Redirect(routes.ProvideTRNController.show()))
     }
   }

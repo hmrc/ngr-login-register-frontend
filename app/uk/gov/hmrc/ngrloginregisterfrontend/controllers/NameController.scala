@@ -39,7 +39,7 @@ class NameController  @Inject()(
                                  mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request:AuthenticatedUserRequest[AnyContent] =>
+    (authenticate andThen isRegisteredCheck).async { implicit request:AuthenticatedUserRequest[AnyContent] =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val nameForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
@@ -52,7 +52,7 @@ class NameController  @Inject()(
   }
 
   def submit(mode: String): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       Name.form()
         .bindFromRequest()
         .fold(

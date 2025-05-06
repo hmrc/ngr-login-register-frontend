@@ -37,7 +37,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
 
 
   def show(recoveryId: Option[String]):  Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate)async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
@@ -51,7 +51,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
 
   //this will redirect to the dashboard
   def submit(recoveryId: Option[String]) : Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async {
+    (authenticate andThen isRegisteredCheck).async {
       Future.successful(Redirect(routes.StartController.show))
     }
 

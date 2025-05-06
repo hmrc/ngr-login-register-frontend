@@ -33,12 +33,12 @@ class EnterEmailController @Inject()(view: EmailView,
                                      authenticate: AuthRetrievals)
                                     (implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
   def show(): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       Future.successful(Ok(view(form(), "enterEmail")))
     }
 
   def submit(): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       form()
         .bindFromRequest()
         .fold(

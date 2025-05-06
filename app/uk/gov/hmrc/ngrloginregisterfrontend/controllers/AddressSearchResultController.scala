@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               authenticate: AuthRetrievals,
-                                              registrationCheck: RegistrationAction,
+                                              isRegisteredCheck: RegistrationAction,
                                               mcc: MessagesControllerComponents,
                                               ngrFindAddressRepo: NgrFindAddressRepo
                                              )(implicit appConfig: AppConfig, ec: ExecutionContext)
@@ -41,7 +41,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   private lazy val defaultPageSize: Int = 15
 
   def show(page: Int = 1, mode: String): Action[AnyContent] = {
-    (registrationCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       ngrFindAddressRepo.findByCredId(CredId(request.credId.getOrElse(""))).flatMap {
         case None =>
           Future.successful(Redirect(routes.FindAddressController.show(mode)))
@@ -54,7 +54,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   }
 
   def selectedAddress(index: Int, mode: String): Action[AnyContent] = {
-    (registrationCheck andThen authenticate)async { _ =>
+    (authenticate andThen isRegisteredCheck)async { _ =>
       Future.successful(Redirect(routes.ConfirmAddressController.show(mode, index)))
     }
   }

@@ -34,7 +34,7 @@ class LoginController @Inject()(view:LoginView,
                                )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   def start(): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val result = Ok(view(request.nino, request.email, request.credId, request.name))
       Future.successful(result)
     }

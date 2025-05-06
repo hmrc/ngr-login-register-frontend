@@ -45,7 +45,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
   extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val addressForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
@@ -63,7 +63,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
   }
 
   def submit(mode: String): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       Address.form()
         .bindFromRequest()
         .fold(

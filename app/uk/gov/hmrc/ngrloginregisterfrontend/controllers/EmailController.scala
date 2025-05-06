@@ -39,7 +39,7 @@ class EmailController @Inject()(emailView: EmailView,
   extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate)async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
         val emailForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
@@ -53,7 +53,7 @@ class EmailController @Inject()(emailView: EmailView,
   }
 
   def submit(mode: String): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       Email.form()
         .bindFromRequest()
         .fold(

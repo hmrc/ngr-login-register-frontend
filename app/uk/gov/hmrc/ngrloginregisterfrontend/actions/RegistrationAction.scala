@@ -22,7 +22,6 @@ import play.api.mvc._
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -38,16 +37,14 @@ class RegistrationActionImpl @Inject()(
                                     mcc: MessagesControllerComponents
                                   )(implicit ec: ExecutionContext)  extends  RegistrationAction{
 
-  override def invokeBlock[A](
-                               request: Request[A],
-                               block: Request[A] => Future[Result]
-                             ): Future[Result] = {
-    authenticate.invokeBlock(request, { implicit authRequest:AuthenticatedUserRequest[Any]  =>
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+  override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => Future[Result]): Future[Result] = {
+
+    authenticate.invokeBlock(request, { implicit authRequest: AuthenticatedUserRequest[A] =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(authRequest, authRequest.session)
 
       val credId = CredId(authRequest.credId.getOrElse(""))
 
-      ngrConnector.getRatepayer(credId).flatMap { maybeRatepayer =>
+      ngrConnector.getRatepayer(credId).flatMap{ maybeRatepayer =>
         val isRegistered = maybeRatepayer
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.isRegistered)
@@ -56,11 +53,13 @@ class RegistrationActionImpl @Inject()(
         if (isRegistered) {
           redirectToDashboard()
         } else {
-          block(request)
+          println(Console.MAGENTA + (authRequest.credId) + Console.RESET )
+          block(authRequest)
         }
       }
     })
   }
+
 
   private def url(): URL = url"${appConfig.dashboard}/ngr-dashboard-frontend/dashboard"
 
@@ -76,4 +75,4 @@ class RegistrationActionImpl @Inject()(
 }
 
 @ImplementedBy(classOf[RegistrationActionImpl])
-trait RegistrationAction extends ActionBuilder[Request, AnyContent] with ActionFunction[Request, Request]
+trait RegistrationAction extends ActionBuilder[AuthenticatedUserRequest, AnyContent] with ActionFunction[Request, AuthenticatedUserRequest]

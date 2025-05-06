@@ -48,7 +48,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   private var savedUtr: String = ""
 
   def show(): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       request.nino.nino match {
         case Some(nino) =>
           citizenDetailsConnector.getMatchingResponse(Nino(nino)).flatMap {
@@ -91,7 +91,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   }
 
   def submit(): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(

@@ -45,13 +45,13 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
   extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       Future.successful(Ok(findAddressView(form(), mode)))
     }
   }
 
   def submit(mode: String): Action[AnyContent] =
-    (isRegisteredCheck andThen authenticate).async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       FindAddress.form()
         .bindFromRequest()
         .fold(
