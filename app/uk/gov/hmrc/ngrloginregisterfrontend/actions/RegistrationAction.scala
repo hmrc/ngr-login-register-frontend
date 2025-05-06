@@ -67,11 +67,11 @@ class RegistrationActionImpl @Inject()(
   def redirectToDashboard(): Future[Result] = {
     Future.successful(Redirect(url.toString))
   }
-
+  // $COVERAGE-OFF$
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
 
   override protected def executionContext: ExecutionContext = ec
-
+  // $COVERAGE-ON$
 
 }
 

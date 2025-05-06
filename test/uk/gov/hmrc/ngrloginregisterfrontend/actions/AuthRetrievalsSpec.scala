@@ -18,13 +18,13 @@ package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito.{spy, times, verify, when}
-import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
