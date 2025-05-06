@@ -28,6 +28,7 @@ class LoginControllerSpec extends ControllerSpecSupport {
   def controller() =
     new LoginController(
       loginView,
+      mockIsRegisteredCheck,
       mockAuthJourney,
       mcc,
     )

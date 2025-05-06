@@ -34,7 +34,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
   lazy val view: CheckYourAnswersView = inject[CheckYourAnswersView]
   lazy val ratepayer: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
 
-  def controller() = new CheckYourAnswersController(view, mockAuthJourney, mockNGRConnector, mcc)
+  def controller() = new CheckYourAnswersController(view, mockIsRegisteredCheck, mockAuthJourney, mockNGRConnector, mcc)
 
   "Controller" must {
     "return OK and the correct view for a GET" in {

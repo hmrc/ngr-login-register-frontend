@@ -37,6 +37,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport {
   def controller() = new AddressSearchResultController(
     addressSearchResultView,
     mockAuthJourney,
+    mockIsRegisteredCheck,
     mcc,
     mockNgrFindAddressRepo
   )

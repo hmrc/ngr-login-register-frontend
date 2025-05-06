@@ -37,6 +37,7 @@ class RegistrationCompleteControllerSpec extends ControllerSpecSupport {
 
   def controller() = new RegistrationCompleteController(
     testView,
+    mockIsRegisteredCheck,
     mockAuthJourney,
     mockNGRConnector,
     mcc

@@ -18,9 +18,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
@@ -34,11 +34,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class PhoneNumberController @Inject()(
                                        phoneNumberView: PhoneNumberView,
                                        connector: NGRConnector,
-                                       authenticate: AuthJourney,
+                                       isRegisteredCheck: RegistrationAction,
+                                       authenticate: AuthRetrievals,
                                        mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
+    (isRegisteredCheck andThen authenticate).async { implicit request =>
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap { ratepayerRegistrationValuation =>
         ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
           contactNumber => contactNumber.contactNumber.map(
@@ -51,7 +52,7 @@ class PhoneNumberController @Inject()(
 
 
   def submit(mode: String): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (isRegisteredCheck andThen authenticate).async { implicit request =>
       PhoneNumber.form()
         .bindFromRequest()
         .fold(

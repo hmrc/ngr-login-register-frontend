@@ -26,7 +26,7 @@ class StartControllerSpec extends ControllerSpecSupport {
   lazy val startView: StartView = inject[StartView]
   val testUUID = "00ce4ed2-a446-444b-905f-3cc148a1f831"
 
-  def controller = new StartController(startView, mcc, mockSessionManager, mockAuthJourney)
+  def controller = new StartController(startView, mcc, mockSessionManager)
 
 
   "Start Controller" must {

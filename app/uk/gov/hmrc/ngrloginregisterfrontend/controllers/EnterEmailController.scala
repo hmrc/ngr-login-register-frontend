@@ -18,25 +18,27 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
 import scala.concurrent.Future
 
 @Singleton
 class EnterEmailController @Inject()(view: EmailView,
                                      mcc: MessagesControllerComponents,
-                                     authenticate: AuthJourney)
+                                     isRegisteredCheck: RegistrationAction,
+                                     authenticate: AuthRetrievals)
                                     (implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
   def show(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (isRegisteredCheck andThen authenticate).async { implicit request =>
       Future.successful(Ok(view(form(), "enterEmail")))
     }
 
   def submit(): Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
+    (isRegisteredCheck andThen authenticate).async { implicit request =>
       form()
         .bindFromRequest()
         .fold(

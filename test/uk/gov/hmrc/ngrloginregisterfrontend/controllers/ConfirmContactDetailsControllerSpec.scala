@@ -25,6 +25,7 @@ import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.RegistrationAction
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
@@ -43,7 +44,7 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
 
   def controller() =
     new ConfirmContactDetailsController(
-      view = view, authenticate = mockAuthJourney, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector, connector = mockNGRConnector
+      view = view, authenticate = mockAuthJourney, isRegisteredCheck = mockIsRegisteredCheck, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector, connector = mockNGRConnector
     )
 
   override def beforeEach(): Unit = {

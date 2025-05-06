@@ -17,18 +17,12 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
 import com.google.inject.ImplementedBy
-import org.apache.pekko.http.scaladsl.model.HttpHeader.ParsingResult.Ok
-import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
@@ -36,9 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject()(
                                val authConnector: AuthConnector,
-                               ngrConnector: NGRConnector,
                                mcc: MessagesControllerComponents,
-                               authenticate: AuthJourney,
                               )(implicit ec: ExecutionContext) extends AuthRetrievals
   with AuthorisedFunctions {
 
@@ -80,12 +72,7 @@ class AuthRetrievalsImpl @Inject()(
 
   override protected def executionContext: ExecutionContext = ec
   // $COVERAGE-ON$
-
-
-
 }
-
-
 
 @ImplementedBy(classOf[AuthRetrievalsImpl])
 trait AuthRetrievals extends ActionBuilder[AuthenticatedUserRequest, AnyContent] with ActionFunction[Request, Request]

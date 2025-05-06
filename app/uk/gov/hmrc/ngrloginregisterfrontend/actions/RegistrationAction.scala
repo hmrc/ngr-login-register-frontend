@@ -18,16 +18,13 @@ package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
 import com.google.inject.ImplementedBy
 import play.api.mvc.Results.Redirect
-import play.api.mvc.{Action, _}
-import uk.gov.hmrc.govukfrontend.views.Aliases.Action
+import play.api.mvc._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
@@ -35,29 +32,33 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationActionImpl @Inject()(
                                     ngrConnector: NGRConnector,
-                                    authenticate: AuthJourney,
+                                    authenticate: AuthRetrievals,
                                     appConfig: AppConfig,
                                     mcc: MessagesControllerComponents
                                   )(implicit ec: ExecutionContext)  extends  RegistrationAction{
 
-  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
-    authenticate.authWithUserDetails.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val credId = CredId(request.credId.getOrElse(""))
-    val isRegisteredResult: Future[Boolean] = ngrConnector.getRatepayer(credId).map { ratepayerValuationOpt =>
-      // Navigate through the nested Options to get to isRegistered
-      ratepayerValuationOpt
-        .flatMap(_.ratepayerRegistration)
-        .flatMap(_.isRegistered)
-        .getOrElse(false)
-    }
+  override def invokeBlock[A](
+                               request: Request[A],
+                               block: Request[A] => Future[Result]
+                             ): Future[Result] = {
+    authenticate.invokeBlock(request, { implicit authRequest:AuthenticatedUserRequest[Any]  =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    isRegisteredResult.map { isRegistered =>
-      isRegistered match
-      case true => redirectToDashboard
-      case _ => redirectToDashboard
-    }
+      val credId = CredId(authRequest.credId.getOrElse(""))
 
+      ngrConnector.getRatepayer(credId).flatMap { maybeRatepayer =>
+        val isRegistered = maybeRatepayer
+          .flatMap(_.ratepayerRegistration)
+          .flatMap(_.isRegistered)
+          .getOrElse(false)
+
+        if (isRegistered) {
+          redirectToDashboard()
+        } else {
+          block(request)
+        }
+      }
+    })
   }
 
   def redirectToDashboard(): Future[Result] = {

@@ -18,8 +18,8 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.LoginView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -28,12 +28,13 @@ import scala.concurrent.Future
 
 @Singleton
 class LoginController @Inject()(view:LoginView,
-                                authenticate: AuthJourney,
+                                isRegisteredCheck: RegistrationAction,
+                                authenticate: AuthRetrievals,
                                 mcc: MessagesControllerComponents
                                )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   def start(): Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
+    (isRegisteredCheck andThen authenticate).async { implicit request =>
       val result = Ok(view(request.nino, request.email, request.credId, request.name))
       Future.successful(result)
     }

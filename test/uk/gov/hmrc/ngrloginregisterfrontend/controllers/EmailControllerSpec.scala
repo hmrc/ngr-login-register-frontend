@@ -44,6 +44,7 @@ class EmailControllerSpec extends ControllerSpecSupport with TestData {
   def controller() = new EmailController(
     emailView,
     mockNGRConnector,
+    mockIsRegisteredCheck,
     mockAuthJourney,
     mcc
   )

@@ -43,6 +43,7 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport with TestData {
   def controller() = new PhoneNumberController(
     phoneNumberView,
     mockNGRConnector,
+    mockIsRegisteredCheck,
     mockAuthJourney,
     mcc
   )

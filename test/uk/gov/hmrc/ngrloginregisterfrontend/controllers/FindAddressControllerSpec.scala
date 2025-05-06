@@ -48,6 +48,7 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
   def controller() = new FindAddressController(
     view,
     mockAddressLookupConnector,
+    mockIsRegisteredCheck,
     mockAuthJourney,
     mockNgrFindAddressRepo,
     mcc

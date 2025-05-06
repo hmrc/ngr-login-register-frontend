@@ -43,6 +43,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
   def controller() = new NinoController(
     ninoView,
     mockNGRConnector,
+    mockIsRegisteredCheck,
     mockAuthJourney,
     mcc
   )
