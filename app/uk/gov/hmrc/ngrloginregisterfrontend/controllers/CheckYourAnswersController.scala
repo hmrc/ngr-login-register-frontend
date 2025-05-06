@@ -19,9 +19,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
@@ -35,16 +35,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
-                                           authenticate: AuthJourney,
-                                           connector: NGRConnector,
+                                           isRegisteredCheck: RegistrationAction,
+                                           authenticate: AuthRetrievals,
+                                           ngrConnector: NGRConnector,
                                            mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
+      ngrConnector.getRatepayer(credId)
 
-      connector.getRatepayer(credId).flatMap {
+      ngrConnector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
           Future.successful(Ok(view(
@@ -57,11 +59,10 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
     }
 
   def submit(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       request.credId match {
         case Some(credId) =>
-          connector.registerAccount(CredId(credId))
-          //TODO call Registered Controller
+          ngrConnector.registerAccount(CredId(credId))
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
         case _ =>
           Future.failed(new RuntimeException("No Cred ID found in request"))

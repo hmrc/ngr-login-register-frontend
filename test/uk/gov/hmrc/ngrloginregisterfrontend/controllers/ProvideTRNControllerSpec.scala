@@ -27,7 +27,7 @@ class ProvideTRNControllerSpec extends ControllerSpecSupport{
 
   def controller() =
     new ProvideTRNController(
-      view = view, authenticate = mockAuthJourney, mcc = mcc
+      view = view, isRegisteredCheck = mockIsRegisteredCheck, authenticate = mockAuthJourney, mcc = mcc
     )
 
   "ProvideTRNController" must {
@@ -42,6 +42,4 @@ class ProvideTRNControllerSpec extends ControllerSpecSupport{
       redirectLocation(result) mustBe Some(routes.ConfirmUTRController.show.url)
     }
   }
-
-
 }

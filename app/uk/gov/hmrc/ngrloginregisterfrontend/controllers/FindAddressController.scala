@@ -19,9 +19,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup._
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookUpAddresses
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.FindAddress
@@ -37,20 +37,21 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class FindAddressController @Inject()(findAddressView: FindAddressView,
                                       addressLookupConnector: AddressLookupConnector,
-                                      authenticate: AuthJourney,
+                                      isRegisteredCheck: RegistrationAction,
+                                      authenticate: AuthRetrievals,
                                       ngrFindAddressRepo: NgrFindAddressRepo,
                                       mcc: MessagesControllerComponents
                                      )(implicit ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       Future.successful(Ok(findAddressView(form(), mode)))
     }
   }
 
   def submit(mode: String): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       FindAddress.form()
         .bindFromRequest()
         .fold(

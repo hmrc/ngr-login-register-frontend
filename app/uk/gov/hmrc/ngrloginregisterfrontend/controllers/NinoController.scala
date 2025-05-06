@@ -19,9 +19,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
@@ -35,12 +35,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class NinoController @Inject()(
                                 ninoView: NinoView,
                                 connector: NGRConnector,
-                                authenticate: AuthJourney,
+                                isRegisteredCheck: RegistrationAction,
+                                authenticate: AuthRetrievals,
                                 mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
       connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
         case Some(ratepayer) =>
@@ -58,7 +59,7 @@ class NinoController @Inject()(
   }
 
   def submit(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
       Nino.form(authNino)
         .bindFromRequest()

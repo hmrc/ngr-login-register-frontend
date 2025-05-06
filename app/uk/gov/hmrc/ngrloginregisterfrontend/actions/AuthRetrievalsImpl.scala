@@ -22,6 +22,8 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -30,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject()(
                                val authConnector: AuthConnector,
-                               mcc: MessagesControllerComponents
+                               mcc: MessagesControllerComponents,
                               )(implicit ec: ExecutionContext) extends AuthRetrievals
   with AuthorisedFunctions {
 

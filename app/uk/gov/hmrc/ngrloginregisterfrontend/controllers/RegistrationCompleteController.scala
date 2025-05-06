@@ -19,9 +19,9 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import com.google.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.RegistrationCompleteView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -30,13 +30,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
-                                               authenticate: AuthJourney,
+                                               isRegisteredCheck: RegistrationAction,
+                                               authenticate: AuthRetrievals,
                                                connector: NGRConnector,
                                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
 
 
   def show(recoveryId: Option[String]):  Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
@@ -50,7 +51,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
 
   //this will redirect to the dashboard
   def submit(recoveryId: Option[String]) : Action[AnyContent] =
-    Action.async {
+    (authenticate andThen isRegisteredCheck).async {
       Future.successful(Redirect(routes.StartController.show))
     }
 

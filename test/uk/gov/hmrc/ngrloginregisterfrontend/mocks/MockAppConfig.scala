@@ -31,4 +31,5 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
   override val addressLookupUrl: String = "http://localhost:9000"
   override val centralAuthServerUrl: String = "https://localhost:15000"
   override val timeToLive: String = "3.00"
+  val dashboard: String = "https://localhost:1503"
 }

@@ -21,9 +21,9 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes, form}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
@@ -38,7 +38,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ConfirmUTRController @Inject()(view: ConfirmUTRView,
-                                     authenticate: AuthJourney,
+                                     isRegisteredCheck: RegistrationAction,
+                                     authenticate: AuthRetrievals,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      NGRConnector: NGRConnector,
                                      mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
@@ -47,7 +48,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   private var savedUtr: String = ""
 
   def show(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       request.nino.nino match {
         case Some(nino) =>
           citizenDetailsConnector.getMatchingResponse(Nino(nino)).flatMap {
@@ -90,7 +91,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   }
 
   def submit(): Action[AnyContent] =
-    authenticate.authWithUserDetails.async { implicit request =>
+    (authenticate andThen isRegisteredCheck).async { implicit request =>
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(

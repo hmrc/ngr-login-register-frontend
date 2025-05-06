@@ -43,6 +43,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
 
   def controller() = new ConfirmAddressController(
     view,
+    mockIsRegisteredCheck,
     mockAuthJourney,
     mockNgrFindAddressRepo,
     mockNGRConnector,

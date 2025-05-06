@@ -21,20 +21,21 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction, RegistrationActionSpec}
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 trait ControllerSpecSupport extends TestSupport with TestData{
 
-  implicit lazy val msgs: Messages          = MessagesImpl(Lang("en"), inject[MessagesApi])
-  val mockAuthJourney: AuthJourney          = mock[AuthJourney]
+  implicit lazy val msgs: Messages                = MessagesImpl(Lang("en"), inject[MessagesApi])
+  val mockAuthJourney: AuthRetrievals             = mock[AuthRetrievals]
+  val mockIsRegisteredCheck:RegistrationAction    = mock[RegistrationAction]
   val mockNgrFindAddressRepo : NgrFindAddressRepo = mock[NgrFindAddressRepo]
   val mockNGRConnector: NGRConnector        = mock[NGRConnector]
   val mockSessionManager: SessionManager    = mock[SessionManager]
@@ -45,7 +46,7 @@ trait ControllerSpecSupport extends TestSupport with TestData{
   mockRequest()
 
   def mockRequest(hasCredId: Boolean = false, hasNino: Boolean = true): Unit =
-    when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
+    when(mockAuthJourney andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
       override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
         val authRequest = AuthenticatedUserRequest(request, None, None, Some("user@email.com"), if (hasCredId) Some("1234") else None, None, None, nino = if (hasNino) Nino(hasNino = true, Some("AA000003D")) else Nino(hasNino = false, None))
         block(authRequest)
@@ -55,15 +56,15 @@ trait ControllerSpecSupport extends TestSupport with TestData{
     }
 
 
-  def mockRequest(authRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type]): Unit = {
-    when(mockAuthJourney.authWithUserDetails) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
-      override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
-        block(authRequest.asInstanceOf[AuthenticatedUserRequest[A]])
+    def mockRequest(authRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type]): Unit = {
+      when(mockAuthJourney  andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
+        override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] = {
+          block(authRequest.asInstanceOf[AuthenticatedUserRequest[A]])
+        }
+
+        override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+
+        override protected def executionContext: ExecutionContext = ec
       }
-      override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
-      override protected def executionContext: ExecutionContext = ec
     }
-  }
-
-
 }

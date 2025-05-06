@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.auth.AuthJourney
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.StartView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -30,8 +29,7 @@ import scala.concurrent.Future
 @Singleton
 class StartController @Inject()(view: StartView,
                                 mcc: MessagesControllerComponents,
-                                sessionManager: SessionManager,
-                                authenticate: AuthJourney
+                                sessionManager: SessionManager
                                )(implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
   val redirect: Action[AnyContent] = Action.async {

@@ -28,7 +28,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 class EnterEmailControllerSpec extends ControllerSpecSupport with TestData {
 
   lazy val view: EmailView = inject[EmailView]
-  def controller() = new EnterEmailController(view, mcc, mockAuthJourney)
+  def controller() = new EnterEmailController(view, mcc, mockIsRegisteredCheck, mockAuthJourney)
 
   "Email Controller" must {
 

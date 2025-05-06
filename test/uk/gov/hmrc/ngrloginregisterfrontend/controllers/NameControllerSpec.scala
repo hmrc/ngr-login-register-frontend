@@ -44,6 +44,7 @@ class NameControllerSpec extends ControllerSpecSupport with TestData {
   def controller() = new NameController(
     nameView,
     mockNGRConnector,
+    mockIsRegisteredCheck,
     mockAuthJourney,
     mcc
   )

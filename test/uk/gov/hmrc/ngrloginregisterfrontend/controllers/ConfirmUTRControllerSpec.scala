@@ -39,7 +39,7 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
 
   val view: ConfirmUTRView = inject[ConfirmUTRView]
   val mockCIDConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  def controller =  new ConfirmUTRController(view, mockAuthJourney, mockCIDConnector, mockNGRConnector, mcc)
+  def controller =  new ConfirmUTRController(view, mockIsRegisteredCheck, mockAuthJourney, mockCIDConnector, mockNGRConnector, mcc)
   val matchingDetails: MatchingDetails = MatchingDetails("bob", "jones", Some(SaUtr("1234567890")))
   val matchingDetailsNoUTR: MatchingDetails = MatchingDetails("bob", "jones", None)
   val pageTitle: String = "Confirm your Self Assessment Unique Taxpayer Reference"
