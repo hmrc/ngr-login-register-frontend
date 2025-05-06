@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.actions
 import com.google.inject.ImplementedBy
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
@@ -27,6 +27,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
+import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -61,8 +62,10 @@ class RegistrationActionImpl @Inject()(
     })
   }
 
+  private def url(): URL = url"${appConfig.dashboard}/ngr-dashboard-frontend/dashboard"
+
   def redirectToDashboard(): Future[Result] = {
-    Future.successful(Redirect(routes.StartController.show))
+    Future.successful(Redirect(url.toString))
   }
 
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
