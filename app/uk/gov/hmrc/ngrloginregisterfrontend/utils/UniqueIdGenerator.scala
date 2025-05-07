@@ -39,11 +39,9 @@ object UniqueIdGenerator {
   }
 
   def validateId(id: String): Either[Error, String] = {
-    val upper = id.replaceAll("\\s", "").toUpperCase
-    val parts = upper.split("-")
-    val raw = parts.mkString
-    if (raw.length != 12 || !raw.forall(allowedChars.contains(_))) Left(new Error("Invalid reference"))
-    else Right(raw.grouped(4).mkString("-"))
+    var sanitised = id.replace("\\s", "").replace("-","").toUpperCase()
+    if (sanitised.length != 12 || !sanitised.forall(allowedChars.contains(_))) Left(new Error("Invalid reference"))
+    else Right(sanitised.grouped(4).mkString("-"))
   }
 
 

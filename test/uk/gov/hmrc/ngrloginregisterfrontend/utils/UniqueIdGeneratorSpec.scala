@@ -11,7 +11,7 @@ class UniqueIdGeneratorSpec extends TestSupport {
       val id = UniqueIdGenerator.generateId
       id.length mustBe 14
       id.split("-").mkString.length mustBe 12
-      id.split("-").mkString.forall(allowedChars.contains(_))
+      id.split("-").mkString.forall(allowedChars.contains(_)) mustBe true
     }
     "validate an input id" in {
       UniqueIdGenerator.validateId("0FDE-DFD1-DGJ1") match {
