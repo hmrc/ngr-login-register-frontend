@@ -53,7 +53,6 @@ class RegistrationActionImpl @Inject()(
         if (isRegistered) {
           redirectToDashboard()
         } else {
-          println(Console.MAGENTA + (authRequest.credId) + Console.RESET )
           block(authRequest)
         }
       }
