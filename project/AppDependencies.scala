@@ -1,4 +1,5 @@
 import sbt.*
+import sbt.Keys.libraryDependencies
 
 object AppDependencies {
 
@@ -17,6 +18,7 @@ object AppDependencies {
   )
 
   val test = Seq(
+    "org.mockito"             %% "mockito-scala"              % "1.17.30"                   % Test,
     "uk.gov.hmrc"             %% "bootstrap-test-play-30"     % bootstrapVersion            % Test,
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"    % hmrcMongoVersion            % Test,
     "org.jsoup"               %  "jsoup"                      % "1.19.1"                    % Test,

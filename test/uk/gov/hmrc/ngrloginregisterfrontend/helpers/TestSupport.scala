@@ -102,7 +102,7 @@ with IntegrationPatience {
   lazy implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   lazy val authenticatedFakeRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
-    AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(true, Some("")))
+      AuthenticatedUserRequest(fakeRequest, None, None, None, None, None, None, nino = Nino(true, Some("")))
 
   lazy val authenticatedFakeRequestWithEmail: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
     AuthenticatedUserRequest(fakeRequest, None, None, None, Some("testEmail@emailProvider.com"), None, None, nino = Nino(true, Some("")))

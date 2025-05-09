@@ -36,8 +36,8 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
                                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
 
 
-  def show(recoveryId: Option[String]):  Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+  def show(recoveryId: Option[String]): Action[AnyContent] =
+    authenticate.async { implicit request =>
       val credId = CredId(request.credId.getOrElse(""))
       connector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
@@ -49,7 +49,6 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
       }
   }
 
-  //this will redirect to the dashboard
   def submit(recoveryId: Option[String]) : Action[AnyContent] =
     (authenticate andThen isRegisteredCheck).async {
       Future.successful(Redirect(routes.StartController.show))
