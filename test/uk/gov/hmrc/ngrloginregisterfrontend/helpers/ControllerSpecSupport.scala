@@ -16,14 +16,17 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc._
+import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction, RegistrationActionSpec}
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
@@ -31,15 +34,15 @@ import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ControllerSpecSupport extends TestSupport with TestData{
+trait ControllerSpecSupport extends TestSupport with TestData {
 
-  implicit lazy val msgs: Messages                = MessagesImpl(Lang("en"), inject[MessagesApi])
-  val mockAuthJourney: AuthRetrievals             = mock[AuthRetrievals]
-  val mockIsRegisteredCheck:RegistrationAction    = mock[RegistrationAction]
-  val mockNgrFindAddressRepo : NgrFindAddressRepo = mock[NgrFindAddressRepo]
-  val mockNGRConnector: NGRConnector        = mock[NGRConnector]
-  val mockSessionManager: SessionManager    = mock[SessionManager]
-  val mockNGRLogger: NGRLogger              = mock[NGRLogger]
+  implicit lazy val msgs: Messages = MessagesImpl(Lang("en"), inject[MessagesApi])
+  val mockAuthJourney: AuthRetrievals = mock[AuthRetrievals]
+  val mockIsRegisteredCheck: RegistrationAction = mock[RegistrationAction]
+  val mockNgrFindAddressRepo: NgrFindAddressRepo = mock[NgrFindAddressRepo]
+  val mockNGRConnector: NGRConnector = mock[NGRConnector]
+  val mockSessionManager: SessionManager = mock[SessionManager]
+  val mockNGRLogger: NGRLogger = mock[NGRLogger]
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
@@ -47,7 +50,7 @@ trait ControllerSpecSupport extends TestSupport with TestData{
 
   def mockRequest(hasCredId: Boolean = false, hasNino: Boolean = true): Unit =
     when(mockAuthJourney andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
-      override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] =  {
+      override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => Future[Result]): Future[Result] =  {
         val authRequest = AuthenticatedUserRequest(request, None, None, Some("user@email.com"), if (hasCredId) Some("1234") else None, None, None, nino = if (hasNino) Nino(hasNino = true, Some("AA000003D")) else Nino(hasNino = false, None))
         block(authRequest)
       }
@@ -58,7 +61,7 @@ trait ControllerSpecSupport extends TestSupport with TestData{
 
     def mockRequest(authRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type]): Unit = {
       when(mockAuthJourney  andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
-        override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => concurrent.Future[Result]): concurrent.Future[Result] = {
+        override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => Future[Result]): Future[Result] = {
           block(authRequest.asInstanceOf[AuthenticatedUserRequest[A]])
         }
 
