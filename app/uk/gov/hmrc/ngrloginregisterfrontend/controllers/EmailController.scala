@@ -40,7 +40,7 @@ class EmailController @Inject()(emailView: EmailView,
 
   def show(mode: String): Action[AnyContent] = {
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+      connector.getRatepayer(CredId(request.credId.value)).map { ratepayerOpt =>
         val emailForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.email)
@@ -59,7 +59,7 @@ class EmailController @Inject()(emailView: EmailView,
         .fold(
           formWithErrors => Future.successful(BadRequest(emailView(formWithErrors, mode))),
           email => {
-            connector.changeEmail(CredId(request.credId.getOrElse("")), email)
+            connector.changeEmail(CredId(request.credId.value), email)
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else

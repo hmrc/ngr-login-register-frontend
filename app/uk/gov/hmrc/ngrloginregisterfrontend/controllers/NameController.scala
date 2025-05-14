@@ -24,7 +24,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NameView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -39,8 +39,8 @@ class NameController  @Inject()(
                                  mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request:AuthenticatedUserRequest[AnyContent] =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+    (authenticate andThen isRegisteredCheck).async { implicit request:RatepayerRegistrationValuationRequest[AnyContent] =>
+      connector.getRatepayer(CredId(request.credId.value)).map { ratepayerOpt =>
         val nameForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.name)
@@ -58,7 +58,7 @@ class NameController  @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(nameView(formWithErrors, mode))),
           name => {
-            connector.changeName(CredId(request.credId.getOrElse("")), name)
+            connector.changeName(CredId(request.credId.value), name)
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else

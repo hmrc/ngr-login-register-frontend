@@ -65,7 +65,7 @@ class FindAddressController @Inject()(findAddressView: FindAddressView,
               case AddressLookupSuccessResponse(recordSet) =>
                 ngrFindAddressRepo.upsertLookupAddresses(
                   LookUpAddresses(
-                    credId = CredId(request.credId.getOrElse("")),
+                    credId = CredId(request.credId.value),
                     postcode = Postcode(findAddress.postcode.value),
                     addressList = recordSet.candidateAddresses.map(address => address.address)
                   )

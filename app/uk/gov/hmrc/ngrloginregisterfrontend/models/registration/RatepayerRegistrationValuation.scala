@@ -16,8 +16,14 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
+
 import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.RatepayerRegistration
+
+final case class RatepayerRegistrationValuationRequest[A](request: Request[A],
+                                                          credId: CredId,
+                                                          ratepayerRegistration: Option[RatepayerRegistration])extends WrappedRequest[A](request)
 
 case class RatepayerRegistrationValuation(credId: CredId,
                                           ratepayerRegistration: Option[RatepayerRegistration] = None)

@@ -25,5 +25,6 @@ class Module extends AbstractModule {
     bind(classOf[AppConfig]).to(classOf[FrontendAppConfig]).asEagerSingleton()
     bind(classOf[AuthRetrievals]).to(classOf[AuthRetrievalsImpl]).asEagerSingleton()
     bind(classOf[RegistrationAction]).to(classOf[RegistrationActionImpl]).asEagerSingleton()
+   // bind(classOf[HasMandotoryDetailsAction]).to(classOf[HasMandotoryDetailsActionImpl]).asEagerSingleton()
   }
 }

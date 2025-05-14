@@ -44,14 +44,25 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
 
   def show(manualEmail: Option[String] = None): Action[AnyContent] = {
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-
-      if (request.email.isEmpty && manualEmail.isEmpty) {
+      if (request.ratepayerRegistration.get.email.isEmpty && manualEmail.isEmpty) {
         Future.successful(Redirect(routes.EnterEmailController.show))
       } else {
+        val credId = CredId(request.credId.value)
 
-        val credId = CredId(request.credId.getOrElse(""))
-        val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
-        val email = Email(manualEmail.getOrElse(request.email.getOrElse("")))
+        val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
+          ratePayer match {
+            case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino
+            case _ => throw new RuntimeException("No nino found from auth")
+          }
+        }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
+
+        val email = request.ratepayerRegistration.flatMap{ ratePayer =>
+          ratePayer match {
+            case ratePayer if ratePayer.email.isDefined == true => ratePayer.email
+            case _ => throw new RuntimeException("No email found found from mongo")
+          }
+        }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
+
 
         connector.getRatepayer(credId).flatMap {
           case Some(ratepayer) =>

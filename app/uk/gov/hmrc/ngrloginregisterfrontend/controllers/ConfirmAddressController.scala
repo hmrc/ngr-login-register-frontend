@@ -47,7 +47,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
   private val ngrRadio: NGRRadio = NGRRadio(NGRRadioName("confirm-address-radio"), Seq(yesButton, noButton))
   def show(mode: String, index: Int): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.getOrElse("")), index).flatMap {
+      ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.value), index).flatMap {
         case None =>
           Future.successful(Redirect(routes.FindAddressController.show(mode)))
         case Some(address) =>
@@ -59,7 +59,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
     (authenticate andThen isRegisteredCheck).async { implicit request =>
       def redirectPage(mode: String): Result = if (mode == "CYA") Redirect(routes.CheckYourAnswersController.show) else Redirect(routes.ConfirmContactDetailsController.show(None))
 
-      ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.getOrElse("")), index).flatMap {
+      ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.value), index).flatMap {
         case None =>
           Future.successful(Redirect(routes.FindAddressController.show(mode)))
         case Some(address) =>
@@ -70,7 +70,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
                 Future.successful(BadRequest(confirmAddressView(address.toString, index, formWithErrors, buildRadios(formWithErrors, ngrRadio), mode))),
               confirmAddressForm => {
                 if (confirmAddressForm.radioValue.equals("Yes"))
-                  connector.changeAddress(CredId(request.credId.getOrElse("")), convertLookedUpAddressToNGRAddress(address))
+                  connector.changeAddress(CredId(request.credId.value), convertLookedUpAddressToNGRAddress(address))
                     .map(_ => redirectPage(mode))
                 else
                   Future.successful(redirectPage(mode))

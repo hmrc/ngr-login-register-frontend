@@ -46,7 +46,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
 
   def show(mode: String): Action[AnyContent] = {
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+      connector.getRatepayer(CredId(request.credId.value)).map { ratepayerOpt =>
         val addressForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.address)
@@ -76,7 +76,7 @@ class ManualAddressController @Inject()(addressView: ManualAddressView,
               case AddressLookupErrorResponse(_) =>
                 InternalServerError
               case AddressLookupSuccessResponse(recordSet) =>
-                ngrFindAddressRepo.upsertLookupAddresses(LookUpAddresses(credId = CredId(request.credId.getOrElse("")), postcode = findAddress.postcode, addressList = recordSet.candidateAddresses.map(address => address.address)))
+                ngrFindAddressRepo.upsertLookupAddresses(LookUpAddresses(credId = CredId(request.credId.value), postcode = findAddress.postcode, addressList = recordSet.candidateAddresses.map(address => address.address)))
                 Redirect(routes.AddressSearchResultController.show(page = 1, mode))
             }
           })

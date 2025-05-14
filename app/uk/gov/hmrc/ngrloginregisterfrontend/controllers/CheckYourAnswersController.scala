@@ -43,7 +43,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
 
   def show(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      val credId = CredId(request.credId.getOrElse(""))
+      val credId = CredId(request.credId.value)
       ngrConnector.getRatepayer(credId)
 
       ngrConnector.getRatepayer(credId).flatMap {
@@ -60,14 +60,9 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
 
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      request.credId match {
-        case Some(credId) =>
-          ngrConnector.registerAccount(CredId(credId))
+          ngrConnector.registerAccount(CredId(request.credId.value))
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
-        case _ =>
-          Future.failed(new RuntimeException("No Cred ID found in request"))
       }
-    }
 
   private[controllers] def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
     def getUrl(linkId: String, messageKey: String): Option[Link] =

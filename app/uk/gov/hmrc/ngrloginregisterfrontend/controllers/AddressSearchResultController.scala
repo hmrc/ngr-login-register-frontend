@@ -42,7 +42,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
 
   def show(page: Int = 1, mode: String): Action[AnyContent] = {
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      ngrFindAddressRepo.findByCredId(CredId(request.credId.getOrElse(""))).flatMap {
+      ngrFindAddressRepo.findByCredId(CredId(request.credId.value)).flatMap {
         case None =>
           Future.successful(Redirect(routes.FindAddressController.show(mode)))
         case Some(addresses) =>

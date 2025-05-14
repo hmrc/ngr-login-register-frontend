@@ -40,7 +40,7 @@ class PhoneNumberController @Inject()(
 
   def show(mode: String): Action[AnyContent] = {
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap { ratepayerRegistrationValuation =>
+      connector.getRatepayer(CredId(request.credId.value)).flatMap { ratepayerRegistrationValuation =>
         ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
           contactNumber => contactNumber.contactNumber.map(
           number =>
@@ -58,7 +58,7 @@ class PhoneNumberController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors, mode))),
           phoneNumber => {
-            connector.changePhoneNumber(CredId(request.credId.getOrElse("")), PhoneNumber(phoneNumber.value))
+            connector.changePhoneNumber(CredId(request.credId.value), PhoneNumber(phoneNumber.value))
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else
