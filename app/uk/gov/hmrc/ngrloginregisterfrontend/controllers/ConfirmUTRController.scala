@@ -21,7 +21,7 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
@@ -39,6 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      isRegisteredCheck: RegistrationAction,
+                                     hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                      authenticate: AuthRetrievals,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      NGRConnector: NGRConnector,
@@ -48,7 +49,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   private var savedUtr: String = ""
 
   def show(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       request.ratepayerRegistration.map{ ratePayer =>
         ratePayer.nino match {
           case Some(nino) =>
@@ -93,7 +94,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   }
 
   def submit(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(

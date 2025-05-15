@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRRadio.buildRadios
@@ -37,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
                                          isRegisteredCheck: RegistrationAction,
+                                          hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                          authenticate: AuthRetrievals,
                                          ngrFindAddressRepo: NgrFindAddressRepo,
                                          connector: NGRConnector,
@@ -46,7 +47,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
   private val noButton: NGRRadioButtons = NGRRadioButtons("No", No)
   private val ngrRadio: NGRRadio = NGRRadio(NGRRadioName("confirm-address-radio"), Seq(yesButton, noButton))
   def show(mode: String, index: Int): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.value), index).flatMap {
         case None =>
           Future.successful(Redirect(routes.FindAddressController.show(mode)))
@@ -56,7 +57,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
     }
 
   def submit(mode: String, index: Int): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       def redirectPage(mode: String): Result = if (mode == "CYA") Redirect(routes.CheckYourAnswersController.show) else Redirect(routes.ConfirmContactDetailsController.show(None))
 
       ngrFindAddressRepo.findChosenAddressByCredId(CredId(request.credId.value), index).flatMap {

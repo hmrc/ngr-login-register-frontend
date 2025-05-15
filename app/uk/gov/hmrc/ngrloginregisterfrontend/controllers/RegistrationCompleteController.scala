@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import com.google.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
@@ -31,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
                                                isRegisteredCheck: RegistrationAction,
+                                               hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                                authenticate: AuthRetrievals,
                                                connector: NGRConnector,
                                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
@@ -50,7 +51,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
   }
 
   def submit(recoveryId: Option[String]) : Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async {
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async {
       Future.successful(Redirect(routes.StartController.show))
     }
 

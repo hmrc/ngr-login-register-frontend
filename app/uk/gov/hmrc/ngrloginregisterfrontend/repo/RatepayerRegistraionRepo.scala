@@ -27,6 +27,7 @@ import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Email, Name, Nino, PhoneNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 
 import java.time.Instant
@@ -95,6 +96,22 @@ case class RatepayerRegistraionRepo @Inject()(mongo: MongoComponent,
     collection.find(
       equal("credId.value", credId.value)
     ).headOption()
+  }
+
+  def updateContactNumber(credId: CredId, contactNumber: PhoneNumber): Future[Option[RatepayerRegistrationValuation]] = {
+    findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.contactNumber.value", contactNumber.value))
+  }
+
+  def updateName(credId: CredId, name: Name): Future[Option[RatepayerRegistrationValuation]] = {
+    findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.name.value", name.value))
+  }
+
+  def updateEmail(credId: CredId, email: Email): Future[Option[RatepayerRegistrationValuation]] = {
+    findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.email.value", email.value))
+  }
+
+  def updateNino(credId: CredId, nino: Nino): Future[Option[RatepayerRegistrationValuation]] = {
+    findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.nino", nino.value))
   }
 
   def registerAccount(credId: CredId): Future[Option[RatepayerRegistrationValuation]] = {

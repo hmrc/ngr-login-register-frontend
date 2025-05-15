@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.{form, nino}
@@ -36,12 +36,13 @@ class NinoController @Inject()(
                                 ninoView: NinoView,
                                 connector: NGRConnector,
                                 isRegisteredCheck: RegistrationAction,
+                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                 authenticate: AuthRetrievals,
                                 mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
         ratePayer match {
           case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino
@@ -65,7 +66,7 @@ class NinoController @Inject()(
   }
 
   def submit(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
         ratePayer match {
           case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino

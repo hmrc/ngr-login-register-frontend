@@ -14,61 +14,69 @@
  * limitations under the License.
  */
 
-//package uk.gov.hmrc.ngrloginregisterfrontend.actions
+package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
-//import com.google.inject.ImplementedBy
-//import play.api.mvc.Results.Redirect
-//import play.api.mvc._
-//import uk.gov.hmrc.http.HeaderCarrier
-//import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-//import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-//import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-//import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
-//import uk.gov.hmrc.play.http.HeaderCarrierConverter
-//
-//import javax.inject.Inject
-//import scala.concurrent.{ExecutionContext, Future}
+import com.google.inject.ImplementedBy
+import play.api.mvc.Results.Redirect
+import play.api.mvc._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
+import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
-//class HasMandotoryDetailsActionImpl @Inject()(
-//                                    ngrConnector: NGRConnector,
-//                                    isRegistered: RegistrationAction,
-//                                    appConfig: AppConfig,
-//                                    mcc: MessagesControllerComponents
-//                                  )(implicit ec: ExecutionContext)  extends  HasMandotoryDetailsAction{
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-//  override def invokeBlock[A](request: Request[A], block: RatepayerRegistrationValuationRequest[A] => Future[Result]): Future[Result] = {
-//
-//    isRegistered.invokeBlock(request, { implicit authRequest: AuthenticatedUserRequest[A]  =>
-//      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(authRequest, authRequest.session)
-//
-//      val credId = CredId(authrequest.credId.value)
-//
-//      //TODO check the frontend:
-//      ngrConnector.getRatepayer(credId).flatMap{ maybeRatepayer =>
-//        val isRegistered = maybeRatepayer
-//          .flatMap(_.ratepayerRegistration)
-//          .flatMap(_.isRegistered)
-//          .getOrElse(false)
-//
-//        if (isRegistered) {
-//          redirectToDashboard()
-//        } else {
-//          block(RatepayerRegistrationValuationRequest(request, credId))
-//        }
-//      }
-//    })
-//  }
-//
-//  def redirectToDashboard(): Future[Result] = {
-//    Future.successful(Redirect(s"${appConfig.dashboard}/ngr-dashboard-frontend/dashboard"))
-//  }
-//   $COVERAGE-OFF$
-//  override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
-//
-//  override protected def executionContext: ExecutionContext = ec
-//  // $COVERAGE-ON$
+class HasMandotoryDetailsActionImpl @Inject()(
+                                    ngrConnector: NGRConnector,
+                                    isRegistered: RegistrationAction,
+                                    appConfig: AppConfig,
+                                    mcc: MessagesControllerComponents
+                                  )(implicit ec: ExecutionContext)  extends  HasMandotoryDetailsAction{
 
-//}
-//
-//@ImplementedBy(classOf[RegistrationActionImpl])
-//trait HasMandotoryDetailsAction extends ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent] with ActionFunction[Request, RatepayerRegistrationValuationRequest]
+  override def invokeBlock[A](request: Request[A], block: RatepayerRegistrationValuationRequest[A] => Future[Result]): Future[Result] = {
+
+    isRegistered.invokeBlock(request, { implicit registration: RatepayerRegistrationValuationRequest[A]  =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(registration, registration.session)
+
+      val credId = CredId(registration.credId.value)
+
+      ngrConnector.getRatepayer(credId).flatMap{ maybeRatepayer =>
+        val email = maybeRatepayer
+          .flatMap(_.ratepayerRegistration)
+          .flatMap(_.email).isDefined
+
+        val contactNumber = maybeRatepayer
+          .flatMap(_.ratepayerRegistration)
+          .flatMap(_.contactNumber).isDefined
+
+        (email, contactNumber) match {
+          case (true , true) => block(RatepayerRegistrationValuationRequest(request, credId, registration.ratepayerRegistration))
+          case (true , false) => redirectToPhonePage()
+          case (false , true) => redirectToEmailPage()
+          case (_ , _) => redirectToEmailPage()
+        }
+      }
+    })
+  }
+
+  def redirectToEmailPage(): Future[Result] = {
+    Future.successful(Redirect(routes.EnterEmailController.show))
+  }
+
+  def redirectToPhonePage(): Future[Result] = {
+    Future.successful(Redirect(routes.PhoneNumberController.show("CCD")))
+  }
+
+  override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+
+  override protected def executionContext: ExecutionContext = ec
+
+
+}
+
+@ImplementedBy(classOf[RegistrationActionImpl])
+trait HasMandotoryDetailsAction extends ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent] with ActionFunction[Request, RatepayerRegistrationValuationRequest]
