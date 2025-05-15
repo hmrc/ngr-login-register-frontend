@@ -49,7 +49,15 @@ class RegistrationActionImpl @Inject()(
         maybeRatepayer match {
           case maybeRatepayer if maybeRatepayer.isDefined == true =>
             println(Console.GREEN + "Found In Frontend" + Console.RESET)
-            block(RatepayerRegistrationValuationRequest(request,credId, maybeRatepayer.get.ratepayerRegistration))
+            val isRegistered = maybeRatepayer
+              .flatMap(_.ratepayerRegistration)
+              .flatMap(_.isRegistered)
+              .getOrElse(false)
+            if (isRegistered) {
+              redirectToDashboard()
+            } else {
+              block(RatepayerRegistrationValuationRequest(request, credId, maybeRatepayer.get.ratepayerRegistration))
+            }
           case _ =>
             implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(authRequest, authRequest.session)
             ngrConnector.getRatepayer(credId).flatMap{ maybeRatepayer =>

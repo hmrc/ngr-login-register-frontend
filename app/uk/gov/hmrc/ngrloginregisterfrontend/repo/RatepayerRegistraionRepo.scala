@@ -18,15 +18,18 @@ package uk.gov.hmrc.ngrloginregisterfrontend.repo
 
 import com.google.inject.Singleton
 import com.mongodb.client.model.Indexes.descending
+import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, ReplaceOptions}
+import org.mongodb.scala.model.Updates.combine
+import org.mongodb.scala.model.{Filters, FindOneAndUpdateOptions, IndexModel, IndexOptions, ReplaceOptions, ReturnDocument, Updates}
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,6 +64,8 @@ case class RatepayerRegistraionRepo @Inject()(mongo: MongoComponent,
 
   override lazy val requiresTtlIndex: Boolean = false
 
+  private def filterByCredId(credId: CredId): Bson = equal("credId.value", credId.value)
+
   def upsertRatepayerRegistration(registration: RatepayerRegistrationValuation): Future[Boolean] = {
     val errorMsg = s"Addresses have not been inserted"
 
@@ -79,9 +84,20 @@ case class RatepayerRegistraionRepo @Inject()(mongo: MongoComponent,
     }
   }
 
+  def findAndUpdateByCredId(credId: CredId, updates: Bson*): Future[Option[RatepayerRegistrationValuation]] = {
+    collection.findOneAndUpdate(filterByCredId(credId),
+        combine(updates :+ Updates.set("createdAt", Instant.now()): _*),
+        FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER))
+      .toFutureOption()
+  }
+
   def findByCredId(credId: CredId): Future[Option[RatepayerRegistrationValuation]] = {
     collection.find(
       equal("credId.value", credId.value)
     ).headOption()
+  }
+
+  def registerAccount(credId: CredId): Future[Option[RatepayerRegistrationValuation]] = {
+    findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.isRegistered", true))
   }
 }

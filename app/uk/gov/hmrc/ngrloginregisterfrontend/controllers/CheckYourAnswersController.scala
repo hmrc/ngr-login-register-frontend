@@ -26,6 +26,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.{StringHelper, SummaryListHelper}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckYourAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -36,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            isRegisteredCheck: RegistrationAction,
+                                           ratepayerRegistraionRepo: RatepayerRegistraionRepo,
                                            authenticate: AuthRetrievals,
                                            ngrConnector: NGRConnector,
                                            mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
@@ -61,6 +63,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck).async { implicit request =>
           ngrConnector.registerAccount(CredId(request.credId.value))
+          ratepayerRegistraionRepo.registerAccount(CredId(request.credId.value))
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
       }
 
