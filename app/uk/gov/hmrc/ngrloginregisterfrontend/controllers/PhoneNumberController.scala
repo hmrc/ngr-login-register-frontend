@@ -21,8 +21,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -35,12 +35,13 @@ class PhoneNumberController @Inject()(
                                        phoneNumberView: PhoneNumberView,
                                        connector: NGRConnector,
                                        isRegisteredCheck: RegistrationAction,
+
                                        authenticate: AuthRetrievals,
                                        mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
     (authenticate andThen isRegisteredCheck).async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).flatMap { ratepayerRegistrationValuation =>
+      connector.getRatepayer(CredId(request.credId.value)).flatMap { ratepayerRegistrationValuation =>
         ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
           contactNumber => contactNumber.contactNumber.map(
           number =>
@@ -58,7 +59,7 @@ class PhoneNumberController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors, mode))),
           phoneNumber => {
-            connector.changePhoneNumber(CredId(request.credId.getOrElse("")), PhoneNumber(phoneNumber.value))
+            connector.changePhoneNumber(CredId(request.credId.value), PhoneNumber(phoneNumber.value))
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else

@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
@@ -33,14 +33,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class EmailController @Inject()(emailView: EmailView,
                                 connector: NGRConnector,
                                 isRegisteredCheck: RegistrationAction,
+                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                 authenticate: AuthRetrievals,
                                 mcc: MessagesControllerComponents,
                                )(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+      connector.getRatepayer(CredId(request.credId.value)).map { ratepayerOpt =>
         val emailForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.email)
@@ -53,13 +54,13 @@ class EmailController @Inject()(emailView: EmailView,
   }
 
   def submit(mode: String): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       Email.form()
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(emailView(formWithErrors, mode))),
           email => {
-            connector.changeEmail(CredId(request.credId.getOrElse("")), email)
+            connector.changeEmail(CredId(request.credId.value), email)
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else

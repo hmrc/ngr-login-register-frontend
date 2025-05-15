@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.govukfrontend.views.Aliases.Table
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
@@ -33,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
                                               authenticate: AuthRetrievals,
                                               isRegisteredCheck: RegistrationAction,
+                                              hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                               mcc: MessagesControllerComponents,
                                               ngrFindAddressRepo: NgrFindAddressRepo
                                              )(implicit appConfig: AppConfig, ec: ExecutionContext)
@@ -41,8 +42,8 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   private lazy val defaultPageSize: Int = 15
 
   def show(page: Int = 1, mode: String): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-      ngrFindAddressRepo.findByCredId(CredId(request.credId.getOrElse(""))).flatMap {
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+      ngrFindAddressRepo.findByCredId(CredId(request.credId.value)).flatMap {
         case None =>
           Future.successful(Redirect(routes.FindAddressController.show(mode)))
         case Some(addresses) =>
@@ -54,7 +55,7 @@ class AddressSearchResultController @Inject()(view:  AddressSearchResultView,
   }
 
   def selectedAddress(index: Int, mode: String): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck)async { _ =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction)async { _ =>
       Future.successful(Redirect(routes.ConfirmAddressController.show(mode, index)))
     }
   }

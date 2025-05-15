@@ -25,8 +25,9 @@ import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 
-class EnterEmailControllerSpec extends ControllerSpecSupport with TestData {
+import java.time.Instant
 
+class EnterEmailControllerSpec extends ControllerSpecSupport with TestData {
   lazy val view: EmailView = inject[EmailView]
   def controller() = new EnterEmailController(view, mcc, mockIsRegisteredCheck, mockAuthJourney)
 

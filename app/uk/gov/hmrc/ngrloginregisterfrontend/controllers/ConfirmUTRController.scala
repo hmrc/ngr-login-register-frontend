@@ -21,7 +21,7 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
@@ -39,6 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      isRegisteredCheck: RegistrationAction,
+                                     hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                      authenticate: AuthRetrievals,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      NGRConnector: NGRConnector,
@@ -48,21 +49,23 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   private var savedUtr: String = ""
 
   def show(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-      request.nino.nino match {
-        case Some(nino) =>
-          citizenDetailsConnector.getMatchingResponse(Nino(nino)).flatMap {
-            case Left(error) => Future.failed(new RuntimeException(s"call to citizen details failed: ${error.code} ${error.message}"))
-            case Right(details) =>
-              details.saUtr
-                .map(utr => {
-                  savedUtr = utr.value
-                  Future.successful(Ok(view(form(), summaryList(maskString(savedUtr, 3)), radios(form()))))
-                })
-                .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
-          }
-        case None => Future.failed(new RuntimeException("No NINO found in request"))
-      }
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+      request.ratepayerRegistration.map{ ratePayer =>
+        ratePayer.nino match {
+          case Some(nino) =>
+            citizenDetailsConnector.getMatchingResponse(Nino(nino.value)).flatMap {
+              case Left(error) => Future.failed(new RuntimeException(s"call to citizen details failed: ${error.code} ${error.message}"))
+              case Right(details) =>
+                details.saUtr
+                  .map(utr => {
+                    savedUtr = utr.value
+                    Future.successful(Ok(view(form(), summaryList(maskString(savedUtr, 3)), radios(form()))))
+                  })
+                  .getOrElse(Future.failed(new RuntimeException("No SAUTR found")))
+            }
+          case None => Future.failed(new RuntimeException("No NINO found in request"))
+        }
+      }.getOrElse(Future.failed(new RuntimeException("No ratePayer found in database")))
     }
 
   private def summaryList(utr: String)(implicit messages: Messages): SummaryList = {
@@ -91,28 +94,23 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
   }
 
   def submit(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       ConfirmUTR.form()
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskSAUTR(savedUtr)), radios(formWithErrors)))),
           utrChoice => {
-            request.credId match {
-              case Some(credId) =>
                 utrChoice match {
                   case ConfirmUTR.Yes(utr) =>
-                    NGRConnector.changeTrn(CredId(credId), TRNReferenceNumber(SAUTR, utr))
+                    NGRConnector.changeTrn(request.credId, TRNReferenceNumber(SAUTR, utr))
                     Future.successful(Redirect(routes.CheckYourAnswersController.show))
                   case ConfirmUTR.NoNI =>
                     Future.successful(Redirect(routes.NinoController.show))
                   case ConfirmUTR.NoLater =>
-                    NGRConnector.changeTrn(CredId(credId), TRNReferenceNumber(SAUTR, ""))
+                    NGRConnector.changeTrn(request.credId, TRNReferenceNumber(SAUTR, ""))
                     Future.successful(Redirect(routes.CheckYourAnswersController.show))
                 }
-              case None => Future.failed(new RuntimeException("No Cred ID found in request"))
             }
-          }
         )
     }
-
 }

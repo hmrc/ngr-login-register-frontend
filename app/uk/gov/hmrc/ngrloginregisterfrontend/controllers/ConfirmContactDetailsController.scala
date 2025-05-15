@@ -19,12 +19,12 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Name}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
@@ -37,21 +37,30 @@ import scala.concurrent.{ExecutionContext, Future}
 class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 authenticate: AuthRetrievals,
                                                 isRegisteredCheck: RegistrationAction,
+                                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                                 connector: NGRConnector,
                                                 mcc: MessagesControllerComponents,
                                                 citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper {
 
   def show(manualEmail: Option[String] = None): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction andThen hasMandotoryDetailsAction).async { implicit request =>
+        val credId = CredId(request.credId.value)
 
-      if (request.email.isEmpty && manualEmail.isEmpty) {
-        Future.successful(Redirect(routes.EnterEmailController.show))
-      } else {
+        val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
+          ratePayer match {
+            case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino
+            case _ => throw new RuntimeException("No nino found from auth")
+          }
+        }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
 
-        val credId = CredId(request.credId.getOrElse(""))
-        val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
-        val email = Email(manualEmail.getOrElse(request.email.getOrElse("")))
+        val email = request.ratepayerRegistration.flatMap{ ratePayer =>
+          ratePayer match {
+            case ratePayer if ratePayer.email.isDefined == true => ratePayer.email
+            case _ => throw new RuntimeException("No email found found from mongo")
+          }
+        }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
+
 
         connector.getRatepayer(credId).flatMap {
           case Some(ratepayer) =>
@@ -97,8 +106,6 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
         }
       }
     }
-  }
-
   private def buildAddress(personDetails: PersonDetails): Address =
     Address(
       line1 = personDetails.address.line1.getOrElse(""),
@@ -115,7 +122,7 @@ class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
   ).flatten.mkString(" ")
 
   def submit(): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async {
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async {
       Future.successful(Redirect(routes.ProvideTRNController.show()))
     }
   }
