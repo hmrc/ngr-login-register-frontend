@@ -23,7 +23,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.PhoneNumberView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PhoneNumberController @Inject()(
                                        phoneNumberView: PhoneNumberView,
-                                       mongo: RatepayerRegistraionRepo,
+                                       mongo: RatepayerRegistrationRepo,
                                        isRegisteredCheck: RegistrationAction,
                                        authenticate: AuthRetrievals,
                                        mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {

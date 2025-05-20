@@ -21,7 +21,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.RegistrationCompleteView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -32,7 +32,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
                                                isRegisteredCheck: RegistrationAction,
                                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                                authenticate: AuthRetrievals,
-                                               mongo: RatepayerRegistraionRepo,
+                                               mongo: RatepayerRegistrationRepo,
                                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
 
 

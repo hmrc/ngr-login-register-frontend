@@ -23,7 +23,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NameView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class NameController  @Inject()(
                                  nameView: NameView,
-                                 mongo: RatepayerRegistraionRepo,
+                                 mongo: RatepayerRegistrationRepo,
                                  isRegisteredCheck: RegistrationAction,
                                  hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                  authenticate: AuthRetrievals,

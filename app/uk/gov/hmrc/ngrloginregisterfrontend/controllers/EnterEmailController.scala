@@ -21,7 +21,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -31,7 +31,7 @@ import scala.concurrent.Future
 class EnterEmailController @Inject()(view: EmailView,
                                      mcc: MessagesControllerComponents,
                                      isRegisteredCheck: RegistrationAction,
-                                     mongo: RatepayerRegistraionRepo,
+                                     mongo: RatepayerRegistrationRepo,
                                      authenticate: AuthRetrievals)
                                     (implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
   def show(): Action[AnyContent] =

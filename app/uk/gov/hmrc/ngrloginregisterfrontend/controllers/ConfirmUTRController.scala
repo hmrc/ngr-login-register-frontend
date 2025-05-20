@@ -29,7 +29,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.TRNReferenceNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.StringHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -43,7 +43,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                      authenticate: AuthRetrievals,
                                      citizenDetailsConnector: CitizenDetailsConnector,
-                                     mongo: RatepayerRegistraionRepo,
+                                     mongo: RatepayerRegistrationRepo,
                                      mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with StringHelper {
 

@@ -25,7 +25,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.{NgrFindAddressRepo, RatepayerRegistraionRepo}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.{NgrFindAddressRepo, RatepayerRegistrationRepo}
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ControllerSpecSupport extends TestSupport with TestData {
 
   implicit lazy val msgs: Messages = MessagesImpl(Lang("en"), inject[MessagesApi])
-  val mockRatepayerRegistraionRepo: RatepayerRegistraionRepo = mock[RatepayerRegistraionRepo]
+  val mockRatepayerRegistraionRepo: RatepayerRegistrationRepo = mock[RatepayerRegistrationRepo]
   val mockAuthJourney: AuthRetrievals = mock[AuthRetrievals]
   val mockIsRegisteredCheck: RegistrationAction = mock[RegistrationAction]
   val mockHasMandotoryDetailsAction: HasMandotoryDetailsAction  = mock[HasMandotoryDetailsAction]

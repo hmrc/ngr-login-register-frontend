@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 
 class RatepayerRegistrationRepoSpec extends TestSupport
   with DefaultPlayMongoRepositorySupport[RatepayerRegistrationValuation] {
-  lazy val repository: RatepayerRegistraionRepo = app.injector.instanceOf[RatepayerRegistraionRepo]
+  lazy val repository: RatepayerRegistrationRepo = app.injector.instanceOf[RatepayerRegistrationRepo]
 
   override def beforeEach(): Unit = {
     await(repository.collection.drop().toFuture())

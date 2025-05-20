@@ -31,7 +31,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector,
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, RatepayerRegistrationValuationRequest}
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 
 import scala.concurrent.Future
 
@@ -40,7 +40,7 @@ class HasMandotoryDetailsActionSpec extends TestSupport with TestData{
   override implicit lazy val app: Application = GuiceApplicationBuilder().build()
   private val mockNGRConnector: NGRConnector = mock[NGRConnector]
   private val mockRegistrationAction: RegistrationAction = mock[RegistrationAction]
-  private val mockRatepayerRegistraionRepo: RatepayerRegistraionRepo = mock[RatepayerRegistraionRepo]
+  private val mockRatepayerRegistraionRepo: RatepayerRegistrationRepo = mock[RatepayerRegistrationRepo]
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockAuthAction = new AuthRetrievalsImpl(mockAuthConnector, mcc)
 

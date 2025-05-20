@@ -27,19 +27,19 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, RatepayerRegistrationValuationRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration}
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationActionImpl @Inject()(
-                                    ngrConnector: NGRConnector,
-                                    mongo: RatepayerRegistraionRepo,
-                                    citizenDetailsConnector: CitizenDetailsConnector,
-                                    authenticate: AuthRetrievals,
-                                    appConfig: AppConfig,
-                                    mcc: MessagesControllerComponents
+                                        ngrConnector: NGRConnector,
+                                        mongo: RatepayerRegistrationRepo,
+                                        citizenDetailsConnector: CitizenDetailsConnector,
+                                        authenticate: AuthRetrievals,
+                                        appConfig: AppConfig,
+                                        mcc: MessagesControllerComponents
                                   )(implicit ec: ExecutionContext)  extends  RegistrationAction{
 
   override def invokeBlock[A](request: Request[A], block: RatepayerRegistrationValuationRequest[A] => Future[Result]): Future[Result] = {

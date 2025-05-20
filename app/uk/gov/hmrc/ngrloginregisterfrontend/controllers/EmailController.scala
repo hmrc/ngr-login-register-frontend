@@ -23,7 +23,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -31,7 +31,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 
 class EmailController @Inject()(emailView: EmailView,
-                                mongo: RatepayerRegistraionRepo,
+                                mongo: RatepayerRegistrationRepo,
                                 isRegisteredCheck: RegistrationAction,
                                 hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                 authenticate: AuthRetrievals,

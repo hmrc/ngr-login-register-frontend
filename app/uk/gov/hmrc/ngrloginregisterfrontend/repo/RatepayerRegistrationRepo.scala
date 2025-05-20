@@ -27,7 +27,7 @@ import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Email, Name, Nino, PhoneNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino, PhoneNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
 
 import java.time.Instant
@@ -37,8 +37,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Singleton
-case class RatepayerRegistraionRepo @Inject()(mongo: MongoComponent,
-                                         config: FrontendAppConfig
+case class RatepayerRegistrationRepo @Inject()(mongo: MongoComponent,
+                                               config: FrontendAppConfig
                                         )(implicit ec: ExecutionContext)
   extends PlayMongoRepository[RatepayerRegistrationValuation](
     collectionName = "ratepayerRegistration",
@@ -108,6 +108,17 @@ case class RatepayerRegistraionRepo @Inject()(mongo: MongoComponent,
 
   def updateEmail(credId: CredId, email: Email): Future[Option[RatepayerRegistrationValuation]] = {
     findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.email.value", email.value))
+  }
+
+  def updateAddress(credId: CredId, address: Address): Future[Option[RatepayerRegistrationValuation]] = {
+    val updates = Seq(
+      Updates.set("ratepayerRegistration.address.line1", address.line1),
+      Updates.set("ratepayerRegistration.address.line2", address.line2.getOrElse(null)),
+      Updates.set("ratepayerRegistration.address.town", address.town),
+      Updates.set("ratepayerRegistration.address.county", address.county.getOrElse(null)),
+      Updates.set("ratepayerRegistration.address.postcode.value", address.postcode.value)
+    )
+    findAndUpdateByCredId(credId, updates: _*)
   }
 
   def updateTRN(credId: CredId, trnReferenceNumber: TRNReferenceNumber): Future[Option[RatepayerRegistrationValuation]] = {

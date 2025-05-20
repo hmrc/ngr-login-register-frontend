@@ -20,14 +20,13 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRRadio.buildRadios
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmAddressForm.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.{NgrFindAddressRepo, RatepayerRegistrationRepo}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -40,7 +39,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
                                           hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                          authenticate: AuthRetrievals,
                                          ngrFindAddressRepo: NgrFindAddressRepo,
-                                         connector: NGRConnector,
+                                         mongo: RatepayerRegistrationRepo,
                                          mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
   private val yesButton: NGRRadioButtons = NGRRadioButtons("Yes", Yes)
@@ -71,7 +70,7 @@ class ConfirmAddressController @Inject()(confirmAddressView: ConfirmAddressView,
                 Future.successful(BadRequest(confirmAddressView(address.toString, index, formWithErrors, buildRadios(formWithErrors, ngrRadio), mode))),
               confirmAddressForm => {
                 if (confirmAddressForm.radioValue.equals("Yes"))
-                  connector.changeAddress(CredId(request.credId.value), convertLookedUpAddressToNGRAddress(address))
+                  mongo.updateAddress(CredId(request.credId.value), convertLookedUpAddressToNGRAddress(address))
                     .map(_ => redirectPage(mode))
                 else
                   Future.successful(redirectPage(mode))
