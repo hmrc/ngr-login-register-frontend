@@ -66,7 +66,6 @@ trait ControllerSpecSupport extends TestSupport with TestData {
           credId = CredId(credId),
           ratepayerRegistration = Some(updatedModel)
         )
-        println("mockAuthJourney 2 = " + fakeReq)
         block(fakeReq)
       }
       override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
@@ -88,7 +87,6 @@ trait ControllerSpecSupport extends TestSupport with TestData {
           credId = CredId("1234"),
           ratepayerRegistration = Some(testRegistrationModel)
         )
-        println("mockAuthJourney 2 = " + fakeReq)
         block(fakeReq)
       }
       override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
