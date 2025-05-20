@@ -59,6 +59,17 @@ class EmailControllerSpec extends ControllerSpecSupport with TestData {
         content must include(pageTitle)
       }
 
+      "Return OK and the correct view with no data" in {
+        val ratepayer: RatepayerRegistration = RatepayerRegistration(email = None)
+        val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
+        when(mockNGRConnector.getRatepayer(any())(any()))
+          .thenReturn(Future.successful(Some(model)))
+        val result = controller().show(confirmContactDetailsMode)(ratepayerRegistrationValuationRequest)
+        status(result) mustBe OK
+        val content = contentAsString(result)
+        content must include(pageTitle)
+      }
+
       "Return OK and the correct view with data" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration(email = Some(Email("yes@no.biz")))
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))

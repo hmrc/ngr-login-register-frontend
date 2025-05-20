@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{CREATED, OK}
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.http.Status.CREATED
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
 import java.net.URL
@@ -60,128 +58,4 @@ class NGRConnector @Inject()(http: HttpClientV2,
       .withBody(Json.toJson(model))
       .execute[Option[RatepayerRegistrationValuation]]
   }
-
-  def changeName(credId: CredId, name: Name)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(name = Some(name))
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url("change-name"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Change name" + response.body)
-        response.status match {
-          case OK => response
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
-  def changeNino(credId: CredId, nino: Nino)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(nino = Some(nino))
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url("change-nino"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Change nino" + response.body)
-        response.status match {
-          case OK => response
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
-  def changePhoneNumber(credId: CredId, contactNumber: PhoneNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(contactNumber))
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url("change-phone-number"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Change phone number" + response.body)
-        response.status match {
-          case OK => response
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
-  def changeEmail(credId: CredId, email: Email)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(email = Some(email))
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url("change-email"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Change email" + response.body)
-        response.status match {
-          case OK => response
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
-  def changeTrn(credId: CredId, trn: TRNReferenceNumber)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(trnReferenceNumber = Some(trn))
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url("change-trn"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Change trn" + response.body)
-        response.status match {
-          case OK => response
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
-  def changeAddress(credId: CredId, address: Address)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val ratepayer: RatepayerRegistration = RatepayerRegistration(address = Some(address))
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-    http.post(url("change-address"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Change address" + response.body)
-        response.status match {
-          case OK => response
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
-  def findAddress(credId: CredId)(implicit hc: HeaderCarrier): Future[Option[Address]] = {
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, None)
-    http.post(url("find-address"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Find address" + response.body)
-        response.status match {
-          case OK => Json.parse(response.body).validateOpt[Address] match {
-            case JsSuccess(addressOpt, _) => addressOpt
-            case JsError(errors) =>
-              logger.error(s"Failed to parse address: $errors")
-              None
-          }
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
-  def registerAccount(credId: CredId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
-    http.post(url("register-account"))
-      .withBody(Json.toJson(model))
-      .execute[HttpResponse]
-      .map { response =>
-        logger.info("Is registered" + response.body)
-        response.status match {
-          case OK => true
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
-      }
-  }
-
 }

@@ -19,9 +19,10 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.http.Status.{CREATED, OK, SEE_OTHER}
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, TRNReferenceNumber}
@@ -97,7 +98,9 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
 
     "Calling the submit function return a 303 and the correct redirect location" in {
       mockRequest()
-      when(mockNGRConnector.registerAccount(any())(any())).thenReturn(Future.successful(true))
+      val httpResponse = HttpResponse(CREATED, "Created Successfully")
+      when(mockNGRConnector.upsertRatepayer(any())(any()))
+        .thenReturn(Future.successful(httpResponse))
       when(mockRatepayerRegistraionRepo.registerAccount(any()))
         .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId ,Some(testRegistrationModel)))))
       val result = controller().submit()(authenticatedFakeRequest)

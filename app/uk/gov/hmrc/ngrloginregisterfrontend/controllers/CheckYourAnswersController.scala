@@ -58,7 +58,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
 
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
-          ngrConnector.registerAccount(CredId(request.credId.value))
+          ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(CredId(request.credId.value), request.ratepayerRegistration.map(info => info.copy(isRegistered = Some(true)))))
           mongo.registerAccount(CredId(request.credId.value))
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
       }

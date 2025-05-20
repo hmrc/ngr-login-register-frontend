@@ -95,6 +95,20 @@ class RatepayerRegistrationRepoSpec extends TestSupport
       }
     }
 
+    "update address" when {
+      "an address has been supplied" in {
+        val address: Address = Address("Address Line 1", Some("Line 2"), "Chester", None, Postcode("CH2 1HW"))
+        val isSuccessful = await(repository.upsertRatepayerRegistration(ratepayerRegistrationValuation))
+
+        isSuccessful shouldBe true
+
+        await(repository.updateAddress(credId, address))
+        val actual = await(repository.findAndUpdateByCredId(credId)).get
+
+        actual.ratepayerRegistration.get.address shouldBe Some(address)
+      }
+    }
+
     "update phone number" when {
       "a phone has been supplied" in {
         val contactNumber: PhoneNumber = PhoneNumber("07702467254")
