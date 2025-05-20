@@ -28,11 +28,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 
 import scala.concurrent.Future
 
@@ -41,9 +40,12 @@ class RegistrationActionSpec extends TestSupport with TestData{
   override implicit lazy val app: Application = GuiceApplicationBuilder().build()
 
   private val mockNGRConnector: NGRConnector = mock[NGRConnector]
+  private val mockRatepayerRegistraionRepo: RatepayerRegistraionRepo = mock[RatepayerRegistraionRepo]
 
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockAuthAction = new AuthRetrievalsImpl(mockAuthConnector, mcc)
+
+  private val mockCitizenDetailsConnector:CitizenDetailsConnector = mock[CitizenDetailsConnector]
 
   private object Stubs {
     def successBlock(request: Request[AnyContent]): Future[Result] = Future.successful(Ok(""))
@@ -51,7 +53,13 @@ class RegistrationActionSpec extends TestSupport with TestData{
 
   private val testRequest = FakeRequest("GET", "/paye/company-car")
 
-  val registrationAction = new RegistrationActionImpl(ngrConnector = mockNGRConnector,authenticate = mockAuthAction, appConfig = mockConfig,mcc)
+  val registrationAction = new RegistrationActionImpl(
+    ngrConnector = mockNGRConnector,
+    mongo = mockRatepayerRegistraionRepo,
+    citizenDetailsConnector = mockCitizenDetailsConnector,
+    authenticate = mockAuthAction,
+    appConfig = mockConfig,
+    mcc)
 
   private implicit class HelperOps[A](a: A) {
     def ~[B](b: B) = new ~(a, b)
@@ -69,17 +77,16 @@ class RegistrationActionSpec extends TestSupport with TestData{
 
   "Registration Action" when {
     "a user navigating to /ngr-login-register-frontend/start" must {
-        "must be navigated to requested page if not registered" in {
+      when(
+        mockAuthConnector
+          .authorise[mockAuthAction.RetrievalsType](any(), any())(any(), any())
+      ).thenReturn(retrievalResult)
+        "must be navigated to requested page if found in the front end mongo to not be registered" in {
           when(
-            mockAuthConnector
-              .authorise[mockAuthAction.RetrievalsType](any(), any())(any(), any())
-          )
-            .thenReturn(retrievalResult)
-          when(mockNGRConnector.getRatepayer(any())(any()))
-            .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId, Some(testRegistrationModel)))))
+            mockRatepayerRegistraionRepo.findByCredId(any())
+          ).thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId, Some(testRegistrationModel)))))
 
           val stubs = spy(Stubs)
-
 
           val authResult = mockAuthAction.invokeBlock(testRequest, stubs.successBlock)
           status(authResult) mustBe OK
@@ -87,12 +94,44 @@ class RegistrationActionSpec extends TestSupport with TestData{
           val result = registrationAction.invokeBlock(testRequest, stubs.successBlock)
           status(result) mustBe OK
         }
+      "must be navigated to requested page if found in the back end mongo to not be registered" in {
+        when(mockNGRConnector.getRatepayer(any())(any()))
+          .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId, Some(testRegistrationModel)))))
+
+        val stubs = spy(Stubs)
+
+        val authResult = mockAuthAction.invokeBlock(testRequest, stubs.successBlock)
+        status(authResult) mustBe OK
+
+        val result = registrationAction.invokeBlock(testRequest, stubs.successBlock)
+        status(result) mustBe OK
+      }
+
+      "must add the user to the front end mongo if no user is found" in {
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
+          .thenReturn(Future.successful(None))
+        when(mockNGRConnector.getRatepayer(any())(any()))
+          .thenReturn(Future.successful(None))
+        when(mockRatepayerRegistraionRepo.upsertRatepayerRegistration(any()))
+          .thenReturn(Future.successful(true))
+        when(mockCitizenDetailsConnector.getPersonDetails(any())(any()))
+          .thenReturn(Future.successful(Right(personDetailsResponse)))
+        when(mockRatepayerRegistraionRepo.upsertRatepayerRegistration(any()))
+          .thenReturn(Future.successful(true))
+
+        val stubs = spy(Stubs)
+
+        val authResult = mockAuthAction.invokeBlock(testRequest, stubs.successBlock)
+        status(authResult) mustBe OK
+
+        val result = registrationAction.invokeBlock(testRequest, stubs.successBlock)
+        status(result) mustBe OK
+      }
+
       "must be navigated to dashboard page if registered" in {
         when(
-          mockAuthConnector
-            .authorise[mockAuthAction.RetrievalsType](any(), any())(any(), any())
-        )
-          .thenReturn(retrievalResult)
+          mockRatepayerRegistraionRepo.findByCredId(any())
+        ).thenReturn(Future.successful(None))
 
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId, Some(testRegistrationModel.copy(isRegistered = Some(true)))))))

@@ -21,11 +21,11 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.{form, nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class NinoController @Inject()(
                                 ninoView: NinoView,
-                                connector: NGRConnector,
+                                mongo: RatepayerRegistraionRepo,
                                 isRegisteredCheck: RegistrationAction,
                                 hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                 authenticate: AuthRetrievals,
@@ -50,7 +50,7 @@ class NinoController @Inject()(
         }
       }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
 
-      connector.getRatepayer(CredId(request.credId.value)).map {
+      mongo.findByCredId(CredId(request.credId.value)).map {
         case Some(ratepayer) =>
           val ninoForm: Option[Form[Nino]] = for {
             ratepayer <- ratepayer.ratepayerRegistration
@@ -78,7 +78,7 @@ class NinoController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
           nino => {
-            connector.changeTrn(CredId(request.credId.value), TRNReferenceNumber(NINO, nino.value))
+            mongo.updateTRN(CredId(request.credId.value), TRNReferenceNumber(NINO, nino.value))
             Future.successful(Redirect(routes.CheckYourAnswersController.show))
           }
         )

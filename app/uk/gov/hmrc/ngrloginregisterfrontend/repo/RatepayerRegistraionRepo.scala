@@ -22,19 +22,19 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.Updates.combine
-import org.mongodb.scala.model.{Filters, FindOneAndUpdateOptions, IndexModel, IndexOptions, ReplaceOptions, ReturnDocument, Updates}
+import org.mongodb.scala.model._
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Email, Name, Nino, PhoneNumber}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
 
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 @Singleton
 case class RatepayerRegistraionRepo @Inject()(mongo: MongoComponent,
@@ -108,6 +108,14 @@ case class RatepayerRegistraionRepo @Inject()(mongo: MongoComponent,
 
   def updateEmail(credId: CredId, email: Email): Future[Option[RatepayerRegistrationValuation]] = {
     findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.email.value", email.value))
+  }
+
+  def updateTRN(credId: CredId, trnReferenceNumber: TRNReferenceNumber): Future[Option[RatepayerRegistrationValuation]] = {
+    val updates = Seq(
+      Updates.set("ratepayerRegistration.trnReferenceNumber.referenceType", trnReferenceNumber.referenceType.toString),
+      Updates.set("ratepayerRegistration.trnReferenceNumber.value", trnReferenceNumber.value)
+    )
+    findAndUpdateByCredId(credId, updates: _*)
   }
 
   def updateNino(credId: CredId, nino: Nino): Future[Option[RatepayerRegistrationValuation]] = {

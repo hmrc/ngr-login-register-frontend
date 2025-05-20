@@ -34,24 +34,21 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
   lazy val view: CheckYourAnswersView = inject[CheckYourAnswersView]
   lazy val ratepayer: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId)
 
-  def controller() = new CheckYourAnswersController(view, mockIsRegisteredCheck, mockAuthJourney, mockNGRConnector, mcc)
+  def controller() = new CheckYourAnswersController(
+    view,
+    mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
+    mockRatepayerRegistraionRepo,
+    mockAuthJourney,
+    mockNGRConnector,
+    mcc)
 
   "Controller" must {
     "return OK and the correct view for a GET" in {
-      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(Some(ratepayer)))
+      when(mockRatepayerRegistraionRepo.findByCredId(any())).thenReturn(Future.successful(Some(ratepayer)))
       val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe OK
     }
-
-    "throw exception when no ratepayer is found" in {
-      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
-
-      val exception = intercept[RuntimeException] {
-        controller().show()(authenticatedFakeRequest).futureValue
-      }
-      exception.getMessage must include("Can not find CredId:  in the database.")
-    }
-
     "will create summary rows from ratepayer registration model" in {
       val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel))
       val summaryList = createContactDetailSummaryRows(ratepayer, checkYourAnswersMode)
@@ -68,7 +65,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
     }
 
     "Tax reference row will show provide your UTR when referenceType is TRN" in {
-      val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel))
+      val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel.copy(trnReferenceNumber = None)))
       val summaryList = controller().createTRNSummaryRows(ratepayer)
       summaryList.rows.length shouldBe 1
       summaryList.rows(0).value.content.toString must include("<a id=\"sautr-linkid\" href=\"/ngr-login-register-frontend/confirm-utr\" class=\"govuk-link\">Provide your UTR</a>")
@@ -98,16 +95,11 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       summaryList.rows(0).value.content.toString must include("******56C")
     }
 
-    "throw exception when fail to register" in {
-      val exception = intercept[RuntimeException] {
-        controller().submit()(authenticatedFakeRequest).futureValue
-      }
-      exception.getMessage must include("No Cred ID found in request")
-    }
-
     "Calling the submit function return a 303 and the correct redirect location" in {
-      mockRequest(true)
+      mockRequest()
       when(mockNGRConnector.registerAccount(any())(any())).thenReturn(Future.successful(true))
+      when(mockRatepayerRegistraionRepo.registerAccount(any()))
+        .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId ,Some(testRegistrationModel)))))
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) shouldBe Some(routes.RegistrationCompleteController.show(Some("234567")).url)

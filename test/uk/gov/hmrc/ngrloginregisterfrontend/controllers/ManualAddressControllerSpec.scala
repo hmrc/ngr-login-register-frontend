@@ -53,6 +53,7 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
     mockAddressLookupConnector,
     mockNgrFindAddressRepo,
     mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
     mockAuthJourney,
     mcc
   )( mockConfig, ec)

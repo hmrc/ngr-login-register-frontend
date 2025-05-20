@@ -32,39 +32,34 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckYourAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            isRegisteredCheck: RegistrationAction,
                                            hasMandotoryDetailsAction: HasMandotoryDetailsAction,
-                                           ratepayerRegistraionRepo: RatepayerRegistraionRepo,
+                                           mongo: RatepayerRegistraionRepo,
                                            authenticate: AuthRetrievals,
                                            ngrConnector: NGRConnector,
-                                           mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
+                                           mcc: MessagesControllerComponents)(implicit appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       val credId = CredId(request.credId.value)
-      ngrConnector.getRatepayer(credId)
+      val optionRatepayer:Option[RatepayerRegistration] =  request.ratepayerRegistration
+      val name = optionRatepayer.flatMap(_.name).map(_.value).getOrElse("")
 
-      ngrConnector.getRatepayer(credId).flatMap {
-        case Some(ratepayer) =>
-          val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(
-            createContactDetailSummaryRows(ratepayerRegistrationValuation = ratepayer, mode= "CYA", classes ="govuk-!-margin-bottom-9"),
-            createTRNSummaryRows(ratepayer),
-            name)))
-        case None =>
-          Future.failed(new RuntimeException(s"Can not find CredId: ${credId.value} in the database"))
-      }
+      Future.successful(Ok(view(
+        createContactDetailSummaryRows(ratepayerRegistrationValuation = RatepayerRegistrationValuation(credId,optionRatepayer), mode= "CYA", classes ="govuk-!-margin-bottom-9"),
+        createTRNSummaryRows(RatepayerRegistrationValuation(credId, optionRatepayer)),
+        name)))
     }
 
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
           ngrConnector.registerAccount(CredId(request.credId.value))
-          ratepayerRegistraionRepo.registerAccount(CredId(request.credId.value))
+          mongo.registerAccount(CredId(request.credId.value))
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
       }
 

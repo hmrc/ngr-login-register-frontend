@@ -16,19 +16,16 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc._
-import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.NgrFindAddressRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.{NgrFindAddressRepo, RatepayerRegistraionRepo}
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -37,8 +34,13 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ControllerSpecSupport extends TestSupport with TestData {
 
   implicit lazy val msgs: Messages = MessagesImpl(Lang("en"), inject[MessagesApi])
+  val mockRatepayerRegistraionRepo: RatepayerRegistraionRepo = mock[RatepayerRegistraionRepo]
   val mockAuthJourney: AuthRetrievals = mock[AuthRetrievals]
   val mockIsRegisteredCheck: RegistrationAction = mock[RegistrationAction]
+  val mockHasMandotoryDetailsAction: HasMandotoryDetailsAction  = mock[HasMandotoryDetailsAction]
+  val mockComposedAction:ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]  = mock[ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]]
+
+
   val mockNgrFindAddressRepo: NgrFindAddressRepo = mock[NgrFindAddressRepo]
   val mockNGRConnector: NGRConnector = mock[NGRConnector]
   val mockSessionManager: SessionManager = mock[SessionManager]
@@ -48,26 +50,51 @@ trait ControllerSpecSupport extends TestSupport with TestData {
 
   mockRequest()
 
-  def mockRequest(hasCredId: Boolean = false, hasNino: Boolean = true): Unit =
-    when(mockAuthJourney andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
-      override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => Future[Result]): Future[Result] =  {
-        val authRequest = AuthenticatedUserRequest(request, None, None, Some("user@email.com"), if (hasCredId) Some("1234") else None, None, None, nino = if (hasNino) Nino(hasNino = true, Some("AA000003D")) else Nino(hasNino = false, None))
-        block(authRequest)
+  def mockRequest(
+                   credId: String = "1234",
+                   hasNino: Boolean = true
+                 ): Unit = {
+    val testNino = if (hasNino) Some(Nino("AA000003D")) else None
+    val updatedModel = testRegistrationModel.copy(nino = testNino)
+    val finalActionBuilder = new ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent] {
+      override def invokeBlock[A](
+                                   request: Request[A],
+                                   block: RatepayerRegistrationValuationRequest[A] => Future[Result]
+                                 ): Future[Result] = {
+        val fakeReq = RatepayerRegistrationValuationRequest(
+          request = request,
+          credId = CredId(credId),
+          ratepayerRegistration = Some(updatedModel)
+        )
+        println("mockAuthJourney 2 = " + fakeReq)
+        block(fakeReq)
       }
       override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
       override protected def executionContext: ExecutionContext = ec
     }
+    val mockAuthThenReg = mock[ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]]
+    when(mockAuthJourney.andThen(mockIsRegisteredCheck)).thenReturn(mockAuthThenReg)
+    when(mockAuthThenReg.andThen(mockHasMandotoryDetailsAction)).thenReturn(finalActionBuilder)
+  }
 
-
-    def mockRequest(authRequest: AuthenticatedUserRequest[AnyContentAsEmpty.type]): Unit = {
-      when(mockAuthJourney  andThen mockIsRegisteredCheck) thenReturn new ActionBuilder[AuthenticatedUserRequest, AnyContent] {
-        override def invokeBlock[A](request: Request[A], block: AuthenticatedUserRequest[A] => Future[Result]): Future[Result] = {
-          block(authRequest.asInstanceOf[AuthenticatedUserRequest[A]])
-        }
-
-        override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
-
-        override protected def executionContext: ExecutionContext = ec
+  def mockRequestNoMandotoryCheck(): Unit = {
+    val finalActionBuilder = new ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent] {
+      override def invokeBlock[A](
+                                   request: Request[A],
+                                   block: RatepayerRegistrationValuationRequest[A] => Future[Result]
+                                 ): Future[Result] = {
+        val fakeReq = RatepayerRegistrationValuationRequest(
+          request = request,
+          credId = CredId("1234"),
+          ratepayerRegistration = Some(testRegistrationModel)
+        )
+        println("mockAuthJourney 2 = " + fakeReq)
+        block(fakeReq)
       }
+      override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+      override protected def executionContext: ExecutionContext = ec
     }
+    val mockAuthThenReg = mock[ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]]
+    when(mockAuthJourney.andThen(mockIsRegisteredCheck)).thenReturn(finalActionBuilder)
+  }
 }

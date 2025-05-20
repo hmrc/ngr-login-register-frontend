@@ -20,8 +20,8 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -31,7 +31,7 @@ import scala.concurrent.Future
 class EnterEmailController @Inject()(view: EmailView,
                                      mcc: MessagesControllerComponents,
                                      isRegisteredCheck: RegistrationAction,
-                                     connector: NGRConnector,
+                                     mongo: RatepayerRegistraionRepo,
                                      authenticate: AuthRetrievals)
                                     (implicit appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
   def show(): Action[AnyContent] =
@@ -46,8 +46,8 @@ class EnterEmailController @Inject()(view: EmailView,
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, "enterEmail"))),
           email => {
-            connector.changeEmail(request.credId,email)
-            Future.successful(Redirect(routes.ConfirmContactDetailsController.show(Some(email.value))))
+            mongo.updateEmail(request.credId,email)
+            Future.successful(Redirect(routes.ConfirmContactDetailsController.show()))
           }
         )
     }

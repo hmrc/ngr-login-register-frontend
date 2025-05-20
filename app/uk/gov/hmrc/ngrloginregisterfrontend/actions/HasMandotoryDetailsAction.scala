@@ -19,32 +19,26 @@ package uk.gov.hmrc.ngrloginregisterfrontend.actions
 import com.google.inject.ImplementedBy
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HasMandotoryDetailsActionImpl @Inject()(
-                                    ngrConnector: NGRConnector,
+                                    mongo: RatepayerRegistraionRepo,
                                     isRegistered: RegistrationAction,
-                                    appConfig: AppConfig,
                                     mcc: MessagesControllerComponents
                                   )(implicit ec: ExecutionContext)  extends  HasMandotoryDetailsAction{
 
   override def invokeBlock[A](request: Request[A], block: RatepayerRegistrationValuationRequest[A] => Future[Result]): Future[Result] = {
 
     isRegistered.invokeBlock(request, { implicit registration: RatepayerRegistrationValuationRequest[A]  =>
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(registration, registration.session)
 
       val credId = CredId(registration.credId.value)
 
-      ngrConnector.getRatepayer(credId).flatMap{ maybeRatepayer =>
+      mongo.findByCredId(credId).flatMap{ maybeRatepayer =>
         val email = maybeRatepayer
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.email).isDefined
@@ -78,5 +72,5 @@ class HasMandotoryDetailsActionImpl @Inject()(
 
 }
 
-@ImplementedBy(classOf[RegistrationActionImpl])
+@ImplementedBy(classOf[HasMandotoryDetailsActionImpl])
 trait HasMandotoryDetailsAction extends ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent] with ActionFunction[Request, RatepayerRegistrationValuationRequest]

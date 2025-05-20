@@ -23,12 +23,13 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes, form}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.TRNReferenceNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.StringHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -42,7 +43,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                      authenticate: AuthRetrievals,
                                      citizenDetailsConnector: CitizenDetailsConnector,
-                                     NGRConnector: NGRConnector,
+                                     mongo: RatepayerRegistraionRepo,
                                      mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with StringHelper {
 
@@ -99,18 +100,16 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, summaryList(maskSAUTR(savedUtr)), radios(formWithErrors)))),
-          utrChoice => {
-                utrChoice match {
-                  case ConfirmUTR.Yes(utr) =>
-                    NGRConnector.changeTrn(request.credId, TRNReferenceNumber(SAUTR, utr))
-                    Future.successful(Redirect(routes.CheckYourAnswersController.show))
-                  case ConfirmUTR.NoNI =>
-                    Future.successful(Redirect(routes.NinoController.show))
-                  case ConfirmUTR.NoLater =>
-                    NGRConnector.changeTrn(request.credId, TRNReferenceNumber(SAUTR, ""))
-                    Future.successful(Redirect(routes.CheckYourAnswersController.show))
-                }
-            }
+          {
+            case ConfirmUTR.Yes(utr) =>
+              mongo.updateTRN(request.credId, TRNReferenceNumber(SAUTR, utr))
+              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+            case ConfirmUTR.NoNI =>
+              Future.successful(Redirect(routes.NinoController.show))
+            case ConfirmUTR.NoLater =>
+              mongo.updateTRN(request.credId, TRNReferenceNumber(SAUTR, ""))
+              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+          }
         )
     }
 }

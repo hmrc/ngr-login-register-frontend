@@ -43,8 +43,9 @@ class EmailControllerSpec extends ControllerSpecSupport with TestData {
 
   def controller() = new EmailController(
     emailView,
-    mockNGRConnector,
+    mockRatepayerRegistraionRepo,
     mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
     mockAuthJourney,
     mcc
   )
@@ -52,9 +53,7 @@ class EmailControllerSpec extends ControllerSpecSupport with TestData {
   "Email Controller" must {
     "method show" must {
       "Return OK and the correct view" in {
-        when(mockNGRConnector.getRatepayer(any())(any()))
-          .thenReturn(Future.successful(None))
-        val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
+        val result = controller().show(confirmContactDetailsMode)(ratepayerRegistrationValuationRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -65,7 +64,7 @@ class EmailControllerSpec extends ControllerSpecSupport with TestData {
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(Some(model)))
-        val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
+        val result = controller().show(confirmContactDetailsMode)(ratepayerRegistrationValuationRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -78,7 +77,7 @@ class EmailControllerSpec extends ControllerSpecSupport with TestData {
           .withFormUrlEncodedBody(("email-value", "test@test.co.uk"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show().url)
       }
 
       "Successfully submit valid email and redirect to check your answers" in {

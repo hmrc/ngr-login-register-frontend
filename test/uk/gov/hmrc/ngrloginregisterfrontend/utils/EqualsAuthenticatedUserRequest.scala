@@ -19,22 +19,22 @@ package uk.gov.hmrc.ngrloginregisterfrontend.utils
 import org.mockito.ArgumentMatcher
 import org.scalactic.Prettifier
 import org.scalatest.matchers.must.Matchers
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuationRequest
 
-case class EqualsAuthenticatedUserRequest(expected: AuthenticatedUserRequest[_])
-  extends ArgumentMatcher[AuthenticatedUserRequest[_]]
+case class EqualsAuthenticatedUserRequest(expected: RatepayerRegistrationValuationRequest[_])
+  extends ArgumentMatcher[RatepayerRegistrationValuationRequest[_]]
     with Matchers {
 
   class LocalPrettifier extends Prettifier {
     override def apply(o: Any): String =
       o match {
-        case request: AuthenticatedUserRequest[_] =>
-          s"AuthenticatedRequest { Original request: ${request.request},confidenceLevel: ${request.confidenceLevel}, authProvider: ${request.authProvider}, nino: ${request.nino}, email: ${request.email}, credId: ${request.credId}, affinityGroup: ${request.affinityGroup}, name: ${request.name}}"
+        case request: RatepayerRegistrationValuationRequest[_] =>
+          s"RatepayerRegistrationValuationRequest { Original request: ${request.request}, credId : ${request.credId}}"
         case _                                => o.toString
       }
   }
 
-  override def matches(argument: AuthenticatedUserRequest[_]): Boolean = {
+  override def matches(argument: RatepayerRegistrationValuationRequest[_]): Boolean = {
     withClue(s"Argument doesn't match: ") {
       argument mustBe expected
     }

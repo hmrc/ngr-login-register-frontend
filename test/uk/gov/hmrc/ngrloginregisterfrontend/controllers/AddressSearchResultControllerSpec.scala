@@ -38,6 +38,7 @@ class AddressSearchResultControllerSpec extends ControllerSpecSupport {
     addressSearchResultView,
     mockAuthJourney,
     mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
     mcc,
     mockNgrFindAddressRepo
   )

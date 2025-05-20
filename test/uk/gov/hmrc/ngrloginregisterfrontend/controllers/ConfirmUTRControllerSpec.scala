@@ -39,7 +39,14 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
 
   val view: ConfirmUTRView = inject[ConfirmUTRView]
   val mockCIDConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
-  def controller =  new ConfirmUTRController(view, mockIsRegisteredCheck, mockAuthJourney, mockCIDConnector, mockNGRConnector, mcc)
+  def controller =  new ConfirmUTRController(
+    view,
+    mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
+    mockAuthJourney,
+    mockCIDConnector,
+    mockRatepayerRegistraionRepo,
+    mcc)
   val matchingDetails: MatchingDetails = MatchingDetails("bob", "jones", Some(SaUtr("1234567890")))
   val matchingDetailsNoUTR: MatchingDetails = MatchingDetails("bob", "jones", None)
   val pageTitle: String = "Confirm your Self Assessment Unique Taxpayer Reference"
@@ -72,7 +79,7 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
       exception.getMessage must include("call to citizen details failed: 404 help")
     }
     "no nino in request" in {
-      mockRequest(hasCredId = true, hasNino = false)
+      mockRequest(hasNino = false)
       when(mockCIDConnector.getMatchingResponse(any())(any()))
         .thenReturn(Future.successful(Right(matchingDetails)))
       val exception = intercept[RuntimeException] {
@@ -82,25 +89,17 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
     }
     "method submit" must {
       "Successfully submit valid selection and redirect, YES" in {
-        mockRequest(hasCredId = true)
+        mockRequest()
         val result = controller.submit()(requestWithFormValue("Yes(1234567890)"))
         status(result) mustBe SEE_OTHER
       }
-      "Error when no cred ID" in {
-        mockRequest()
-        val exception = intercept[RuntimeException] {
-          val request = requestWithFormValue("Yes(1234567890)")
-          controller.submit()(request).futureValue
-        }
-        exception.getMessage must include("No Cred ID found in request")
-      }
       "Successfully submit valid selection and redirect, NoNI" in {
-        mockRequest(hasCredId = true)
+        mockRequest()
         val result = controller.submit()(requestWithFormValue("NoNI"))
         status(result) mustBe SEE_OTHER
       }
       "Successfully submit valid selection and redirect, NoLater" in {
-        mockRequest(hasCredId = true)
+        mockRequest()
         val result = controller.submit()(requestWithFormValue("NoLater"))
         status(result) mustBe SEE_OTHER
       }

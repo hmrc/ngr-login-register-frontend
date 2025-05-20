@@ -49,6 +49,7 @@ class FindAddressControllerSpec extends ControllerSpecSupport with TestSupport w
     view,
     mockAddressLookupConnector,
     mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
     mockAuthJourney,
     mockNgrFindAddressRepo,
     mcc

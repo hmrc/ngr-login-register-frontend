@@ -42,8 +42,9 @@ class NinoControllerSpec extends ControllerSpecSupport {
 
   def controller() = new NinoController(
     ninoView,
-    mockNGRConnector,
+    mockRatepayerRegistraionRepo,
     mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
     mockAuthJourney,
     mcc
   )
@@ -57,7 +58,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
       "Return OK and the correct view" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration()
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-        when(mockNGRConnector.getRatepayer(any())(any()))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
           .thenReturn(Future.successful(Some(model)))
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
@@ -67,7 +68,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
       "Return OK and the correct view with nino" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration(trnReferenceNumber = Some(TRNReferenceNumber(NINO, "AA000003D")))
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-        when(mockNGRConnector.getRatepayer(any())(any()))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
           .thenReturn(Future.successful(Some(model)))
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
@@ -79,7 +80,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
       "Return OK and the correct view if nino is missing from TRNReferenceNumber" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration(trnReferenceNumber = Some(TRNReferenceNumber(SAUTR, "1097133333")))
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-        when(mockNGRConnector.getRatepayer(any())(any()))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
           .thenReturn(Future.successful(Some(model)))
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
@@ -89,7 +90,8 @@ class NinoControllerSpec extends ControllerSpecSupport {
       }
 
       "Return OK and the correct view if ratepayer is not found" in {
-        when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
+          .thenReturn(Future.successful(None))
         val result = controller().show()(authenticatedFakeRequest)
         status(result) mustBe OK
         val content = contentAsString(result)

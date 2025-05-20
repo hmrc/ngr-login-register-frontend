@@ -20,35 +20,30 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class EmailController @Inject()(emailView: EmailView,
-                                connector: NGRConnector,
+                                mongo: RatepayerRegistraionRepo,
                                 isRegisteredCheck: RegistrationAction,
                                 hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                 authenticate: AuthRetrievals,
                                 mcc: MessagesControllerComponents,
-                               )(implicit appConfig: AppConfig, ec: ExecutionContext)
+                               )(implicit appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
-      connector.getRatepayer(CredId(request.credId.value)).map { ratepayerOpt =>
-        val emailForm = ratepayerOpt
-          .flatMap(_.ratepayerRegistration)
-          .flatMap(_.email)
-          .map(email => form().fill(Email(email.value)))
-          .getOrElse(form())
-
-        Ok(emailView(emailForm, mode))
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction) { implicit request =>
+      request.ratepayerRegistration.flatMap(details => details.email) match {
+        case Some(email) => Ok(emailView(form().fill(email), mode))
+        case None => Ok(emailView(form(), mode))
       }
     }
   }
@@ -60,11 +55,11 @@ class EmailController @Inject()(emailView: EmailView,
         .fold(
           formWithErrors => Future.successful(BadRequest(emailView(formWithErrors, mode))),
           email => {
-            connector.changeEmail(CredId(request.credId.value), email)
+            mongo.updateEmail(CredId(request.credId.value), email)
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else
-              Future.successful(Redirect(routes.ConfirmContactDetailsController.show(None)))
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show()))
           }
         )
     }

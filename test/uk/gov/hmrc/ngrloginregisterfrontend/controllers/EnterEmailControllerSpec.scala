@@ -18,24 +18,29 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
-import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-
-import java.time.Instant
+import uk.gov.hmrc.ngrloginregisterfrontend.views.html.EmailView
 
 class EnterEmailControllerSpec extends ControllerSpecSupport with TestData {
   lazy val view: EmailView = inject[EmailView]
-  def controller() = new EnterEmailController(view, mcc, mockIsRegisteredCheck, mockAuthJourney)
+  def controller() = new EnterEmailController(
+    view,
+    mcc,
+    mockIsRegisteredCheck,
+    mockRatepayerRegistraionRepo,
+    mockAuthJourney)
+
+  override def beforeEach(): Unit = {mockRequestNoMandotoryCheck()}
 
   "Email Controller" must {
 
     "method show" must {
       "Return OK and the correct view" in {
-        val result = controller().show()(authenticatedFakeRequest)
+        val result = controller().show()(ratepayerRegistrationValuationRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include("Enter email address")
@@ -49,7 +54,7 @@ class EnterEmailControllerSpec extends ControllerSpecSupport with TestData {
           .withFormUrlEncodedBody(("email-value", "test@test.co.uk"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show(Some("test@test.co.uk")).url)
+        redirectLocation(result) mustBe Some(routes.ConfirmContactDetailsController.show().url)
       }
 
       "Submit with no email address and display error message" in {

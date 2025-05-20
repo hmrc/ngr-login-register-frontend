@@ -31,7 +31,6 @@ final case class Person(
                    dateOfBirth: Option[LocalDate],
                    nino:        Option[Nino]
                  )
-
 object Person {
   implicit val format: Format[Person] = Json.format[Person]
 }

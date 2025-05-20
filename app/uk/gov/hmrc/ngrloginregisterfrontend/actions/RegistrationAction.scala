@@ -20,23 +20,22 @@ import com.google.inject.ImplementedBy
 import play.api.libs.json.Json
 import play.api.mvc.Results.{Redirect, Status}
 import play.api.mvc._
-import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Postcode, RatepayerRegistration}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, RatepayerRegistrationValuationRequest}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, RatepayerRegistrationValuationRequest}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistraionRepo
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
-import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationActionImpl @Inject()(
                                     ngrConnector: NGRConnector,
-                                    ratepayerRegistraionRepo: RatepayerRegistraionRepo,
+                                    mongo: RatepayerRegistraionRepo,
                                     citizenDetailsConnector: CitizenDetailsConnector,
                                     authenticate: AuthRetrievals,
                                     appConfig: AppConfig,
@@ -45,12 +44,11 @@ class RegistrationActionImpl @Inject()(
 
   override def invokeBlock[A](request: Request[A], block: RatepayerRegistrationValuationRequest[A] => Future[Result]): Future[Result] = {
 
-    authenticate.invokeBlock(request, { implicit authRequest: AuthenticatedUserRequest[A] =>
-      val credId = CredId(authRequest.credId.getOrElse(""))
+    authenticate.invokeBlock(request, { implicit authRequest: RatepayerRegistrationValuationRequest[A] =>
+      val credId = authRequest.credId
 
-      ratepayerRegistraionRepo.findByCredId(credId).flatMap {
+      mongo.findByCredId(credId).flatMap {
         case maybeRatepayer if maybeRatepayer.isDefined =>
-          println(Console.GREEN + "Found In Frontend" + Console.RESET)
           val isRegistered = maybeRatepayer
             .flatMap(_.ratepayerRegistration)
             .flatMap(_.isRegistered)
@@ -71,26 +69,25 @@ class RegistrationActionImpl @Inject()(
               redirectToDashboard()
             } else {
 
-              val authNino = authRequest.nino.nino.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
+              val authNino = authRequest.ratepayerRegistration.get.nino.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
 
-             citizenDetailsConnector.getPersonDetails(Nino(authNino)).flatMap {
+             citizenDetailsConnector.getPersonDetails(authNino).flatMap {
                 case Left(error) =>
                   Future.successful(Status(error.code)(Json.toJson(error)))
 
                 case Right(personDetails) =>
                   val nameValue = name(personDetails)
-                  println(Console.MAGENTA + "UPSERT TO BACKEND" + Console.RESET)
                   val authData = Some(RatepayerRegistration(
-                    name = if (authRequest.name.isDefined) {
-                      authRequest.name.map{fullName => Name(fullName.name + fullName.lastName.getOrElse(""))}
+                    name = if (authRequest.ratepayerRegistration.get.name.isDefined) {
+                      authRequest.ratepayerRegistration.get.name
                     } else Some(Name(nameValue)),
-                    email = if (authRequest.email.isDefined) {
-                      Some(Email(authRequest.email.getOrElse("").toString))
+                    email = if (authRequest.ratepayerRegistration.get.email.isDefined) {
+                      Some(Email(authRequest.ratepayerRegistration.get.email.getOrElse("").toString))
                     } else None,
-                    nino = Some(Nino(authNino)),
+                    nino = authRequest.ratepayerRegistration.get.nino,
                     address = Some(buildAddress(personDetails)) ,
                     isRegistered = Some(false)))
-                  ratepayerRegistraionRepo.upsertRatepayerRegistration(RatepayerRegistrationValuation(credId, authData))
+                  mongo.upsertRatepayerRegistration(RatepayerRegistrationValuation(credId, authData))
                   block(
                     RatepayerRegistrationValuationRequest(
                       request,
