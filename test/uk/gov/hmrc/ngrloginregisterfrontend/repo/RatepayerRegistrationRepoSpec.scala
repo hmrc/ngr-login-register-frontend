@@ -17,19 +17,14 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.repo
 
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.test.Helpers
-import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration, TradingName}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino, PhoneNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.AgentStatus.Autonomous
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
-
-import java.time.Instant
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration, TradingName}
 
 
 class RatepayerRegistrationRepoSpec extends TestSupport

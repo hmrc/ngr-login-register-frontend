@@ -92,7 +92,6 @@ trait ControllerSpecSupport extends TestSupport with TestData {
       override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
       override protected def executionContext: ExecutionContext = ec
     }
-    val mockAuthThenReg = mock[ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]]
     when(mockAuthJourney.andThen(mockIsRegisteredCheck)).thenReturn(finalActionBuilder)
   }
 }
