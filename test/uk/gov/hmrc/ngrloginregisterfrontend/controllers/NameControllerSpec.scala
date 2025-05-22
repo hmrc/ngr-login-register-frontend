@@ -43,8 +43,9 @@ class NameControllerSpec extends ControllerSpecSupport with TestData {
 
   def controller() = new NameController(
     nameView,
-    mockNGRConnector,
+    mockRatepayerRegistraionRepo,
     mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
     mockAuthJourney,
     mcc
   )
@@ -52,7 +53,7 @@ class NameControllerSpec extends ControllerSpecSupport with TestData {
   "Phone Number Controller" must {
     "method show" must {
       "Return OK and the correct view" in {
-        when(mockNGRConnector.getRatepayer(any())(any()))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
           .thenReturn(Future.successful(None))
         val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
         status(result) mustBe OK
@@ -62,7 +63,7 @@ class NameControllerSpec extends ControllerSpecSupport with TestData {
       "Return OK and the correct view with data" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration(name = Some(Name("Jeffrey")))
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-        when(mockNGRConnector.getRatepayer(any())(any()))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
           .thenReturn(Future.successful(Some(model)))
         val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
         status(result) mustBe OK
@@ -77,7 +78,7 @@ class NameControllerSpec extends ControllerSpecSupport with TestData {
           .withFormUrlEncodedBody(("name-value", "Jake"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show().url)
       }
 
       "Successfully submit valid name and redirect to check your answers" in {

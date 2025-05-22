@@ -27,17 +27,21 @@ class ProvideTRNControllerSpec extends ControllerSpecSupport{
 
   def controller() =
     new ProvideTRNController(
-      view = view, isRegisteredCheck = mockIsRegisteredCheck, authenticate = mockAuthJourney, mcc = mcc
+      view = view,
+      isRegisteredCheck = mockIsRegisteredCheck,
+      authenticate = mockAuthJourney,
+      hasMandotoryDetailsAction = mockHasMandotoryDetailsAction,
+      mcc = mcc
     )
 
   "ProvideTRNController" must {
     "return OK and the correct view for a GET" in {
-      val result = controller().show()(authenticatedFakeRequest)
+      val result = controller().show()(ratepayerRegistrationValuationRequest)
       status(result) mustBe OK
     }
 
     "Calling the submit function return a 303 and the correct redirect location" in {
-      val result = controller().submit()(authenticatedFakeRequest)
+      val result = controller().submit()(ratepayerRegistrationValuationRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(routes.ConfirmUTRController.show.url)
     }

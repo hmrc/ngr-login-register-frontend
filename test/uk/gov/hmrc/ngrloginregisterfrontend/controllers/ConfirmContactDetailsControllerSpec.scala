@@ -25,7 +25,6 @@ import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.RegistrationActionSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
@@ -44,7 +43,12 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
 
   def controller() =
     new ConfirmContactDetailsController(
-      view = view, authenticate = mockAuthJourney, isRegisteredCheck = mockIsRegisteredCheck, mcc = mcc, citizenDetailsConnector = mockCitizenDetailsConnector, connector = mockNGRConnector
+      view = view,
+      authenticate = mockAuthJourney,
+      isRegisteredCheck = mockIsRegisteredCheck,
+      hasMandotoryDetailsAction = mockHasMandotoryDetailsAction,
+      mcc = mcc,
+      connector = mockNGRConnector,
     )
 
   override def beforeEach(): Unit = {
@@ -66,27 +70,10 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe OK
     }
-
-    "return the correct status when no ratepayer is found and citizen details fail" in {
-      when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(404, "Not Found"))))
-      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
-
-      val result = controller().show(Some("email@email.com"))(fakeRequest)
-      status(result) mustBe 404
-    }
-
     "person details returns error status" in {
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future(Left(ErrorResponse(200, "bad"))))
       val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe 200
-    }
-
-    "throw exception when nino is not found from auth" in {
-      mockRequest(hasNino = false)
-      val exception = intercept[RuntimeException] {
-        controller().show(Some("email@email.com"))(authenticatedFakeRequest).futureValue
-      }
-      exception.getMessage mustBe "No nino found from auth"
     }
 
     "create a ratepayer when no existing ratepayer is found and citizen details succeed" in {
@@ -111,10 +98,10 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
         )
       )
       when(mockCitizenDetailsConnector.getPersonDetails(any())(any())).thenReturn(Future.successful(Right(personDetails)))
-      when(mockNGRConnector.getRatepayer(any())(any())).thenReturn(Future.successful(None))
-      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(HttpResponse(CREATED, "Created Successfully")))
+      when(mockRatepayerRegistraionRepo.findByCredId(any())).thenReturn(Future.successful(None))
+      when(mockRatepayerRegistraionRepo.upsertRatepayerRegistration(any())).thenReturn(Future.successful(true))
 
-      val result = controller().show(Some("email@email.com"))(fakeRequest)
+      val result = controller().show()(fakeRequest)
       status(result) mustBe OK
     }
 
@@ -150,16 +137,9 @@ class ConfirmContactDetailsControllerSpec extends ControllerSpecSupport with Tes
       redirectLocation(result) shouldBe Some(routes.ProvideTRNController.show().url)
     }
 
-    "no email redirects to enter email" in {
-      mockRequest(authenticatedFakeRequest)
-      val result = controller().show()(authenticatedFakeRequest)
-      redirectLocation(result) shouldBe Some(routes.EnterEmailController.show.url)
-    }
-
     "manual email should render" in {
-      mockRequest(authenticatedFakeRequest)
-      when(mockNGRConnector.changeEmail(any(), any())(any())).thenReturn(Future.successful(HttpResponse(CREATED, "Created Successfully")))
-      val result = controller().show(Some("email@email.com"))(authenticatedFakeRequest)
+      when(mockRatepayerRegistraionRepo.updateEmail(any(), any())).thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId, Some(testRegistrationModel)))))
+      val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe OK
     }
   }

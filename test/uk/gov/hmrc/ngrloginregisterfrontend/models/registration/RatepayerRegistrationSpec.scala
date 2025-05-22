@@ -19,25 +19,26 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
 
 class RatepayerRegistrationSpec extends TestSupport with TestData {
 
   "RatepayerRegistrationModel" should {
     "serialise into Json" when {
       "all fields are present" in {
-        Json.toJson(testRegistrationModel) mustBe regResponseJson
+        Json.toJson(testRegistrationModel.copy(trnReferenceNumber = Some(TRNReferenceNumber(TRN, "12345")))) mustBe regResponseJson
       }
       "the optional fields are not present" in {
-        Json.toJson(minRegResponseModel) mustBe minRegResponseJson
+        Json.toJson(minRegResponseModel.copy(trnReferenceNumber = Some(TRNReferenceNumber(TRN, "12345")))) mustBe minRegResponseJson
       }
 
     }
     "deserialise from Json" when {
       "all fields are present" in {
-        regResponseJson.as[RatepayerRegistration] mustBe testRegistrationModel
+        regResponseJson.as[RatepayerRegistration] mustBe testRegistrationModel.copy(trnReferenceNumber = Some(TRNReferenceNumber(TRN, "12345")))
       }
       "the optional fields are not present" in {
-        minRegResponseJson.as[RatepayerRegistration] mustBe minRegResponseModel
+        minRegResponseJson.as[RatepayerRegistration] mustBe minRegResponseModel.copy(trnReferenceNumber = Some(TRNReferenceNumber(TRN, "12345")))
       }
     }
   }

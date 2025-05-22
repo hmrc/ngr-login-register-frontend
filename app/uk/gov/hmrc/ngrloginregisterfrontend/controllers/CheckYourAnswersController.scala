@@ -19,55 +19,49 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.{StringHelper, SummaryListHelper}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckYourAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            isRegisteredCheck: RegistrationAction,
+                                           hasMandotoryDetailsAction: HasMandotoryDetailsAction,
+                                           mongo: RatepayerRegistrationRepo,
                                            authenticate: AuthRetrievals,
                                            ngrConnector: NGRConnector,
-                                           mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
+                                           mcc: MessagesControllerComponents)(implicit appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-      val credId = CredId(request.credId.getOrElse(""))
-      ngrConnector.getRatepayer(credId)
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+      val credId = CredId(request.credId.value)
+      val optionRatepayer:Option[RatepayerRegistration] =  request.ratepayerRegistration
+      val name = optionRatepayer.flatMap(_.name).map(_.value).getOrElse("")
 
-      ngrConnector.getRatepayer(credId).flatMap {
-        case Some(ratepayer) =>
-          val name = ratepayer.ratepayerRegistration.flatMap(_.name).map(_.value).getOrElse("")
-          Future.successful(Ok(view(
-            createContactDetailSummaryRows(ratepayerRegistrationValuation = ratepayer, mode= "CYA", classes ="govuk-!-margin-bottom-9"),
-            createTRNSummaryRows(ratepayer),
-            name)))
-        case None =>
-          Future.failed(new RuntimeException(s"Can not find CredId: ${credId.value} in the database"))
-      }
+      Future.successful(Ok(view(
+        createContactDetailSummaryRows(ratepayerRegistrationValuation = RatepayerRegistrationValuation(credId,optionRatepayer), mode= "CYA", classes ="govuk-!-margin-bottom-9"),
+        createTRNSummaryRows(RatepayerRegistrationValuation(credId, optionRatepayer)),
+        name)))
     }
 
   def submit(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-      request.credId match {
-        case Some(credId) =>
-          ngrConnector.registerAccount(CredId(credId))
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+          ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(CredId(request.credId.value), request.ratepayerRegistration.map(info => info.copy(isRegistered = Some(true)))))
+          mongo.registerAccount(CredId(request.credId.value))
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
-        case _ =>
-          Future.failed(new RuntimeException("No Cred ID found in request"))
       }
-    }
 
   private[controllers] def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
     def getUrl(linkId: String, messageKey: String): Option[Link] =

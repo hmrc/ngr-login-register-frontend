@@ -18,13 +18,12 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name.form
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NameView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -33,14 +32,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class NameController  @Inject()(
                                  nameView: NameView,
-                                 connector: NGRConnector,
+                                 mongo: RatepayerRegistrationRepo,
                                  isRegisteredCheck: RegistrationAction,
+                                 hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                  authenticate: AuthRetrievals,
                                  mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   def show(mode: String): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request:AuthenticatedUserRequest[AnyContent] =>
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map { ratepayerOpt =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request:RatepayerRegistrationValuationRequest[AnyContent] =>
+      mongo.findByCredId(CredId(request.credId.value)).map { ratepayerOpt =>
         val nameForm = ratepayerOpt
           .flatMap(_.ratepayerRegistration)
           .flatMap(_.name)
@@ -52,17 +52,17 @@ class NameController  @Inject()(
   }
 
   def submit(mode: String): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       Name.form()
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(nameView(formWithErrors, mode))),
           name => {
-            connector.changeName(CredId(request.credId.getOrElse("")), name)
+            mongo.updateName(CredId(request.credId.value), name)
             if (mode.equals("CYA"))
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             else
-              Future.successful(Redirect(routes.ConfirmContactDetailsController.show(None)))
+              Future.successful(Redirect(routes.ConfirmContactDetailsController.show()))
           }
         )
     }

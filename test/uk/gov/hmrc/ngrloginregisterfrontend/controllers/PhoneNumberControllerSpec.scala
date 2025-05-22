@@ -38,11 +38,11 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport with TestData {
   lazy val phoneNumberView: PhoneNumberView = inject[PhoneNumberView]
 
   val pageTitle = "Enter phone number"
-
+  override def beforeEach(): Unit = {mockRequestNoMandotoryCheck()}
 
   def controller() = new PhoneNumberController(
     phoneNumberView,
-    mockNGRConnector,
+    mockRatepayerRegistraionRepo,
     mockIsRegisteredCheck,
     mockAuthJourney,
     mcc
@@ -53,9 +53,9 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport with TestData {
       "Return OK and the correct view" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration()
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-        when(mockNGRConnector.getRatepayer(any())(any()))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
           .thenReturn(Future.successful(Some(model)))
-        val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
+        val result = controller().show(confirmContactDetailsMode)(ratepayerRegistrationValuationRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -63,9 +63,9 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport with TestData {
       "Return OK and the correct view with phone number" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration(contactNumber = Some(PhoneNumber("07878787878")))
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
-        when(mockNGRConnector.getRatepayer(any())(any()))
+        when(mockRatepayerRegistraionRepo.findByCredId(any()))
           .thenReturn(Future.successful(Some(model)))
-        val result = controller().show(confirmContactDetailsMode)(authenticatedFakeRequest)
+        val result = controller().show(confirmContactDetailsMode)(ratepayerRegistrationValuationRequest)
         status(result) mustBe OK
         val content = contentAsString(result)
         content must include(pageTitle)
@@ -74,11 +74,11 @@ class PhoneNumberControllerSpec extends ControllerSpecSupport with TestData {
 
     "method submit" must {
       "Successfully submit valid phone number and redirect to confirm contact details" in {
-        val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(routes.PhoneNumberController.submit(confirmContactDetailsMode))
+        val result = controller().submit(confirmContactDetailsMode)(ratepayerRegistrationValuationRequest.copy(request = FakeRequest(routes.PhoneNumberController.submit(confirmContactDetailsMode))
           .withFormUrlEncodedBody(("phoneNumber-value", "07953009506"))
-          .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino = true, Some(""))))
+          .withHeaders(HeaderNames.authorisation -> "Bearer 1")))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show().url)
       }
 
       "Successfully submit valid phone number and redirect to check your answers" in {

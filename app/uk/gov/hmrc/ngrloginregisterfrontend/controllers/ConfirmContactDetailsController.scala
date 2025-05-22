@@ -17,14 +17,10 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
-import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.PersonDetails
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino}
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.SummaryListHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmContactDetailsView
@@ -37,85 +33,25 @@ import scala.concurrent.{ExecutionContext, Future}
 class ConfirmContactDetailsController @Inject()(view: ConfirmContactDetailsView,
                                                 authenticate: AuthRetrievals,
                                                 isRegisteredCheck: RegistrationAction,
+                                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                                 connector: NGRConnector,
                                                 mcc: MessagesControllerComponents,
-                                                citizenDetailsConnector: CitizenDetailsConnector)(implicit appConfig: AppConfig, ec: ExecutionContext)
+                                                )(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper {
 
-  def show(manualEmail: Option[String] = None): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-
-      if (request.email.isEmpty && manualEmail.isEmpty) {
-        Future.successful(Redirect(routes.EnterEmailController.show))
-      } else {
-
-        val credId = CredId(request.credId.getOrElse(""))
-        val authNino = Nino(request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth")))
-        val email = Email(manualEmail.getOrElse(request.email.getOrElse("")))
-
-        connector.getRatepayer(credId).flatMap {
-          case Some(ratepayer) =>
-            val maybeReg = ratepayer.ratepayerRegistration
-            val name = maybeReg.flatMap(_.name).map(_.value).getOrElse("")
-
-            def render(ratepayerToRender: RatepayerRegistrationValuation) =
-              Ok(view(createContactDetailSummaryRows(ratepayerToRender, "CCD"), name))
-
-            if (manualEmail.nonEmpty) {
-              maybeReg match {
-                case Some(reg) =>
-                  val updatedReg = reg.copy(email = Some(email))
-                  val updatedRatepayer = RatepayerRegistrationValuation(credId, Some(updatedReg))
-                  connector.changeEmail(credId, email).map(_ => render(updatedRatepayer))
-                case None =>
-                  Future.failed(new IllegalStateException("Missing ratepayerRegistration"))
-              }
-            } else {
-              Future.successful(render(ratepayer))
-            }
-
-          case None =>
-            citizenDetailsConnector.getPersonDetails(authNino).flatMap {
-              case Left(error) =>
-                Future.successful(Status(error.code)(Json.toJson(error)))
-
-              case Right(personDetails) =>
-                val nameValue = name(personDetails)
-                val ratepayerRegistration = RatepayerRegistration(
-                  nino = Some(authNino),
-                  name = Some(Name(nameValue)),
-                  email = Some(email),
-                  address = Some(buildAddress(personDetails))
-                )
-
-                val ratepayerData = RatepayerRegistrationValuation(credId, Some(ratepayerRegistration))
-
-                connector.upsertRatepayer(ratepayerData).map { _ =>
-                  Ok(view(createContactDetailSummaryRows(ratepayerData, "CCD"), nameValue))
-                }
-            }
-        }
+  def show(): Action[AnyContent] = {
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+      val credId = CredId(request.credId.value)
+      val name = request.ratepayerRegistration.flatMap(details => details.name.map(name => name.value)).getOrElse("")
+      val ratepayerData = RatepayerRegistrationValuation(credId, request.ratepayerRegistration)
+      connector.upsertRatepayer(ratepayerData).map { _ =>
+        Ok(view(createContactDetailSummaryRows(ratepayerData, "CCD"), name))
       }
     }
   }
 
-  private def buildAddress(personDetails: PersonDetails): Address =
-    Address(
-      line1 = personDetails.address.line1.getOrElse(""),
-      line2 = personDetails.address.line2,
-      town = personDetails.address.line4.getOrElse(""),
-      county = None,
-      postcode =  Postcode(personDetails.address.postcode.getOrElse("")),
-    )
-
-  def name(personDetails: PersonDetails): String = List(
-    personDetails.person.firstName,
-    personDetails.person.middleName,
-    personDetails.person.lastName
-  ).flatten.mkString(" ")
-
   def submit(): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async {
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async {
       Future.successful(Redirect(routes.ProvideTRNController.show()))
     }
   }

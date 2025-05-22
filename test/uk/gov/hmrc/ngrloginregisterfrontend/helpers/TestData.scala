@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.helpers
 
+
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Request
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{MatchingDetails, Person, PersonAddress, PersonDetails}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TRN
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, CredId, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, CredId, RatepayerRegistrationValuationRequest, TRNReferenceNumber}
 
 import java.time.{Instant, LocalDate}
 
@@ -54,6 +56,12 @@ trait TestData {
   val testAddressString: String =
     "99 Wibble Rd, Testtown, West Sussex, BN110AA"
 
+  def testRatepayerRegistrationValuationRequest(testRequest:Request[_],credId:String) = RatepayerRegistrationValuationRequest(
+    request = testRequest,
+    credId = CredId(credId),
+    ratepayerRegistration = Some(testRegistrationModel)
+  )
+
   val testRegistrationModel: RatepayerRegistration =
     RatepayerRegistration(
       userType = Some(Individual),
@@ -71,7 +79,7 @@ trait TestData {
           postcode = Postcode("BN110AA")
         )
       ),
-      trnReferenceNumber = Some(TRNReferenceNumber(TRN, "12345")),
+      trnReferenceNumber = Some(TRNReferenceNumber(NINO, "12345")),
       isRegistered = Some(false)
     )
 

@@ -25,11 +25,12 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
-import uk.gov.hmrc.http.{HeaderNames, HttpResponse}
+import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Postcode}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{LookedUpAddress, LookedUpAddressWrapper}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuation
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{AuthenticatedUserRequest, Postcode}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmAddressView
 
 import scala.concurrent.Future
@@ -44,9 +45,10 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
   def controller() = new ConfirmAddressController(
     view,
     mockIsRegisteredCheck,
+    mockHasMandotoryDetailsAction,
     mockAuthJourney,
     mockNgrFindAddressRepo,
-    mockNGRConnector,
+    mockRatepayerRegistraionRepo,
     mcc
   )(mockConfig, ec)
 
@@ -78,8 +80,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
           result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
         })
         status(result) mustBe SEE_OTHER
-        verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
+        verify(mockRatepayerRegistraionRepo, times(0)).updateAddress(any(), any())
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show().url)
       }
 
       "Successfully submit when selected no and redirect to check your answers" in {
@@ -91,7 +93,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
           result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
         })
         status(result) mustBe SEE_OTHER
-        verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
+        verify(mockRatepayerRegistraionRepo, times(0)).updateAddress(any(), any())
         redirectLocation(result) shouldBe Some(routes.CheckYourAnswersController.show.url)
       }
 
@@ -104,7 +106,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
           result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/find-address")
         })
         status(result) mustBe SEE_OTHER
-        verify(mockNGRConnector, times(0)).changeAddress(any(), any())(any())
+        verify(mockRatepayerRegistraionRepo, times(0)).updateAddress(any(), any())
       }
 
       "Submit with radio buttons unselected and display error message" in {
@@ -127,10 +129,9 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
       }
 
       "Successfully submit when selected yes and redirect to confirm contact details" in {
-        val httpResponse = HttpResponse(OK, "Updated Successfully")
         when(mockNgrFindAddressRepo.findChosenAddressByCredId(any(), any())).thenReturn(Future(Some(addressLookupAddress)))
-        when(mockNGRConnector.changeAddress(any(), any())(any()))
-          .thenReturn(Future.successful(httpResponse))
+        when(mockRatepayerRegistraionRepo.updateAddress(any(), any()))
+          .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId, Some(testRegistrationModel)))))
         val result = controller().submit(confirmContactDetailsMode, 1)(AuthenticatedUserRequest(FakeRequest(submitRoute)
           .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
@@ -138,15 +139,14 @@ class ConfirmAddressControllerSpec extends ControllerSpecSupport with TestSuppor
           result.header.headers.get("Location") shouldBe Some("/ngr-login-register-frontend/confirm-your-contact-details")
         })
         status(result) mustBe SEE_OTHER
-        verify(mockNGRConnector, times(1)).changeAddress(any(), any())(any())
-        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show(None).url)
+        verify(mockRatepayerRegistraionRepo, times(1)).updateAddress(any(), any())
+        redirectLocation(result) shouldBe Some(routes.ConfirmContactDetailsController.show().url)
       }
 
       "Successfully submit when selected yes and redirect to check your answers" in {
-        val httpResponse = HttpResponse(OK, "Updated Successfully")
         when(mockNgrFindAddressRepo.findChosenAddressByCredId(any(), any())).thenReturn(Future(Some(addressLookupAddress)))
-        when(mockNGRConnector.changeAddress(any(), any())(any()))
-          .thenReturn(Future.successful(httpResponse))
+        when(mockRatepayerRegistraionRepo.updateAddress(any(), any()))
+          .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId, Some(testRegistrationModel)))))
         val result = controller().submit(checkYourAnswersMode, 1)(AuthenticatedUserRequest(FakeRequest(routes.ConfirmAddressController.submit(checkYourAnswersMode, 1))
           .withFormUrlEncodedBody(("confirm-address-radio", "Yes"))
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))

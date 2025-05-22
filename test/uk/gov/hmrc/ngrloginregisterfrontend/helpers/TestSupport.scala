@@ -37,6 +37,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.play.language.LanguageUtils
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.LookedUpAddressWrapper
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuationRequest
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -112,6 +113,11 @@ with IntegrationPatience {
 
   lazy val authenticatedFakeRequestWithSession: AuthenticatedUserRequest[AnyContentAsEmpty.type] =
     AuthenticatedUserRequest(fakeRequest.withSession(addressResponseKey -> expectAddressesJsonString), None, None, None, None, None, None, nino = Nino(true, Some("")))
+
+
+
+  lazy val  ratepayerRegistrationValuationRequest : RatepayerRegistrationValuationRequest[AnyContentAsEmpty.type]  =
+    RatepayerRegistrationValuationRequest(fakeRequest, credId, Some(testRegistrationModel))
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

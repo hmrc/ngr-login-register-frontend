@@ -19,13 +19,13 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, RegistrationAction}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -34,39 +34,51 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class NinoController @Inject()(
                                 ninoView: NinoView,
-                                connector: NGRConnector,
+                                mongo: RatepayerRegistrationRepo,
                                 isRegisteredCheck: RegistrationAction,
+                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                 authenticate: AuthRetrievals,
                                 mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-      val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
-      connector.getRatepayer(CredId(request.credId.getOrElse(""))).map {
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+      val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
+        ratePayer match {
+          case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino
+          case _ => throw new RuntimeException("No nino found from auth")
+        }
+      }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
+
+      mongo.findByCredId(CredId(request.credId.value)).map {
         case Some(ratepayer) =>
           val ninoForm: Option[Form[Nino]] = for {
             ratepayer <- ratepayer.ratepayerRegistration
             trnReferenceNumber <- ratepayer.trnReferenceNumber.filter(_.referenceType == NINO)
-          } yield form(authNino).fill(Nino(trnReferenceNumber.value))
+          } yield form(authNino.value).fill(Nino(trnReferenceNumber.value))
 
-          Ok(ninoView(ninoForm.getOrElse(form(request.nino.nino.get))))
+          Ok(ninoView(ninoForm.getOrElse(form(authNino.nino))))
 
         case None =>
-          Ok(ninoView(form(request.nino.nino.get)))
+          Ok(ninoView(form(authNino.nino)))
       }
     }
   }
 
   def submit(): Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck).async { implicit request =>
-      val authNino = request.nino.nino.getOrElse(throw new RuntimeException("No nino found from auth"))
-      Nino.form(authNino)
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
+      val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
+        ratePayer match {
+          case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino
+          case _ => throw new RuntimeException("No nino found from auth")
+        }
+      }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
+      Nino.form(authNino.nino)
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
           nino => {
-            connector.changeTrn(CredId(request.credId.getOrElse("")), TRNReferenceNumber(NINO, nino.value))
+            mongo.updateTRN(CredId(request.credId.value), TRNReferenceNumber(NINO, nino.value))
             Future.successful(Redirect(routes.CheckYourAnswersController.show))
           }
         )

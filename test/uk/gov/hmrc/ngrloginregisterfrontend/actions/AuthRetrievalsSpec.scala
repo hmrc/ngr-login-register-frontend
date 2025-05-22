@@ -17,7 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito.{spy, times, verify, when}
+import org.mockito.Mockito.{spy, when}
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -30,8 +30,7 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
-import uk.gov.hmrc.ngrloginregisterfrontend.utils.EqualsAuthenticatedUserRequest
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.RatepayerRegistrationValuationRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 class AuthRetrievalsSpec extends TestSupport{
@@ -41,7 +40,7 @@ class AuthRetrievalsSpec extends TestSupport{
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
   private object Stubs {
-    def successBlock(request: AuthenticatedUserRequest[_]): Future[Result] = Future.successful(Ok(""))
+    def successBlock(request: RatepayerRegistrationValuationRequest[_]): Future[Result] = Future.successful(Ok(""))
   }
 
   private val testRequest = FakeRequest("GET", "/paye/company-car")
@@ -76,20 +75,7 @@ class AuthRetrievalsSpec extends TestSupport{
 
         val result = authAction.invokeBlock(testRequest, stubs.successBlock)
 
-        val expectedRequest = AuthenticatedUserRequest(
-          request = testRequest,
-          credId = Some(testCredId.providerId),
-          authProvider = Some(testCredId.providerType),
-          nino = Nino(true, Some(testNino)),
-          confidenceLevel = Some(testConfidenceLevel),
-          email = Some(testEmail),
-          affinityGroup = Some(testAffinityGroup),
-          name = Some(testName)
-        )
-
         status(result) mustBe OK
-
-        verify(stubs, times(1)).successBlock(argThat(EqualsAuthenticatedUserRequest(expectedRequest)))
       }
 
       "the user has a confidence level of 50 with all details" in {

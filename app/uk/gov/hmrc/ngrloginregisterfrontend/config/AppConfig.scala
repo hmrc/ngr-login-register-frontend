@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.config
 
-import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import javax.inject.{Inject, Singleton}
 
 trait AppConfig {
   val features: Features

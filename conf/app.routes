@@ -2,7 +2,6 @@
 
 ->         /hmrc-frontend                       hmrcfrontend.Routes
 GET        /                                    uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.redirect
-GET        /start                               uk.gov.hmrc.ngrloginregisterfrontend.controllers.LoginController.start
 GET        /assets/*file                        controllers.Assets.versioned(path = "/public", file: Asset)
 GET        /register                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.show
 POST       /register                            uk.gov.hmrc.ngrloginregisterfrontend.controllers.StartController.submit
@@ -14,7 +13,7 @@ GET        /find-address                        uk.gov.hmrc.ngrloginregisterfron
 POST       /find-address                        uk.gov.hmrc.ngrloginregisterfrontend.controllers.FindAddressController.submit(mode: String)
 GET        /name                                uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.show(mode: String)
 POST       /name                                uk.gov.hmrc.ngrloginregisterfrontend.controllers.NameController.submit(mode: String)
-GET        /confirm-your-contact-details        uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show(manualEmail: Option[String])
+GET        /confirm-your-contact-details        uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.show()
 POST       /confirm-your-contact-details        uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmContactDetailsController.submit
 GET        /confirm-address/:index              uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.show(mode: String, index: Int)
 POST       /confirm-address/:index              uk.gov.hmrc.ngrloginregisterfrontend.controllers.ConfirmAddressController.submit(mode: String, index: Int)
