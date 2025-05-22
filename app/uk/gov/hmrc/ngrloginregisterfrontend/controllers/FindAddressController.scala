@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FindAddressController @Inject()(findAddressView: FindAddressView,
                                       addressLookupConnector: AddressLookupConnector,
                                       isRegisteredCheck: RegistrationAction,
-hasMandotoryDetailsAction: HasMandotoryDetailsAction,
+                                      hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                       authenticate: AuthRetrievals,
                                       ngrFindAddressRepo: NgrFindAddressRepo,
                                       mcc: MessagesControllerComponents

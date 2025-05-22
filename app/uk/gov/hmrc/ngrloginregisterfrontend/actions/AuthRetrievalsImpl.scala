@@ -58,7 +58,7 @@ class AuthRetrievalsImpl @Inject()(
               ratepayerRegistration = Some(RatepayerRegistration(
                 nino = Some(Nino(nino)),
                 name = None,
-                email = if(email.filter(_.nonEmpty).isEmpty){None}else Some(Email(email.get))
+                email = if(email.filter(_.nonEmpty).isEmpty){None}else Some(Email(email.getOrElse("")))
               ))
             )
           )
