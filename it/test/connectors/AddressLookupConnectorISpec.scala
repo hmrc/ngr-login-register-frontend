@@ -47,7 +47,7 @@ class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase w
         "return an error when the request fails" in {
           WiremockHelper.stubPost(s"/address-lookup/lookup", INTERNAL_SERVER_ERROR, "Call to address lookup failed")
 
-          val result: AddressLookupResponse[AddressLookupResponseModel] = connector.findAddressByPostcode(testAddressLookupRequest.postcode, None).futureValue
+          val result: AddressLookupResponse = connector.findAddressByPostcode(testAddressLookupRequest.postcode, None).futureValue
           result match {
             case AddressLookupSuccessResponse(_) => fail("should return an error")
             case AddressLookupErrorResponse(_) => succeed

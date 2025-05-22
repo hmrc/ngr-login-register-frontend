@@ -19,13 +19,14 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.libs.json.Json
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
+import play.api.libs.json.JsResult.Exception
+import play.api.libs.json.{JsError, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.Nino
-import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.http.{BadRequestException, HeaderNames}
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupErrorResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupResponseModel, LookedUpAddressWrapper}
@@ -131,7 +132,7 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
 
       "Successfully submit valid postcode but AddressLookup throws a BadRequestException" in {
         when(mockNgrFindAddressRepo.upsertLookupAddresses(any())).thenReturn(Future(true))
-        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse("")))
+        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse(new BadRequestException(""))))
         val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(manualAddressRoute)
           .withFormUrlEncodedBody(
             "AddressLine1" -> "99",
@@ -145,7 +146,7 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
 
       "Successfully submit valid postcode but AddressLookup throws an error" in {
         when(mockNgrFindAddressRepo.upsertLookupAddresses(any())).thenReturn(Future(true))
-        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse("INVALID JSON")))
+        when(mockAddressLookupConnector.findAddressByPostcode(any(), any())(any(), any())).thenReturn(Future.successful(AddressLookupErrorResponse(Exception(JsError("INVALID JSON")))))
         val result = controller().submit(confirmContactDetailsMode)(AuthenticatedUserRequest(FakeRequest(manualAddressRoute)
           .withFormUrlEncodedBody(
             "AddressLine1" -> "99",
@@ -154,7 +155,7 @@ class ManualAddressControllerSpec extends ControllerSpecSupport with TestSupport
             "PostalCode" -> "W126WA"
           )
           .withHeaders(HeaderNames.authorisation -> "Bearer 1"), None, None, None, None, None, None, nino = Nino(hasNino=true, Some(""))))
-        status(result) mustBe BAD_REQUEST
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
       "Submit with no postcode and display error message" in {

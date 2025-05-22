@@ -17,11 +17,12 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
 import play.api.libs.json._
+import play.api.libs.ws.BodyReadable
 import uk.gov.hmrc.http.HttpReadsInstances.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.test.routes
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.test.AddressFrontendStubController.testAddress
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup._
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -29,63 +30,30 @@ import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait AddressLookupResponse[+A] {
+sealed trait AddressLookupResponse
+
+case class AddressLookupSuccessResponse(addressList: AddressLookupResponseModel) extends AddressLookupResponse
+case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
+
+
+object stubData {
 
 }
-
-case class AddressLookupSuccessResponse(addressList: AddressLookupResponseModel)
-  extends AddressLookupResponse[AddressLookupResponseModel]
-
-case class AddressLookupErrorResponse(message: String)
-  extends AddressLookupResponse[Nothing]
 
 
 class AddressLookupConnector @Inject()(http: HttpClientV2,
                                        appConfig: AppConfig,
-                                       logger: NGRLogger) {
-
-  implicit val successReads: Reads[AddressLookupSuccessResponse] = Json.reads[AddressLookupSuccessResponse]
-  implicit val errorReads: Reads[AddressLookupErrorResponse] = Json.reads[AddressLookupErrorResponse]
-  implicit val responseReads: Reads[AddressLookupResponse[AddressLookupResponseModel]] =
-    (json: JsValue) => (json \ "type").validate[String].flatMap {
-      case "success" => successReads.reads(json)
-      case "error"   => errorReads.reads(json)
-      case other     => JsError(s"Unknown type: $other")
-    }
-  implicit val httpReads: HttpReads[AddressLookupResponse[AddressLookupResponseModel]] =
-    new HttpReads[AddressLookupResponse[AddressLookupResponseModel]] {
-      override def read(method: String, url: String, response: HttpResponse): AddressLookupResponse[AddressLookupResponseModel] = {
-        Json.parse(response.body).validate[AddressLookupResponse[AddressLookupResponseModel]] match {
-          case JsSuccess(value, _) => value
-          case JsError(errors) =>
-            AddressLookupErrorResponse(s"Invalid JSON from address lookup: $errors")
-        }
-      }
-    }
-
+                                       logger: NGRLogger){
   private def url(path: String): URL = url"${appConfig.addressLookupUrl}/address-lookup/$path"
 
   implicit class JsObjectOps(json: JsObject) {
     def +?(o: Option[JsObject]): JsObject = o.fold(json)(_ ++ json)
   }
 
-  def findAddressByPostcode(
-                             postcode: String,
-                             filter: Option[String]
-                           )(implicit
-                             headerCarrier: HeaderCarrier,
-                             ec: ExecutionContext
-                           ): Future[AddressLookupResponse[AddressLookupResponseModel]] = {
+  def findAddressByPostcode(postcode: String, filter: Option[String])(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[AddressLookupResponse] = {
+
     if (appConfig.features.addressLookupTestEnabled()) {
-      http
-        .get(url(routes.AddressFrontendStubController.addresses().url))
-        .execute[AddressLookupResponse[AddressLookupResponseModel]]
-        .flatMap {
-          case success @ AddressLookupSuccessResponse(_) =>
-            Future.successful(success)
-          case error @ AddressLookupErrorResponse(_) =>
-            Future.successful(error)
-        }
+    Future.successful(testAddress)
     } else{
       http.post(url("lookup"))
         .withBody(Json.obj("postcode" -> postcode) +? filter.map(f => Json.obj("filter" -> f)))
@@ -97,7 +65,7 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
       } recover {
         case e: Exception =>
           logger.warn(s"Error received from address lookup service: $e")
-          AddressLookupErrorResponse(e.getMessage)
+          AddressLookupErrorResponse(e)
       }
     }
   }
