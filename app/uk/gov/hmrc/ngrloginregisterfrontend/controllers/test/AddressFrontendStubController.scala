@@ -20,7 +20,6 @@ import com.google.inject.Singleton
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupSuccessResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup._
 
-@Singleton
 object AddressFrontendStubController {
   lazy val testAddress: AddressLookupSuccessResponse =
     AddressLookupSuccessResponse(
