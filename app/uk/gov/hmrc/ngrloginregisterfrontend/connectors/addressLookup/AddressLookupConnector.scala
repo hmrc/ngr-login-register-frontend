@@ -16,15 +16,12 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json._
-import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.HttpReadsInstances.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.test.AddressFrontendStubController.testAddress
-import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup._
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -36,13 +33,6 @@ sealed trait AddressLookupResponse
 
 case class AddressLookupSuccessResponse(addressList: AddressLookupResponseModel) extends AddressLookupResponse
 case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
-
-
-
-
-
-
-
 
 class AddressLookupConnector @Inject()(http: HttpClientV2,
                                        appConfig: AppConfig,
