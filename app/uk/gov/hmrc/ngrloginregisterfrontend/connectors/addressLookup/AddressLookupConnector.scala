@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup
 
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json._
-import play.api.libs.ws.BodyReadable
+import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.HttpReadsInstances.readFromJson
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.controllers.test.AddressFrontendStubController.testAddress
+import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup._
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -36,9 +38,10 @@ case class AddressLookupSuccessResponse(addressList: AddressLookupResponseModel)
 case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
 
 
-object stubData {
 
-}
+
+
+
 
 
 class AddressLookupConnector @Inject()(http: HttpClientV2,
@@ -46,17 +49,15 @@ class AddressLookupConnector @Inject()(http: HttpClientV2,
                                        logger: NGRLogger){
   private def url(path: String): URL = url"${appConfig.addressLookupUrl}/address-lookup/$path"
 
-  implicit class JsObjectOps(json: JsObject) {
-    def +?(o: Option[JsObject]): JsObject = o.fold(json)(_ ++ json)
-  }
-
   def findAddressByPostcode(postcode: String, filter: Option[String])(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[AddressLookupResponse] = {
-
+    def mergeOptional(base: JsObject, optional: Option[JsObject]): JsObject = {
+      optional.fold(base)(_ ++ base)
+    }
     if (appConfig.features.addressLookupTestEnabled()) {
-    Future.successful(testAddress)
+      Future.successful(testAddress)
     } else{
       http.post(url("lookup"))
-        .withBody(Json.obj("postcode" -> postcode) +? filter.map(f => Json.obj("filter" -> f)))
+        .withBody(mergeOptional(Json.obj("postcode" -> postcode),  filter.map(f => Json.obj("filter" -> f))))
         .setHeader("X-Hmrc-Origin" -> "ngr-login-register-frontend")
         .execute[JsValue] map {
         addressListJson =>
