@@ -30,6 +30,11 @@ class AddressLookupConnectorSpec extends MockHttpV2 with TestData {
   val testAlfConnector: AddressLookupConnector = new AddressLookupConnector(mockHttpClientV2,mockConfig, logger)
   val addressLookupHeader: Seq[(String, String)] = Seq("X-Hmrc-Origin" -> "ngr-login-register-frontend")
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    mockConfig.features.addressLookupTestEnabled(false)
+  }
+
   "Calling the Address lookup api" when {
     "a valid AddressLookupRequest is passed in with only a valid postcode" should {
       "return a 200(OK)" in {

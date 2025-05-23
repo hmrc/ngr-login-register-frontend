@@ -18,7 +18,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.config
 
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.Configuration
-import uk.gov.hmrc.ngrloginregisterfrontend.config.features.{Features, Feature}
+import uk.gov.hmrc.ngrloginregisterfrontend.config.features.{Feature, Features}
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
 class FeatureSpec extends TestSupport{
@@ -28,15 +28,19 @@ class FeatureSpec extends TestSupport{
   override def beforeEach(): Unit = {
     super.beforeEach()
     features.welshLanguageSupportEnabled(true)
+    features.addressLookupTestEnabled(true)
   }
 
   "The welsh language support feature" must {
 
     "return its current state" in {
       features.welshLanguageSupportEnabled() shouldBe true
+      features.addressLookupTestEnabled() shouldBe true
     }
 
     "switch to a new state" in {
+      features.addressLookupTestEnabled(false)
+      features.addressLookupTestEnabled() shouldBe false
       features.welshLanguageSupportEnabled(false)
       features.welshLanguageSupportEnabled() shouldBe false
     }

@@ -32,6 +32,7 @@ object AddressLookupResponseModel {
     val addresses = addressListAsJson.as[Seq[LookedUpAddressWrapper]]
     AddressLookupResponseModel(addresses)
   }
+  implicit val format: OFormat[AddressLookupResponseModel] = Json.format[AddressLookupResponseModel]
   implicit val reads: Reads[AddressLookupResponseModel] =
     __.read[Seq[LookedUpAddressWrapper]].map(AddressLookupResponseModel.apply)
 
@@ -46,7 +47,7 @@ final case class LookedUpAddressWrapper(
                                        )
 
 object LookedUpAddressWrapper {
-  implicit val reads: Reads[LookedUpAddressWrapper] = Json.reads[LookedUpAddressWrapper]
+  implicit val format: Format[LookedUpAddressWrapper] = Json.format[LookedUpAddressWrapper]
 }
 
 case class LookUpAddresses(credId:CredId, createdAt: Instant = Instant.now(), postcode: Postcode, addressList:Seq[LookedUpAddress] = Seq.empty)
@@ -56,6 +57,7 @@ object LookUpAddresses {
 }
 
 case class LookedUpAddress(lines: Seq[String], town: String, county: Option[String], postcode: String) {
+  implicit
   override def toString: String = s"${lines.mkString(", ")}, $town, ${county.map(c => s"$c, ").getOrElse("")} $postcode"
 }
 
