@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers.test
 
-import com.google.inject.Singleton
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupSuccessResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup._
 
