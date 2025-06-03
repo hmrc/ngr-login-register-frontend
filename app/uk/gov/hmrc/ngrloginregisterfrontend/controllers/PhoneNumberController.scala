@@ -44,8 +44,8 @@ class PhoneNumberController @Inject()(
         ratepayerRegistrationValuation.flatMap(_.ratepayerRegistration).flatMap(
           contactNumber => contactNumber.contactNumber.map(
           number =>
-          Future.successful(Ok(phoneNumberView(form().fill(PhoneNumber(number.value)), mode))
-        ))).getOrElse(Future.successful(Ok(phoneNumberView(form(), mode))))
+          Future.successful(Ok(phoneNumberView(form().fill(PhoneNumber(number.value)), mode, hasNumber = true))
+        ))).getOrElse(Future.successful(Ok(phoneNumberView(form(), mode, hasNumber = false))))
       }
     }
   }
@@ -53,10 +53,12 @@ class PhoneNumberController @Inject()(
 
   def submit(mode: String): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck).async { implicit request =>
+      val hasNumber = request.ratepayerRegistration.flatMap(number => number.contactNumber)
       PhoneNumber.form()
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(phoneNumberView(formWithErrors, mode))),
+          formWithErrors =>
+            Future.successful(BadRequest(phoneNumberView(formWithErrors, mode, hasNumber.nonEmpty))),
           phoneNumber => {
             mongo.updateContactNumber(CredId(request.credId.value), PhoneNumber(phoneNumber.value))
             if (mode.equals("CYA"))
