@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.repo
 
-import org.apache.pekko.http.scaladsl.model.HttpHeader.ParsingResult.Ok
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
@@ -26,6 +25,8 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration, TradingName}
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import play.api.http.Status.OK
 
 
 class RatepayerRegistrationRepoSpec extends TestSupport
@@ -197,6 +198,26 @@ class RatepayerRegistrationRepoSpec extends TestSupport
 
         actual.isDefined shouldBe true
         actual.get.ratepayerRegistration.get shouldBe ratepayerRegistration
+      }
+
+      "credId doesn't exist in mongoDB" in {
+        val actual = await(repository.findAndUpdateByCredId(credId))
+
+        actual shouldBe None
+      }
+    }
+
+    "find and drop ratepayerRegistration" when {
+      "existing credId in mongoDB" in {
+        val isSuccessful = await(repository.upsertRatepayerRegistration(ratepayerRegistrationValuation))
+       isSuccessful shouldBe true
+
+        val check = await(repository.findByCredId(credId))
+        check.isDefined shouldBe true
+        check.get.ratepayerRegistration.get shouldBe ratepayerRegistration
+
+        val drop = repository.deleteRecord(credId)
+        status(drop) shouldBe OK
       }
 
       "credId doesn't exist in mongoDB" in {

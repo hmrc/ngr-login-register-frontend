@@ -99,8 +99,8 @@ case class RatepayerRegistrationRepo @Inject()(mongo: MongoComponent,
     ).headOption()
   }
 
-  def dropRecord(credId: CredId):Future[Result] = {
-    collection.dropIndex(
+  def deleteRecord(credId: CredId):Future[Result] = {
+    collection.deleteOne(
       equal("credId.value", credId.value)
     ).toFuture().map(_ => Results.Ok(s"User $credId info dropped from frontend")).recover { case e =>
       e.printStackTrace()
