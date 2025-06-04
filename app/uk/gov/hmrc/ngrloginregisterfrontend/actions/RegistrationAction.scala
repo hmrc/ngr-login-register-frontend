@@ -48,16 +48,8 @@ class RegistrationActionImpl @Inject()(
       val credId = authRequest.credId
 
       mongo.findByCredId(credId).flatMap {
-        case maybeRatepayer if maybeRatepayer.isDefined =>
-          val isRegistered = maybeRatepayer
-            .flatMap(_.ratepayerRegistration)
-            .flatMap(_.isRegistered)
-            .getOrElse(false)
-          if (isRegistered) {
-            redirectToDashboard()
-          } else {
-            block(RatepayerRegistrationValuationRequest(request, credId, maybeRatepayer.get.ratepayerRegistration))
-          }
+        case Some(maybeRatepayer) =>
+          block(RatepayerRegistrationValuationRequest(request, credId, maybeRatepayer.ratepayerRegistration))
         case _ =>
           implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(authRequest, authRequest.session)
           ngrConnector.getRatepayer(credId).flatMap { maybeRatepayer =>
@@ -68,9 +60,7 @@ class RegistrationActionImpl @Inject()(
             if (isRegistered) {
               redirectToDashboard()
             } else {
-
               val authNino = authRequest.ratepayerRegistration.get.nino.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
-
              citizenDetailsConnector.getPersonDetails(authNino).flatMap {
                 case Left(error) =>
                   Future.successful(Status(error.code)(Json.toJson(error)))
