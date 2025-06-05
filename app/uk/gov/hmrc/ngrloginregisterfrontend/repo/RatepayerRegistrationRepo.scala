@@ -24,10 +24,11 @@ import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.Updates.combine
 import org.mongodb.scala.model._
 import play.api.Logging
+import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino, PhoneNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, TRNReferenceNumber}
 
 import java.time.Instant
@@ -96,6 +97,15 @@ case class RatepayerRegistrationRepo @Inject()(mongo: MongoComponent,
     collection.find(
       equal("credId.value", credId.value)
     ).headOption()
+  }
+
+  def deleteRecord(credId: CredId):Future[Result] = {
+    collection.deleteOne(
+      equal("credId.value", credId.value)
+    ).toFuture().map(_ => Results.Ok(s"User $credId info dropped from frontend")).recover { case e =>
+      e.printStackTrace()
+      Results.InternalServerError(e.toString)
+    }
   }
 
   def updateContactNumber(credId: CredId, contactNumber: PhoneNumber): Future[Option[RatepayerRegistrationValuation]] = {

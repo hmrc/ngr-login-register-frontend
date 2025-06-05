@@ -25,6 +25,8 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration, TradingName}
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import play.api.http.Status.OK
 
 
 class RatepayerRegistrationRepoSpec extends TestSupport
@@ -160,20 +162,6 @@ class RatepayerRegistrationRepoSpec extends TestSupport
       }
     }
 
-//    "update address" when {
-//      "an address has been supplied" in {
-//        val address: Address = Address("Address Line 1", Some("Line 2"), "Chester", None, Postcode("CH2 1HW"))
-//        val isSuccessful = await(repository.upsertRatepayerRegistration(ratepayerRegistrationValuation))
-//
-//        isSuccessful shouldBe true
-//
-//        await(repository.upsertRatepayerRegistration(credId, address))
-//        val actual = await(repository.findAndUpdateByCredId(credId)).get
-//
-//        actual.ratepayerRegistration.get.address shouldBe Some(address)
-//      }
-//    }
-
     "update TRN" when {
       "a TRN has been supplied" in {
         val referenceNumber: TRNReferenceNumber = TRNReferenceNumber(TRN, "34567821")
@@ -218,7 +206,25 @@ class RatepayerRegistrationRepoSpec extends TestSupport
         actual shouldBe None
       }
     }
+
+    "find and drop ratepayerRegistration" when {
+      "existing credId in mongoDB" in {
+        val isSuccessful = await(repository.upsertRatepayerRegistration(ratepayerRegistrationValuation))
+       isSuccessful shouldBe true
+
+        val check = await(repository.findByCredId(credId))
+        check.isDefined shouldBe true
+        check.get.ratepayerRegistration.get shouldBe ratepayerRegistration
+
+        val drop = repository.deleteRecord(credId)
+        status(drop) shouldBe OK
+      }
+
+      "credId doesn't exist in mongoDB" in {
+        val actual = await(repository.findAndUpdateByCredId(credId))
+
+        actual shouldBe None
+      }
+    }
   }
-
-
 }
