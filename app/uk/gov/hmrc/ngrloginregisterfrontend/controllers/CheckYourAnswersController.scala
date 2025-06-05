@@ -32,7 +32,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckYourAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
@@ -41,7 +41,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            mongo: RatepayerRegistrationRepo,
                                            authenticate: AuthRetrievals,
                                            ngrConnector: NGRConnector,
-                                           mcc: MessagesControllerComponents)(implicit appConfig: AppConfig)
+                                           mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
@@ -58,10 +58,15 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
 
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
-          ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(CredId(request.credId.value), request.ratepayerRegistration.map(info => info.copy(isRegistered = Some(true)))))
+      ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(CredId(request.credId.value), request.ratepayerRegistration.map(info => info.copy(isRegistered = Some(true))))).flatMap { response =>
+        if (response.status == CREATED) {
           mongo.deleteRecord(CredId(request.credId.value))
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
+        } else {
+          Future.failed(throw new Exception("Failed upsert to backend"))
+        }
       }
+    }
 
   private[controllers] def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
     def getUrl(linkId: String, messageKey: String): Option[Link] =
