@@ -3,7 +3,7 @@ import sbt.Keys.libraryDependencies
 
 object AppDependencies {
 
-  private val bootstrapVersion = "9.11.0"
+  private val bootstrapVersion = "9.12.0"
   private val hmrcMongoVersion = "2.6.0"
   private val enumeratumVersion = "1.8.2"
 
