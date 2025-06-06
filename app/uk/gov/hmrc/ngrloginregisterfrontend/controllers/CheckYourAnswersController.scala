@@ -58,14 +58,21 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
 
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
-      ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(CredId(request.credId.value), request.ratepayerRegistration.map(info => info.copy(isRegistered = Some(true))))).flatMap { response =>
-        if (response.status == CREATED) {
-          mongo.deleteRecord(CredId(request.credId.value))
-          Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567"))))
+      for {
+        response <- ngrConnector.upsertRatepayer(
+          RatepayerRegistrationValuation(
+            CredId(request.credId.value),
+            request.ratepayerRegistration.map(info => info.copy(isRegistered = Some(true)))
+          )
+        )
+        result <- if (response.status == CREATED) {
+          mongo.deleteRecord(CredId(request.credId.value)).map { _ =>
+            Redirect(routes.RegistrationCompleteController.show(Some("234567")))
+          }
         } else {
-          Future.failed(throw new Exception("Failed upsert to backend"))
+          Future.failed(new Exception("Failed upsert to backend"))
         }
-      }
+      } yield result
     }
 
   private[controllers] def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
