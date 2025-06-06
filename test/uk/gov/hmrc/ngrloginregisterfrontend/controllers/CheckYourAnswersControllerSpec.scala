@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Status.{CREATED, OK, SEE_OTHER}
+import play.api.mvc.Results
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.http.HttpResponse
@@ -99,10 +100,8 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
     "Calling the submit function return a 303 and the correct redirect location" in {
       mockRequest()
       val httpResponse = HttpResponse(CREATED, "Created Successfully")
-      when(mockNGRConnector.upsertRatepayer(any())(any()))
-        .thenReturn(Future.successful(httpResponse))
-      when(mockRatepayerRegistraionRepo.registerAccount(any()))
-        .thenReturn(Future.successful(Some(RatepayerRegistrationValuation(credId ,Some(testRegistrationModel)))))
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(httpResponse))
+      when(mockRatepayerRegistraionRepo.deleteRecord(any())).thenReturn(Future.successful(Results.Ok))
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) shouldBe Some(routes.RegistrationCompleteController.show(Some("234567")).url)
