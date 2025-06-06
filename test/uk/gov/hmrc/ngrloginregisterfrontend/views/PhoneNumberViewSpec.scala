@@ -51,13 +51,29 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       val form = PhoneNumber
         .form()
         .fillAndValidate(PhoneNumber("07954009726"))
-      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode).body
-      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
-      val htmlF = phoneNumberView.f(form, confirmContactDetailsMode)(request, messages, mockConfig).body
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      val htmlF = phoneNumberView.f(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body
       htmlF must not be empty
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "produce the same output for apply() and render() when no number in mongo" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("07954009726"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, false).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, false, request, messages, mockConfig).body
+      val htmlF = phoneNumberView.f(form, confirmContactDetailsMode, false)(request, messages, mockConfig).body
+      htmlF must not be empty
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, false)(request, messages, mockConfig).body)
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
       elementText(Selectors.label)   mustBe label
@@ -68,10 +84,10 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       val form = PhoneNumber
         .form()
         .fillAndValidate(PhoneNumber(""))
-      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode).body
-      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -84,10 +100,10 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       val form = PhoneNumber
         .form()
         .fillAndValidate(PhoneNumber("invalid"))
-      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode).body
-      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading
@@ -100,10 +116,10 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       val form = PhoneNumber
         .form()
         .fillAndValidate(PhoneNumber("079430-09506"))
-      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode).body
-      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, request, messages, mockConfig).body
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
-      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode)(request, messages, mockConfig).body)
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
       elementText(Selectors.backLink) mustBe backLink
       elementText(Selectors.caption) mustBe caption
       elementText(Selectors.heading) mustBe heading

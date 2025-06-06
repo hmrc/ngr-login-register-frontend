@@ -33,9 +33,9 @@
  saveAndContinueButton: saveAndContinueButton
 )
 
-@(phoneForm: Form[PhoneNumber], mode: String)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
+@(phoneForm: Form[PhoneNumber], mode: String, hasNumber: Boolean)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("phoneNumber.pageTitle"))) {
+@layout(pageTitle = Some(messages("phoneNumber.pageTitle")), showBackLink = hasNumber) {
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.PhoneNumberController.submit(mode), Symbol("autoComplete") -> "off") {
  @if(phoneForm.errors.nonEmpty) {
   @govukErrorSummary(ErrorSummaryViewModel(phoneForm))
