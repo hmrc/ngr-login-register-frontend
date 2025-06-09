@@ -17,9 +17,10 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.http.Status.{CREATED, OK, SEE_OTHER}
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.Results
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -107,6 +108,27 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       redirectLocation(result) shouldBe Some(routes.RegistrationCompleteController.show(Some("234567")).url)
     }
 
+    "Calling the submit function return a exception when failing to upsert to backend" in {
+      mockRequest()
+      val httpResponse = HttpResponse(INTERNAL_SERVER_ERROR, "Failed upsert to backend")
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(httpResponse))
+      val exception = intercept[Exception] {
+        controller().submit()(authenticatedFakeRequest).futureValue
+      }
+      exception.getMessage must include("Failed upsert to backend")
+    }
 
+    "Calling the submit function return a exception when failing to drop the frontend mongo" in {
+      mockRequest()
+      val httpResponse = HttpResponse(CREATED, "Created Successfully")
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(httpResponse))
+      val mongoFailure = new RuntimeException("mongo delete failed")
+      when(mockRatepayerRegistraionRepo.deleteRecord(eqTo(credId)))
+        .thenReturn(Future.failed(mongoFailure))
+      val exception = intercept[Exception] {
+        controller().submit()(authenticatedFakeRequest).futureValue
+      }
+      exception.getMessage must include("Upsert succeeded, but failed to delete mongo record for")
+    }
   }
 }

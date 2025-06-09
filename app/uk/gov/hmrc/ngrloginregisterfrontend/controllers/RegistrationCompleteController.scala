@@ -21,6 +21,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.RegistrationCompleteView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -32,14 +33,14 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
                                                isRegisteredCheck: RegistrationAction,
                                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                                authenticate: AuthRetrievals,
-                                               mongo: RatepayerRegistrationRepo,
+                                               ngrConnector: NGRConnector,
                                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
 
 
   def show(recoveryId: Option[String]): Action[AnyContent] =
     authenticate.async { implicit request =>
       val credId = request.credId
-      mongo.findByCredId(credId).flatMap {
+      ngrConnector.getRatepayer(credId).flatMap {
         case Some(ratepayer) =>
           val email = ratepayer.ratepayerRegistration.flatMap(_.email).map(_.value).getOrElse("")
           Future.successful(Ok(view(recoveryId, email)))
