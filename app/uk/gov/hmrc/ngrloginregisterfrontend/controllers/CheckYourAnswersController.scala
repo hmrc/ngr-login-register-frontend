@@ -58,21 +58,19 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
 
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
-      for {
-        response <- ngrConnector.upsertRatepayer(
-          RatepayerRegistrationValuation(
-            CredId(request.credId.value),
-            request.ratepayerRegistration.map(info => info.copy(isRegistered = Some(true)))
-          )
-        )
-        result <- if (response.status == CREATED) {
-          mongo.deleteRecord(CredId(request.credId.value)).map { _ =>
+      val credId = CredId(request.credId.value)
+      val ratepayerData = request.ratepayerRegistration.map(_.copy(isRegistered = Some(true)))
+      ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(credId, ratepayerData)).flatMap { response =>
+        if (response.status == CREATED) {
+          mongo.deleteRecord(credId).map { _ =>
             Redirect(routes.RegistrationCompleteController.show(Some("234567")))
+          }.recoverWith { case ex =>
+            Future.failed(new Exception(s"Upsert succeeded, but failed to delete mongo record for $credId", ex))
           }
         } else {
           Future.failed(new Exception("Failed upsert to backend"))
         }
-      } yield result
+      }
     }
 
   private[controllers] def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
