@@ -21,6 +21,8 @@ import helpers.{IntegrationSpecBase, IntegrationTestData, WiremockHelper}
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.test.Injecting
+import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Feature
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.{AddressLookupConnector, AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.AddressLookupResponseModel
 
@@ -30,9 +32,11 @@ class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase w
 
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
   lazy val connector: AddressLookupConnector = app.injector.instanceOf[AddressLookupConnector]
+  lazy val frontendAppConfig: FrontendAppConfig = inject[FrontendAppConfig]
 
   override def beforeEach(): Unit = {
     WireMock.reset()
+    frontendAppConfig.features.addressLookupTestEnabled.apply(false)
   }
 
   "AddressLookupConnector" when {
@@ -41,7 +45,7 @@ class AddressLookupConnectorISpec extends AnyWordSpec with IntegrationSpecBase w
         "return a successful response" in {
           WiremockHelper.stubPost(s"/address-lookup/lookup",OK, addressLookupResponseJson)
           val result = connector.findAddressByPostcode(testAddressLookupRequest.postcode, None).futureValue
-          result mustBe AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel)))
+          result mustBe AddressLookupSuccessResponse(AddressLookupResponseModel(Seq(testAddressLookupResponseModel1, testAddressLookupResponseModel2)))
           WiremockHelper.verifyPost(s"/address-lookup/lookup")
         }
         "return an error when the request fails" in {

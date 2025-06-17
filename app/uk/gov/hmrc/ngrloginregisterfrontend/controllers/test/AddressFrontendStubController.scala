@@ -28,10 +28,22 @@ object AddressFrontendStubController {
             id = "ID1",
             uprn = Uprn(1L),
             address = LookedUpAddress(
-              lines = Seq("line 1, line 2, line 3, line 4"),
-              town = "Telford",
-              county = Some("Surrey"),
-              postcode = "FX1 7RR"
+              lines = Seq("Unit 13 Trident Industrial Estate Blackthorn"),
+              town = "Colnbrook",
+              county = Some("Slough"),
+              postcode = "SL3 0AX"
+            ),
+            language = "English",
+            location = Some(Location(latitude = 1000, longitude = 2000))
+          ),
+          LookedUpAddressWrapper(
+            id = "ID1",
+            uprn = Uprn(1L),
+            address = LookedUpAddress(
+              lines = Seq("40 Manor Road"),
+              town = "Dawley",
+              county = Some("Telford"),
+              postcode = "TF4 3ED"
             ),
             language = "English",
             location = Some(Location(latitude = 1000, longitude = 2000))

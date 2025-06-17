@@ -81,35 +81,65 @@ trait IntegrationTestData {
     filter = Some("filter")
   )
 
-  val testAddressLookupResponseModel : LookedUpAddressWrapper = LookedUpAddressWrapper (
-    id = "GB690091234501",
-    uprn = Uprn(690091234501L),
-    address =
-      LookedUpAddress(
-        lines = Seq("1 Test Street"),
-        town = "Testtown",
-        county = None,
-        postcode = "AA00 0AA"
-      ),
+
+  val testAddressLookupResponseModel1 : LookedUpAddressWrapper =
+    LookedUpAddressWrapper(
+    id = "ID1",
+    uprn = Uprn(1L),
+    address = LookedUpAddress(
+      lines = Seq("Unit 13 Trident Industrial Estate Blackthorn"),
+      town = "Colnbrook",
+      county = Some("Slough"),
+      postcode = "SL3 0AX"
+    ),
     language = "English",
-    location = Some(Location(0.234789234,0.2347859438))
+    location = Some(Location(latitude = 1000, longitude = 2000))
+  )
+
+  val testAddressLookupResponseModel2 : LookedUpAddressWrapper =
+    LookedUpAddressWrapper(
+    id = "ID1",
+    uprn = Uprn(1L),
+    address = LookedUpAddress(
+      lines = Seq("40 Manor Road"),
+      town = "Dawley",
+      county = Some("Telford"),
+      postcode = "TF4 3ED"
+    ),
+    language = "English",
+    location = Some(Location(latitude = 1000, longitude = 2000))
   )
 
   val addressLookupResponseJson : String =
     """
       |[
       | {
-      |   "id":"GB690091234501",
-      |   "uprn":690091234501,
+      |   "id":"ID1",
+      |   "uprn":1,
       |   "address":{
-      |     "lines":["1 Test Street"],
-      |     "town":"Testtown",
-      |     "postcode":"AA00 0AA",
+      |     "lines":["Unit 13 Trident Industrial Estate Blackthorn"],
+      |     "town":"Colnbrook",
+      |     "county":"Slough",
+      |     "postcode":"SL3 0AX",
       |     "subdivision":{"code":"GB-ENG","name":"England"},
       |     "country":{"code":"GB","name":"United Kingdom"}
       |   },
       |   "language":"English",
-      |   "location":["0.234789234","0.2347859438"]
+      |   "location":["1000","2000"]
+      | },
+      |  {
+      |   "id":"ID1",
+      |   "uprn":1,
+      |   "address":{
+      |     "lines":["40 Manor Road"],
+      |     "town":"Dawley",
+      |     "county":"Telford",
+      |     "postcode":"TF4 3ED",
+      |     "subdivision":{"code":"GB-ENG","name":"England"},
+      |     "country":{"code":"GB","name":"United Kingdom"}
+      |   },
+      |   "language":"English",
+      |   "location":["1000","2000"]
       | }
       |]
       |""".stripMargin
