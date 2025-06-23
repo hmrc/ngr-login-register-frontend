@@ -33,7 +33,7 @@ object PhoneNumber extends CommonFormValidators {
   def form(): Form[PhoneNumber] =
     Form(
       mapping(
-        phoneNumber -> text()
+        phoneNumber -> text().transform[String](_.replaceAll("\\s", ""), identity)
           .verifying(
             firstError(
               isNotEmpty(phoneNumber, phoneNumberEmptyError),
