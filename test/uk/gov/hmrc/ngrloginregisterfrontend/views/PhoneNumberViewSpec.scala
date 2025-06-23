@@ -112,6 +112,86 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       elementText(Selectors.continueButton) mustBe continueButton
     }
 
+    "show invalid number format error correctly when (01) is used" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("(01)07943009506"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show invalid number format error correctly when number is too short" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("07943009"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show invalid number format error correctly when + is used to valid number" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("(+07943009506"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show invalid number format error correctly when ! is used to valid number" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("(!07943009506"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show invalid number format error correctly when number is too long" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("07943009506152692"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
     "show invalid number format error correctly when () is used" in {
       val form = PhoneNumber
         .form()
