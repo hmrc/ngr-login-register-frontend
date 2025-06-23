@@ -68,6 +68,23 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       val form = PhoneNumber
         .form()
         .fillAndValidate(PhoneNumber("07954009726"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      val htmlF = phoneNumberView.f(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body
+      htmlF must not be empty
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show no error when a user inputs a valid number with spacing at the beginning" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("         07954009726"))
       val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, false).body
       val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, false, request, messages, mockConfig).body
       val htmlF = phoneNumberView.f(form, confirmContactDetailsMode, false)(request, messages, mockConfig).body
@@ -196,6 +213,22 @@ class PhoneNumberViewSpec extends ViewBaseSpec {
       val form = PhoneNumber
         .form()
         .fillAndValidate(PhoneNumber("()07943009506"))
+      val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
+      val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
+      htmlApply mustBe htmlRender
+      lazy implicit val document: Document = Jsoup.parse(phoneNumberView(form, confirmContactDetailsMode, true)(request, messages, mockConfig).body)
+      elementText(Selectors.backLink) mustBe backLink
+      elementText(Selectors.caption) mustBe caption
+      elementText(Selectors.heading) mustBe heading
+      elementText(Selectors.label)   mustBe label
+      elementText(Selectors.errorMessage) mustBe invalidErrorMessage
+      elementText(Selectors.continueButton) mustBe continueButton
+    }
+
+    "show invalid number format error correctly when () is used anywhere in the number" in {
+      val form = PhoneNumber
+        .form()
+        .fillAndValidate(PhoneNumber("07()943009506()"))
       val htmlApply = phoneNumberView.apply(form, confirmContactDetailsMode, true).body
       val htmlRender = phoneNumberView.render(form, confirmContactDetailsMode, true, request, messages, mockConfig).body
       htmlApply mustBe htmlRender
