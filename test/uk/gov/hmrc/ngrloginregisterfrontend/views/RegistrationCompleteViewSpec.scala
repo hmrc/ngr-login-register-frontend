@@ -33,7 +33,8 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
   val bodyP4 = "Your service recovery number is 12345. You will need this if you have a problem signing in to the service using Government Gateway."
   val bodyH2 = "What happens next"
   val bodyP5 = "Use your Government Gateway ID details next time you sign in to your manage your business rates valuation account"
-  val buttonText = "Go to the dashboard"
+  val buttonText = "Go to account home"
+  val printLinkText = "Print this page"
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"
@@ -46,6 +47,7 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
     val bodyH2Selector = "#main-content > div > div > form > h2"
     val backLink = ".govuk-back-link"
     val button = "#continue"
+    val printLink   = "#printPage > a"
   }
 
     "The RegistrationCompleteView view" should {
@@ -67,6 +69,7 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
           elementText(Selectors.body5Selector) mustBe bodyP5
           elementText(Selectors.bodyH2Selector) mustBe bodyH2
           elementText(Selectors.button) mustBe buttonText
+          elementText(Selectors.printLink) mustBe printLinkText
 
         }
       }

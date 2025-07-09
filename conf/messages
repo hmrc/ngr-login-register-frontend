@@ -148,5 +148,5 @@ registrationComplete.p3       = We’ve also sent a welcome email which has a gu
 registrationComplete.p4       = Your service recovery number is {0}. You will need this if you have a problem signing in to the service using Government Gateway.
 registrationComplete.h1       = What happens next
 registrationComplete.p5       = Use your Government Gateway ID details next time you sign in to your manage your business rates valuation account
-registrationComplete.button   = Go to the dashboard
-registrationComplete.printLink = Print or save this page
+registrationComplete.button   = Go to account home
+registrationComplete.printLink = Print this page
