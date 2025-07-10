@@ -2,6 +2,7 @@ service.name = Manage your business rates valuation
 service.navTitle = Manage your business rates valuation
 service.text = This is your new service
 service.continue = Continue
+service.confirmAndContinue = Confirm and continue
 service.base.title = {0} - GOV.UK
 service.caption = Register for the business rates valuation service
 

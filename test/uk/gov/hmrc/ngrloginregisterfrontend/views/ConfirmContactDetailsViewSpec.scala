@@ -47,7 +47,7 @@ class ConfirmContactDetailsViewSpec extends ViewBaseSpec with TestData with Summ
   val phoneNumber = "Phone number"
   val address = "Address We will send letters to this address"
   val change = "Change"
-  val continue = "Continue"
+  val continue = "Confirm and continue"
 
   object Selectors {
     val navTitle = ".govuk-header__service-name"

@@ -37,7 +37,7 @@ class ConfirmYourContactDetailsViewSpec extends ViewBaseSpec {
   val addLinkText = "Add"
   val emailValue = "test@test.co.uk"
   val addressValue = "26 FARADAY DRIVE PO BOX 45 LONDON CT1 1RQ GREAT BRITAIN"
-  val continueText = "Continue"
+  val continueText = "Confirm and continue"
 
   object Selectors {
     val heading = "#main-content > div > div > form > h1"
