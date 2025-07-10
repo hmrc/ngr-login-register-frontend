@@ -29,10 +29,10 @@ class ProvideTRNViewSpec extends ViewBaseSpec {
   lazy implicit val document: Document = Jsoup.parse(view.body)
   val navTitle = "Manage your business rates valuation"
   val caption = "Register for the business rates valuation service"
-  val heading = "Provide your Tax Reference Number"
+  val heading = "Provide your tax reference number"
   val paragraph: String = "Your Tax Reference Number (TRN) is used to match your tax data with your property data. This information helps the " +
     "government provide targeted support and improve business rates compliance."
-  val typesOfTrn = "Types of Tax Reference Numbers"
+  val typesOfTrn = "Types of tax reference numbers"
   val typesOfTrnContent = "The type of TRN you provide will depend on whether you are paying business rates as an individual or organisation."
   val typeofTrnBulletContent = "Individual rate payers can provide either:"
   val bullet1 = "Self-assessment Unique Tax Reference (UTR)"

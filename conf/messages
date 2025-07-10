@@ -71,9 +71,9 @@ findAddress.propertyName = Property name or number (optional)
 findAddress.propertyName.hint = For example, 116, The Mill, or Suite 10
 findAddress.button = Find address
 
-provide.TRN.heading = Provide your Tax Reference Number
+provide.TRN.heading = Provide your tax reference number
 provide.TRN.content = Your Tax Reference Number (TRN) is used to match your tax data with your property data. This information helps the government provide targeted support and improve business rates compliance.
-provide.TRN.types.heading = Types of Tax Reference Numbers
+provide.TRN.types.heading = Types of tax reference numbers
 provide.TRN.types.content = The type of TRN you provide will depend on whether you are paying business rates as an individual or organisation.
 provide.TRN.bullet.content = Individual rate payers can provide either:
 provide.TRN.bullet.firstBullet = Self-assessment Unique Tax Reference (UTR)
