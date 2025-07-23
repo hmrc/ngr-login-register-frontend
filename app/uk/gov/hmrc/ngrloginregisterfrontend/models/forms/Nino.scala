@@ -39,6 +39,7 @@ object Nino extends CommonFormValidators {
     Form(
       mapping(
         nino -> text()
+          .transform[String](_.toUpperCase, identity)
           .verifying(
             firstError(
               isNotEmpty(nino, ninoEmptyError),

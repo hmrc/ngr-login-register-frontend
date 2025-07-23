@@ -18,13 +18,13 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, AnyContentAsFormUrlEncoded, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest, TRNReferenceNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -65,9 +65,8 @@ class NinoController @Inject()(
     }
   }
 
-  def submit(): Action[AnyContent] = {
-    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { r =>
-      implicit val request = withUpperCaseNino(r)
+  def submit(): Action[AnyContent] =
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
         ratePayer match {
           case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino
@@ -84,22 +83,5 @@ class NinoController @Inject()(
           }
         )
     }
-  }
-
-  // This method ensures that the eventually given NINO is always in uppercase,
-  // regardless of how the user entered it, before processing the request further
-  private def withUpperCaseNino(rrvr: RatepayerRegistrationValuationRequest[AnyContent]): RatepayerRegistrationValuationRequest[AnyContent] = {
-    rrvr.body.asFormUrlEncoded match {
-      case Some(formData) =>
-        val nino = formData.get(Nino.nino).flatMap(_.headOption).map(_.toUpperCase)
-        nino match {
-          case Some(value) => rrvr.copy(
-            request = rrvr.request.withBody(AnyContentAsFormUrlEncoded(formData.updated(Nino.nino, Seq(value))))
-          )
-          case None => rrvr
-        }
-      case None => rrvr
-    }
-  }
 }
 
