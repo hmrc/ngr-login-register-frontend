@@ -21,7 +21,6 @@ lazy val microservice = Project("ngr-login-register-frontend", file("."))
       Compile / scalacOptions -= "utf8",
       scalacOptions += "-Wconf:cat=deprecation&msg=value name in trait Retrievals is deprecated:s",  // we have confidence level > 200 so we don't need to worry about this
   )
-  .settings(resolvers += Resolver.jcenterRepo)
   .settings(WartRemoverSettings.wartRemoverSettings: _*)
   .settings(CodeCoverageSettings.settings: _*)
   .settings(SbtUpdatesSettings.sbtUpdatesSettings *)
