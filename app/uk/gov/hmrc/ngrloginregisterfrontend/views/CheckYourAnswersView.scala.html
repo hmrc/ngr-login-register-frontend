@@ -32,9 +32,7 @@ saveAndContinueButton: saveAndContinueButton
   @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.CheckYourAnswersController.submit, Symbol("autoComplete") -> "off") {
    <span class="govuk-caption-l">@messages("startView.heading")</span>
    <h1 class="govuk-heading-l">@messages("checkYourAnswers.pageTitle")</h1>
-   <h2 class="govuk-heading-m">@messages("checkYourAnswers.body.1")</h2>
    <p class="govuk-body">@messages("checkYourAnswers.body.1.2") <b>@name</b></p>
-   @govukSummaryList(contactSummaryList)
    <h2 class="govuk-heading-m">@messages("checkYourAnswers.body.2")</h2>
    @govukSummaryList(taxReferenceSummaryList)
    <h2 class="govuk-heading-m">@messages("checkYourAnswers.body.3")</h2>
