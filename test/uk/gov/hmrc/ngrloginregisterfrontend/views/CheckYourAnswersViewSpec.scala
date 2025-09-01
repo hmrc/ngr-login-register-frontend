@@ -42,13 +42,8 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
   val heading = "Register for the business rates valuation service"
   val backLink = "Back"
   val pageTitle = "Check your answers"
-  val body1 = "Contact details"
   val body1ContentTitle = "This account is registered to name"
   val body2 = "Tax reference number"
-  val contactName = "Contact name"
-  val emailAddress = "Email address"
-  val phoneNumber = "Phone number"
-  val address = "Address We will send letters to this address"
   val sautr = "Self Assessment Unique Taxpayer Reference"
   val provideTRN = "Provide your TRN"
   val change = "Change"
@@ -60,18 +55,11 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
     val backLink = "body > div > a"
     val heading = "#main-content > div > div > form > span"
     val pageTitle = "#main-content > div > div > form > h1"
-    val body1 = "#main-content > div > div > form > h2:nth-child(3)"
-    val body1ContentTitle = "#main-content > div > div > form > p:nth-child(4)"
-    val body2 = "#main-content > div > div > form > h2:nth-child(6)"
-    val contactName = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(1) > dt"
-    val email = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(2) > dt"
-    val phone = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(3) > dt"
-    val address = "#main-content > div > div > form > dl:nth-child(5) > div:nth-child(4) > dt"
-    val addressChangeLink = "#address-linkid"
-    val sautr = "#main-content > div > div > form > dl:nth-child(7) > div > dt"
+    val body1ContentTitle = "#main-content > div > div > form > p:nth-child(3)"
+    val sautr = "#main-content > div > div > form > dl:nth-child(5) > div > dt"
     val provideTRNLink = "#sautr-linkid"
-    val body3 = "#main-content > div > div > form > h2:nth-child(8)"
-    val body3Content = "#main-content > div > div > form > p:nth-child(9)"
+    val body3 = "#main-content > div > div > form > h2:nth-child(6)"
+    val body3Content = "#main-content > div > div > form > p:nth-child(7)"
     val continue = "#continue"
   }
 
@@ -98,14 +86,7 @@ class CheckYourAnswersViewSpec extends ViewBaseSpec with TestData with SummaryLi
         elementText(Selectors.heading) mustBe heading
         elementText(Selectors.pageTitle) mustBe pageTitle
         elementText(Selectors.backLink) mustBe backLink
-        elementText(Selectors.body1) mustBe body1
         elementText(Selectors.body1ContentTitle) mustBe body1ContentTitle
-        elementText(Selectors.body2) mustBe body2
-        elementText(Selectors.contactName) mustBe contactName
-        elementText(Selectors.email) mustBe emailAddress
-        elementText(Selectors.phone) mustBe phoneNumber
-        elementText(Selectors.address) mustBe address
-        elementText(Selectors.addressChangeLink) mustBe change
         elementText(Selectors.sautr) mustBe sautr
         elementText(Selectors.provideTRNLink) mustBe provideTRN
         elementText(Selectors.body3) mustBe body3
