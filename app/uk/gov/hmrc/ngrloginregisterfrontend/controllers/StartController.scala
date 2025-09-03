@@ -43,7 +43,7 @@ class StartController @Inject()(view: StartView,
 
   def submit(): Action[AnyContent] =
     Action.async {
-      Future.successful(Redirect(routes.ConfirmContactDetailsController.show()))
+      Future.successful(Redirect(routes.ProvideTRNController.show()))
     }
 
 }
