@@ -52,20 +52,6 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       val result = controller().show()(authenticatedFakeRequest)
       status(result) mustBe OK
     }
-//    "will create summary rows from ratepayer registration model" in {
-//      val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel))
-//      val summaryList = createContactDetailSummaryRows(ratepayer, checkYourAnswersMode)
-//      val rows: Seq[SummaryListRow] = summaryList.rows
-//      rows.length shouldBe 4
-//      rows(0).value.content.toString must include("John Doe")
-//      rows(0).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/name?mode=$checkYourAnswersMode"
-//      rows(1).value.content.toString must include("JohnDoe@digital.hmrc.gov.uk")
-//      rows(1).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/change-email?mode=$checkYourAnswersMode"
-//      rows(2).value.content.toString must include("07123456789")
-//      rows(2).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/phone-number?mode=$checkYourAnswersMode"
-//      rows(3).value.content.toString must include("99</br>Wibble Rd</br>Worthing</br>BN110AA")
-//      rows(3).actions.get.items(0).href shouldBe s"/ngr-login-register-frontend/find-address?mode=$checkYourAnswersMode"
-//    }
 
     "Tax reference row will show provide your UTR when referenceType is TRN" in {
       val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel.copy(trnReferenceNumber = None)))
