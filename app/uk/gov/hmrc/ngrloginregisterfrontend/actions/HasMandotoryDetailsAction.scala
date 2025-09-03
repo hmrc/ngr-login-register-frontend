@@ -65,21 +65,10 @@ class HasMandotoryDetailsActionImpl @Inject()(
 
         (email, contactNumber) match {
           case (_, _) => block(RatepayerRegistrationValuationRequest(request, credId, registration.ratepayerRegistration))
-//          case (true , false) => redirectToPhonePage()
-//          case (false , true) => redirectToEmailPage()
-//          case (_ , _) => redirectToEmailPage()
         }
       }
     })
   }
-
-//  def redirectToEmailPage(): Future[Result] = {
-//    Future.successful(Redirect(routes.EnterEmailController.show))
-//  }
-//
-//  def redirectToPhonePage(): Future[Result] = {
-//    Future.successful(Redirect(routes.PhoneNumberController.show("CCD")))
-//  }
 
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
 

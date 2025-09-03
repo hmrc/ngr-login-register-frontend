@@ -25,7 +25,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
-import uk.gov.hmrc.ngrloginregisterfrontend.repo.{NgrFindAddressRepo, RatepayerRegistrationRepo}
+import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -41,7 +41,7 @@ trait ControllerSpecSupport extends TestSupport with TestData {
   val mockComposedAction:ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]  = mock[ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]]
 
 
-  val mockNgrFindAddressRepo: NgrFindAddressRepo = mock[NgrFindAddressRepo]
+//  val mockNgrFindAddressRepo: NgrFindAddressRepo = mock[NgrFindAddressRepo]
   val mockNGRConnector: NGRConnector = mock[NGRConnector]
   val mockSessionManager: SessionManager = mock[SessionManager]
   val mockNGRLogger: NGRLogger = mock[NGRLogger]
