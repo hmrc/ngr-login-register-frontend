@@ -39,7 +39,7 @@ object NGRSummaryListRow {
       Text(Messages(checkYourAnswerRow.titleMessageKey))
     }
 
-    val key = Key(content = keyContent)
+    val key = Key(content = keyContent, classes = "govuk-!-width-one-third")
 
     val idMaker = checkYourAnswerRow.titleMessageKey.toLowerCase().replace(" ","-")
 
