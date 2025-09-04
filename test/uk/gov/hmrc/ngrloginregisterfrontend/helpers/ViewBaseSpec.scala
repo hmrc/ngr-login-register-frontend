@@ -87,13 +87,4 @@ trait ViewBaseSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting with
     personDetailsResponse.address.postcode.getOrElse(""),
     personDetailsResponse.address.country.getOrElse("")
   ).filter(_.nonEmpty)
-
-  def createSummaryListRows()(implicit messages: Messages): Seq[SummaryListRow] =
-  Seq(
-    NGRSummaryListRow("confirmContactDetails.contactName", None, Seq(personNameSummaryListDetails), Some(Link(Call("GET", "url"), "changeName", "Change"))),
-    NGRSummaryListRow("confirmContactDetails.emailAddress", None, Seq(testEmail), Some(Link(Call("GET", "url"), "changeEmail", "Change"))),
-    NGRSummaryListRow("confirmContactDetails.phoneNumber", None, Seq.empty, Some(Link(Call("GET", "url"), "addPhoneNumber", "Add"))),
-    NGRSummaryListRow("confirmContactDetails.address", None, addressSummaryListDetails, Some(Link(Call("GET", "url"), "changeAddress", "Change")))
-  ).map(summarise)
-
 }

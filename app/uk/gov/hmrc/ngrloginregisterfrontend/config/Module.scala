@@ -17,7 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.config
 
 import com.google.inject.AbstractModule
-import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, AuthRetrievalsImpl, RegistrationAction, RegistrationActionImpl}
+import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, AuthRetrievalsImpl, HasMandotoryDetailsAction, HasMandotoryDetailsActionImpl, RegistrationAction, RegistrationActionImpl}
 
 class Module extends AbstractModule {
 
@@ -25,6 +25,6 @@ class Module extends AbstractModule {
     bind(classOf[AppConfig]).to(classOf[FrontendAppConfig]).asEagerSingleton()
     bind(classOf[AuthRetrievals]).to(classOf[AuthRetrievalsImpl]).asEagerSingleton()
     bind(classOf[RegistrationAction]).to(classOf[RegistrationActionImpl]).asEagerSingleton()
-//    bind(classOf[HasMandotoryDetailsAction]).to(classOf[HasMandotoryDetailsActionImpl]).asEagerSingleton()
+    bind(classOf[HasMandotoryDetailsAction]).to(classOf[HasMandotoryDetailsActionImpl]).asEagerSingleton()
   }
 }

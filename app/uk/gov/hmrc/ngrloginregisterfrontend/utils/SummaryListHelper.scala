@@ -45,12 +45,6 @@ trait SummaryListHelper {
     def getUrl(route: String, linkId: String, messageKey: String): Option[Link] =
       Some(Link(Call("GET", route), linkId, messageKey))
 
-    Seq(
-//      NGRSummaryListRow(messages("confirmContactDetails.contactName"), None, name, getUrl(routes.NameController.show(mode).url, "name-linkid", "Change")),
-//      NGRSummaryListRow(messages("confirmContactDetails.emailAddress"), None, email, getUrl(routes.EmailController.show(mode).url, "email-linkid", "Change")),
-//      NGRSummaryListRow(messages("confirmContactDetails.phoneNumber"), None, phone, getUrl(routes.PhoneNumberController.show(mode).url, "number-linkid",
-//        if (phone.isEmpty) "confirmContactDetails.add" else "confirmContactDetails.change")),
-//      NGRSummaryListRow(messages("confirmContactDetails.address"), Some(messages("confirmContactDetails.address.caption")), address, getUrl(routes.FindAddressController.show(mode).url, "address-linkid", "Change"))
-    ).map(summarise)
+    Seq().map(summarise)
   }
 }
