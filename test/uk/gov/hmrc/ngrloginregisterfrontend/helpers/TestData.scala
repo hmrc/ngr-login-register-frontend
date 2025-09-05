@@ -130,6 +130,16 @@ trait TestData {
       |{"value":"test@digital.hmrc.gov.uk"}
       |""".stripMargin)
 
+  val nameJson: JsValue = Json.parse(
+    """
+      |{"value":"Lovely Fella"}
+      |""".stripMargin)
+
+  val phoneNumberJson: JsValue = Json.parse(
+    """
+      |{"value":"0300 200 3310"}
+      |""".stripMargin)
+
   val minRegResponseModel: RatepayerRegistration = testRegistrationModel.copy(tradingName = None, secondaryNumber = None)
 
   val regResponseJson: JsValue = Json.parse(
