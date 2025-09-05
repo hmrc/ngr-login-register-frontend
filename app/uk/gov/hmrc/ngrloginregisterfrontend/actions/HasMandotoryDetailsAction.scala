@@ -53,21 +53,9 @@ class HasMandotoryDetailsActionImpl @Inject()(
     isRegistered.invokeBlock(request, { implicit registration: RatepayerRegistrationValuationRequest[A]  =>
 
       val credId = CredId(registration.credId.value)
-
-      mongo.findByCredId(credId).flatMap{ maybeRatepayer =>
-        val email = maybeRatepayer
-          .flatMap(_.ratepayerRegistration)
-          .flatMap(_.email).isDefined
-
-        val contactNumber = maybeRatepayer
-          .flatMap(_.ratepayerRegistration)
-          .flatMap(_.contactNumber).isDefined
-
-        (email, contactNumber) match {
-          case (_, _) => block(RatepayerRegistrationValuationRequest(request, credId, registration.ratepayerRegistration))
-        }
+        block(RatepayerRegistrationValuationRequest(request, credId, registration.ratepayerRegistration))
       }
-    })
+    )
   }
 
   override def parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
