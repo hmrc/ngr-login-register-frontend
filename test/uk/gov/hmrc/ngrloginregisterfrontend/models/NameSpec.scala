@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
+package uk.gov.hmrc.ngrloginregisterfrontend.models
 
+import org.scalatest.matchers.should.Matchers._
+import play.api.data.Form
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Email, Name}
 
 class NameSpec extends TestSupport with TestData{
   "Name model" should {
@@ -27,6 +29,16 @@ class NameSpec extends TestSupport with TestData{
     }
     "deserialize from json" in {
       nameJson.as[Name] mustBe nameModel
+    }
+  }
+
+  "Name form" should {
+    "bind a valid name" in {
+      val data = Map("name-value" -> "John Doe")
+      val form: Form[Name] = Name.form()
+      val boundForm = form.bind(data)
+      boundForm.errors shouldBe empty
+      boundForm.value shouldBe Some(Name("John Doe"))
     }
   }
 }

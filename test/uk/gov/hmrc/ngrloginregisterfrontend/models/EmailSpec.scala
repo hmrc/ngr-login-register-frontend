@@ -14,19 +14,31 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
+package uk.gov.hmrc.ngrloginregisterfrontend.models
 
+import org.scalatest.matchers.should.Matchers._
+import play.api.data.{Form, FormError}
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.PhoneNumber
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 
-class PhoneNumberSpec extends TestSupport with TestData{
-  "Phone number model" should {
+class EmailSpec extends TestSupport with TestData{
+  "Email model" should {
     "serialise into json" in {
-      Json.toJson(contactNumberModel) mustBe phoneNumberJson
+      Json.toJson(emailModel) mustBe emailJson
     }
     "deserialize from json" in {
-      phoneNumberJson.as[PhoneNumber] mustBe contactNumberModel
+      emailJson.as[Email] mustBe emailModel
+    }
+  }
+
+  "Email form" should {
+    "bind a valid email" in {
+      val data = Map("email-value" -> "test@test.com")
+      val form: Form[Email] = Email.form()
+      val boundForm = form.bind(data)
+      boundForm.errors shouldBe empty
+      boundForm.value shouldBe Some(Email("test@test.com"))
     }
   }
 }

@@ -16,8 +16,11 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.models.registration
 
+import org.scalatest.matchers.should.Matchers._
+import play.api.data.Form
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.Postcode
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Address
 
 class AddressModelSpec extends TestSupport with TestData {
@@ -44,6 +47,15 @@ class AddressModelSpec extends TestSupport with TestData {
       "toString method is called" in{
         testAddressModel.toString mustBe "99, Wibble Rd, Worthing, West Sussex, BN110AA"
       }
+    }
+  }
+
+  "Address form" should {
+    "bind a valid address" in {
+      val data = Map("postcode-value" -> "AB1 XYZ")
+      val form: Form[Address] = Address.form()
+      val boundForm = form.bind(data)
+      boundForm.value shouldBe empty
     }
   }
 }
