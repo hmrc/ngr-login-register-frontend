@@ -103,12 +103,12 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
           {
             case ConfirmUTR.Yes(utr) =>
               mongo.updateTRN(request.credId, TRNReferenceNumber(SAUTR, utr))
-              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+              Future.successful(Redirect(routes.ProvideTRNController.show()))
             case ConfirmUTR.NoNI =>
               Future.successful(Redirect(routes.NinoController.show))
             case ConfirmUTR.NoLater =>
               mongo.updateTRN(request.credId, TRNReferenceNumber(SAUTR, ""))
-              Future.successful(Redirect(routes.CheckYourAnswersController.show))
+              Future.successful(Redirect(routes.ProvideTRNController.show()))
           }
         )
     }
