@@ -14,6 +14,10 @@ startView.bullet.2 = report changes to your property
 startView.bullet.3 = provide a valid Tax Reference Number
 startView.button = Start now
 
+cannotRegister.heading = Register for the business rates valuation service
+cannotRegister.pageTitle = You cannot register for this service
+cannotRegister.body = Your details don't match our list of invitees. Please check your invitation and try again.
+
 checkYourAnswers.pageTitle = Check your answers
 checkYourAnswers.name = Name
 checkYourAnswers.address = Address

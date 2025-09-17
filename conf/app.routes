@@ -16,3 +16,4 @@ GET        /check-answers                       uk.gov.hmrc.ngrloginregisterfron
 POST       /check-answers                       uk.gov.hmrc.ngrloginregisterfrontend.controllers.CheckYourAnswersController.submit
 GET        /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.show(recoveryId: Option[String])
 POST       /registration-complete               uk.gov.hmrc.ngrloginregisterfrontend.controllers.RegistrationCompleteController.submit(recoveryId: Option[String])
+GET        /cannot-register                     uk.gov.hmrc.ngrloginregisterfrontend.controllers.CannotRegisterController.show()
