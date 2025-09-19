@@ -32,5 +32,6 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
   override val centralAuthServerUrl: String = "https://localhost:15000"
   override val timeToLive: String = "3.00"
   val dashboard: String = "https://localhost:1503"
+  val ngrNotify: String = "https://localhost:1502"
 
 }
