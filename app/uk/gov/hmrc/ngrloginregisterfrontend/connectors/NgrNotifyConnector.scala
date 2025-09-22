@@ -40,8 +40,6 @@ class NgrNotifyConnector @Inject()(
           case _ =>
             false
         }
-      } recover {
-      case _ => false
-    }
+      }
   }
 }

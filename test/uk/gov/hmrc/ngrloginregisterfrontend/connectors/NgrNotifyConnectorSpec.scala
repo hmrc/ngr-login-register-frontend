@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
-
 
 import scala.concurrent.Future
 
@@ -72,7 +71,8 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
 
     "a 500-599 response is returned" should {
       "return false" in {
-        setupMockFailedHttpV2Get(s"${mockConfig.ngrNotify}/allowed-in-private-beta/${credId.value}")
+        val errorResponse = HttpResponse(status = INTERNAL_SERVER_ERROR, body = "Server error", headers = Map.empty)
+        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/allowed-in-private-beta/${credId.value}")(errorResponse)
 
         val result: Future[Boolean] = connector.isAllowedInPrivateBeta(credId.value)
         result.futureValue mustBe false
