@@ -32,6 +32,7 @@ trait AppConfig {
   val centralAuthServerUrl: String
   val timeToLive: String
   val dashboard: String
+  val ngrNotify: String
 }
 
 @Singleton
@@ -44,6 +45,7 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   override val addressLookupUrl: String = sc.baseUrl("address-lookup")
   override val centralAuthServerUrl: String = sc.baseUrl("centralised-authorisation-server")
   override val dashboard: String = sc.baseUrl("ngr-dashboard-frontend")
+  override val ngrNotify: String = sc.baseUrl("ngr-notify")
 
   def getString(key: String): String =
     config.getOptional[String](key)
