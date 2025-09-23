@@ -22,7 +22,8 @@
 @()(implicit messages: Messages, appConfig: AppConfig, request: RequestHeader)
 
 @layout(
-    showBackLink = false
+    showBackLink = false,
+    pageTitle = Some(messages("cannotRegister.pageTitle"))
 ) {
 
     <span class="govuk-caption-l">@messages("cannotRegister.heading")</span>
