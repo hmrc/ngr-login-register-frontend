@@ -33,10 +33,12 @@ trait AppConfig {
   val timeToLive: String
   val dashboard: String
   val ngrNotify: String
+  val allowedUserEmailIds: Seq[String]
+  val publicAccessAllowed: Boolean
 }
 
 @Singleton
-class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) extends AppConfig {
+class FrontendAppConfig @Inject()(val config: Configuration, sc: ServicesConfig) extends AppConfig {
   override val features = new Features()(config)
   override val timeToLive: String = sc.getString("time-to-live.time")
   override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")
@@ -46,6 +48,9 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   override val centralAuthServerUrl: String = sc.baseUrl("centralised-authorisation-server")
   override val dashboard: String = sc.baseUrl("ngr-dashboard-frontend")
   override val ngrNotify: String = sc.baseUrl("ngr-notify")
+  override val allowedUserEmailIds: Seq[String] = config.getOptional[Seq[String]]("allowedUsers.emailIds").getOrElse(Seq.empty[String])
+  println("Allowed User Email IDs: " + allowedUserEmailIds.mkString(", "))
+  override val publicAccessAllowed: Boolean = config.getOptional[Boolean]("public-access-allowed").getOrElse(false)
 
   def getString(key: String): String =
     config.getOptional[String](key)

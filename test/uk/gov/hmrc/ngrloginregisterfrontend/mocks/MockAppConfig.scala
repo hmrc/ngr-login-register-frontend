@@ -20,7 +20,7 @@ import play.api.Configuration
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
 
-class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
+class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig {
 
   override val features: Features = new Features()(runModeConfiguration)
   override val gtmContainer: String = "a"
@@ -31,7 +31,8 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig{
   override val addressLookupUrl: String = "http://localhost:9000"
   override val centralAuthServerUrl: String = "https://localhost:15000"
   override val timeToLive: String = "3.00"
+  override val allowedUserEmailIds: Seq[String] = Seq("user@test.com")
   val dashboard: String = "https://localhost:1503"
   val ngrNotify: String = "https://localhost:1515"
-
+  override val publicAccessAllowed: Boolean = false
 }

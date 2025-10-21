@@ -36,15 +36,15 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.invocation.InvocationOnMock
 import play.api.Application
-import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{CitizenDetailsConnector, NGRConnector}
-import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, RatepayerRegistrationValuationRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
@@ -58,7 +58,8 @@ class HasMandotoryDetailsActionSpec extends TestSupport with TestData{
   private val mockRegistrationAction: RegistrationAction = mock[RegistrationAction]
   private val mockRatepayerRegistraionRepo: RatepayerRegistrationRepo = mock[RatepayerRegistrationRepo]
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockAuthAction = new AuthRetrievalsImpl(mockAuthConnector, mcc)
+  private val mockAppConfig: AppConfig = mock[AppConfig]
+  val mockAuthAction = new AuthRetrievalsImpl(mockAuthConnector, mockAppConfig, mcc)
 
   private val mockCitizenDetailsConnector:CitizenDetailsConnector = mock[CitizenDetailsConnector]
 
