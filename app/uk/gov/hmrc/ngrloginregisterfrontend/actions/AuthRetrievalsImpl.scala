@@ -68,7 +68,7 @@ class AuthRetrievalsImpl @Inject()(
               )
             )
           } else {
-            Future.successful(Redirect(routes.StartController.show)) // TODO: Update to 'cannot register' page when the page content is ready
+            Future.successful(Redirect(routes.CannotRegisterController.show())) // TODO: Update to 'cannot register' page when the page content is ready
           }
 
         case _ ~ _ ~ confidenceLevel ~ _ => throw new Exception("confidenceLevel not met")

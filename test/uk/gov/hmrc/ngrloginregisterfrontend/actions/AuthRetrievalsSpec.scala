@@ -137,7 +137,7 @@ class AuthRetrievalsSpec extends TestSupport {
         val result = authAction.invokeBlock(testRequest, stubs.successBlock)
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must include("/ngr-login-register-frontend/register")
+        redirectLocation(result).get must include("/ngr-login-register-frontend/cannot-register")
       }
 
       "redirect to an exit page when the feature flag public-access-allowed is set to false" in {
@@ -166,7 +166,7 @@ class AuthRetrievalsSpec extends TestSupport {
         val result = authAction.invokeBlock(testRequest, stubs.successBlock)
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must include("/ngr-login-register-frontend/register")
+        redirectLocation(result).get must include("/ngr-login-register-frontend/cannot-register")
       }
 
       "the user has a confidence level of 50 with all details" in {

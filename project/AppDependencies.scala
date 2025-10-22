@@ -2,13 +2,13 @@ import sbt.*
 
 object AppDependencies {
 
-  private val bootstrapVersion = "9.16.0"
-  private val hmrcMongoVersion = "2.6.0"
+  private val bootstrapVersion = "9.19.0"
+  private val hmrcMongoVersion = "2.10.0"
   private val enumeratumVersion = "1.9.0"
 
   val compile = Seq(
     "uk.gov.hmrc"             %% "bootstrap-frontend-play-30"                        % bootstrapVersion,
-    "uk.gov.hmrc"             %% "play-frontend-hmrc-play-30"                        % "12.7.0",
+    "uk.gov.hmrc"             %% "play-frontend-hmrc-play-30"                        % "12.17.0",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-30"                                % hmrcMongoVersion,
     "com.beachape"            %% "enumeratum-play-json"                              % "1.9.0",
     "uk.gov.hmrc"             %% "domain-play-30"                                    % "11.0.0",
@@ -17,7 +17,7 @@ object AppDependencies {
   )
 
   val test = Seq(
-    "org.mockito"             %% "mockito-scala"              % "2.0.0"                   % Test,
+    "org.mockito"             %% "mockito-scala"              % "2.0.0"                     % Test,
     "uk.gov.hmrc"             %% "bootstrap-test-play-30"     % bootstrapVersion            % Test,
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"    % hmrcMongoVersion            % Test,
     "org.jsoup"               %  "jsoup"                      % "1.21.2"                    % Test,

@@ -49,7 +49,6 @@ class FrontendAppConfig @Inject()(val config: Configuration, sc: ServicesConfig)
   override val dashboard: String = sc.baseUrl("ngr-dashboard-frontend")
   override val ngrNotify: String = sc.baseUrl("ngr-notify")
   override val allowedUserEmailIds: Seq[String] = config.getOptional[Seq[String]]("allowedUsers.emailIds").getOrElse(Seq.empty[String])
-  println("Allowed User Email IDs: " + allowedUserEmailIds.mkString(", "))
   override val publicAccessAllowed: Boolean = config.getOptional[Boolean]("public-access-allowed").getOrElse(false)
 
   def getString(key: String): String =
