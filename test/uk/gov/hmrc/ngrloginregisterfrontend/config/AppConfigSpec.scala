@@ -62,7 +62,7 @@ class AppConfigSpec extends TestSupport {
 
     "retrieve allowedUserEmailIds from config" in {
 
-      appConfig.allowedUserEmailIds shouldBe List("user1@example.com", "user2@example.com", "user3@example.com")
+      appConfig.allowedUserEmailIds shouldBe List("user@test.com", "66666666email@email.com", "user3@example.com")
     }
 
     "retrieve dashboard from ServicesConfig" in {
