@@ -47,7 +47,7 @@ class RegistrationActionSpec extends TestSupport with TestData{
 
   private val mockCitizenDetailsConnector:CitizenDetailsConnector = mock[CitizenDetailsConnector]
 
-  private object Stubs {
+  object Stubs {
     def successBlock(request: Request[AnyContent]): Future[Result] = Future.successful(Ok(""))
   }
 

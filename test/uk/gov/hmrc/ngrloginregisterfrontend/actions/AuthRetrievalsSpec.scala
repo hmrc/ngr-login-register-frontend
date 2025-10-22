@@ -41,7 +41,7 @@ class AuthRetrievalsSpec extends TestSupport {
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
   private val mockAppConfig: AppConfig = mock[AppConfig]
 
-  private object Stubs {
+  object Stubs {
     def successBlock(request: RatepayerRegistrationValuationRequest[_]): Future[Result] = Future.successful(Ok(""))
   }
 
