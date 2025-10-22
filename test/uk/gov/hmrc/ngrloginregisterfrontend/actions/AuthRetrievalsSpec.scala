@@ -83,6 +83,34 @@ class AuthRetrievalsSpec extends TestSupport {
         status(result) mustBe OK
       }
 
+      "have a confidence level of 250 with all details and must public-access-allowed flag set to true" in {
+
+        val retrievalResult: Future[authAction.RetrievalsType] =
+          Future.successful(
+            Some(testCredId) ~
+              Some(testNino) ~
+              testConfidenceLevel ~
+              Some(testEmail) ~
+              Some(testAffinityGroup) ~
+              Some(testName)
+          )
+
+        when(
+          mockAuthConnector
+            .authorise[authAction.RetrievalsType](any(), any())(any(), any())
+        )
+          .thenReturn(retrievalResult)
+
+        when(mockAppConfig.allowedUserEmailIds).thenReturn(Seq(testEmail))
+        when(mockAppConfig.publicAccessAllowed).thenReturn(false)
+
+        val stubs = spy(Stubs)
+
+        val result = authAction.invokeBlock(testRequest, stubs.successBlock)
+
+        status(result) mustBe OK
+      }
+
       "redirect to an exit page when does not have a emailId which is in allowedId emailId list" in {
 
         val retrievalResult: Future[authAction.RetrievalsType] =

@@ -55,8 +55,7 @@ class AuthRetrievalsImpl @Inject()(
 
      authorised(ConfidenceLevel.L250).retrieve(retrievals){
         case credentials ~ Some(nino) ~ confidenceLevel ~ email ~ affinityGroup ~ name =>
-println("AuthRetrievalsImpl: authorised user with nino: " + nino + ", email: " + email.mkString(",") + ", affinityGroup: " + affinityGroup.mkString(",") + ", name: " )
-          if (email.exists(appConfig.allowedUserEmailIds.contains(_)) && !appConfig.publicAccessAllowed) {
+          if ((email.exists(appConfig.allowedUserEmailIds.contains(_)) && !appConfig.publicAccessAllowed) || appConfig.publicAccessAllowed) {
             block(
               RatepayerRegistrationValuationRequest(
                 request = request,
