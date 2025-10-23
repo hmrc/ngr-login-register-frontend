@@ -17,7 +17,7 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.models
 
 import org.scalatest.matchers.should.Matchers._
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email

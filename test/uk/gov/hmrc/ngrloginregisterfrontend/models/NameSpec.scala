@@ -20,7 +20,7 @@ import org.scalatest.matchers.should.Matchers._
 import play.api.data.Form
 import play.api.libs.json.Json
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{TestData, TestSupport}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Email, Name}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Name
 
 class NameSpec extends TestSupport with TestData{
   "Name model" should {

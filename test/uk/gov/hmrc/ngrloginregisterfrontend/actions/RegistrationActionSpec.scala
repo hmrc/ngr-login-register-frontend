@@ -43,11 +43,11 @@ class RegistrationActionSpec extends TestSupport with TestData{
   private val mockRatepayerRegistraionRepo: RatepayerRegistrationRepo = mock[RatepayerRegistrationRepo]
 
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockAuthAction = new AuthRetrievalsImpl(mockAuthConnector, mcc)
+  val mockAuthAction = new AuthRetrievalsImpl(mockAuthConnector, mockConfig, mcc)
 
   private val mockCitizenDetailsConnector:CitizenDetailsConnector = mock[CitizenDetailsConnector]
 
-  private object Stubs {
+  object Stubs {
     def successBlock(request: Request[AnyContent]): Future[Result] = Future.successful(Ok(""))
   }
 

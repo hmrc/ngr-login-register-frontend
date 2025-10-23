@@ -23,7 +23,6 @@ import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.Results
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}

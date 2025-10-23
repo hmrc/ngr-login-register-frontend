@@ -19,11 +19,10 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status.{OK, SEE_OTHER}
-import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
+import play.api.mvc.{AnyContent, BodyParser, Request, Result}
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.AuthRetrievals
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.AuthenticatedUserRequest
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation, RatepayerRegistrationValuationRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.RegistrationCompleteView
 
@@ -71,7 +70,7 @@ class RegistrationCompleteControllerSpec extends ControllerSpecSupport with Test
         val response: Option[RatepayerRegistrationValuation] = Some(ratepayer)
         when(mockNGRConnector.getRatepayer(any())(any()))
           .thenReturn(Future.successful(response))
-          val result = controller.show(Some("recovery-id")).apply(authenticatedFakeRequestWithEmail)
+          val result = controller().show(Some("recovery-id")).apply(authenticatedFakeRequestWithEmail)
           status(result) mustBe OK
           val content = contentAsString(result)
           content must include(pageTitle1)

@@ -1,4 +1,3 @@
-
 ngr-login-register-frontend
 ================
 
@@ -29,6 +28,7 @@ sm2 --stop  NGR_LOGIN_REGISTER_FRONTEND
   - AA00 0AA Postcode returns one address.
   - FX1 7RR Postcode returns multiple address
 
+
 ### Running the test suite
 ```
 sbt clean coverage test coverageReport
@@ -38,6 +38,22 @@ sbt clean coverage test coverageReport
 shuttering:
 * `QA` https://catalogue.tax.service.gov.uk/shuttering-overview/frontend/qa?teamName=Non+Domestic+Rates+Reform+Prog.
 * `STAGING` https://catalogue.tax.service.gov.uk/shuttering-overview/frontend/staging?teamName=Non+Domestic+Rates+Reform+Prog.
+
+## Feature Flags and Allowed Users
+
+### Allowed Users
+
+The `allowedUsers` configuration restricts access to certain features or areas of the application to a predefined list of email addresses. This is useful for limiting access during development, testing, or for beta features.
+
+Example configuration in `conf/application.conf`:
+
+```
+allowedUsers {
+    emailIds = ["user@test.com", "user2@example.com", "user3@example.com"]
+}
+```
+
+Only users with email addresses listed in `emailIds` will be granted access to the restricted features. To update the list, modify the `emailIds` array in the configuration file.
 
 ## Licence
 This code is open source software licensed under
