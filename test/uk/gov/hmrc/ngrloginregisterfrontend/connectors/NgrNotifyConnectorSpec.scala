@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
@@ -76,6 +76,50 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
 
         val result: Future[Boolean] = connector.isAllowedInPrivateBeta(credId.value)
         result.futureValue mustBe false
+      }
+    }
+  }
+
+  "Calling the ratepayer register endpoint" when {
+
+    "a valid ratepayer" should {
+      "return a successful response" in {
+        val successResponse = HttpResponse(status = ACCEPTED, json = Json.obj("status" -> "OK"), headers = Map.empty)
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/register-ratepayer")(successResponse)
+
+        val result: Future[HttpResponse] = connector.registerRatePayer(testRegistrationModel)
+        result.futureValue mustBe successResponse
+      }
+    }
+
+    "a ratepayer with missing data" should {
+      "return a bad request response" in {
+        val badRequestResponse = HttpResponse(
+          status = BAD_REQUEST,
+          json = Json.obj("status" -> "BAD_REQUEST", "error" -> "Missing required field: email"),
+          headers = Map.empty
+        )
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/register-ratepayer")(badRequestResponse)
+
+        val result: Future[HttpResponse] = connector.registerRatePayer(testRegistrationModel)
+        result.futureValue mustBe badRequestResponse
+      }
+    }
+
+    "an unexpected response status" should {
+      "throw an exception with status and body" in {
+        val unexpectedResponse = HttpResponse(
+          status = INTERNAL_SERVER_ERROR,
+          body = "Something went wrong",
+          headers = Map.empty
+        )
+
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/register-ratepayer")(unexpectedResponse)
+        val result = connector.registerRatePayer(testRegistrationModel)
+        val thrown = intercept[Exception] {
+          result.futureValue
+        }
+        thrown.getMessage must include("500: Something went wrong")
       }
     }
   }
