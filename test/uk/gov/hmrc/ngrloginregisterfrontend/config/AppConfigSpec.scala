@@ -16,71 +16,61 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.config
 
-import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import play.api.Configuration
 import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
 
 class AppConfigSpec extends TestSupport {
+
+  val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+
   "FrontendAppConfig" must {
 
     "initialize features correctly" in {
-      val mockConfig = mock[Configuration]
-      val mockServicesConfig = mock[ServicesConfig]
-
-      val appConfig = new FrontendAppConfig(mockConfig, mockServicesConfig)
 
       appConfig.features shouldBe a[Features] // Ensures Features is initialized
     }
 
     "retrieve gtmContainer from config" in {
-      val mockConfig = mock[Configuration]
-      val mockServicesConfig = mock[ServicesConfig]
-      when(mockServicesConfig.getString("tracking-consent-frontend.gtm.container")).thenReturn("GTM-1234")
 
-      val appConfig = new FrontendAppConfig(mockConfig, mockServicesConfig)
-
-      appConfig.gtmContainer shouldBe "GTM-1234"
+      appConfig.gtmContainer shouldBe "a"
     }
 
     "retrieve citizenDetailsUrl from ServicesConfig" in {
-      val mockConfig = mock[Configuration]
-      val mockServicesConfig = mock[ServicesConfig]
-      when(mockServicesConfig.baseUrl("citizen-details")).thenReturn("http://localhost/citizen-details")
-
-      val appConfig = new FrontendAppConfig(mockConfig, mockServicesConfig)
-
-      appConfig.citizenDetailsUrl shouldBe "http://localhost/citizen-details"
+      appConfig.citizenDetailsUrl shouldBe "http://localhost:9337"
     }
 
     "retrieve nextGenerationRatesUrl from ServicesConfig" in {
-      val mockConfig = mock[Configuration]
-      val mockServicesConfig = mock[ServicesConfig]
-      when(mockServicesConfig.baseUrl("next-generation-rates")).thenReturn("http://localhost/next-generation-rates")
 
-      val appConfig = new FrontendAppConfig(mockConfig, mockServicesConfig)
-
-      appConfig.nextGenerationRatesUrl shouldBe "http://localhost/next-generation-rates"
+      appConfig.nextGenerationRatesUrl shouldBe "http://localhost:1500"
     }
 
-    "retrieve existing config value using getString" in {
-      val mockConfig = mock[Configuration]
-      val mockServicesConfig = mock[ServicesConfig]
-      when(mockConfig.getOptional[String]("some.key")).thenReturn(Some("someValue"))
+    "retrieve addressLookupUrl from ServicesConfig" in {
 
-      val appConfig = new FrontendAppConfig(mockConfig, mockServicesConfig)
+      appConfig.addressLookupUrl shouldBe "http://localhost:9022"
+    }
 
-      appConfig.getString("some.key") shouldBe "someValue"
+    "retrieve centralAuthServerUrl from ServicesConfig" in {
+
+      appConfig.centralAuthServerUrl shouldBe "http://localhost:15000"
+    }
+
+    "retrieve timeToLive from config" in {
+
+      appConfig.timeToLive shouldBe "3"
+    }
+
+    "retrieve allowedUserEmailIds from config" in {
+
+      appConfig.allowedUserEmailIds shouldBe List("user@test.com", "66666666email@email.com", "user3@example.com")
+    }
+
+    "retrieve dashboard from ServicesConfig" in {
+
+      appConfig.dashboard shouldBe "http://localhost:1503"
     }
 
     "throw an exception when config key is missing" in {
-      val mockConfig = mock[Configuration]
-      val mockServicesConfig = mock[ServicesConfig]
-      when(mockConfig.getOptional[String]("missing.key")).thenReturn(None)
-
-      val appConfig = new FrontendAppConfig(mockConfig, mockServicesConfig)
 
       val exception = intercept[RuntimeException] {
         appConfig.getString("missing.key")

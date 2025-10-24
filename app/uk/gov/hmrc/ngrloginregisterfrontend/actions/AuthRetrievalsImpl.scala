@@ -17,11 +17,14 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.actions
 
 import com.google.inject.ImplementedBy
+import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~, Name => authName}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.ngrloginregisterfrontend.models.RatepayerRegistration
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Email, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
@@ -32,7 +35,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRetrievalsImpl @Inject()(
                                val authConnector: AuthConnector,
-                               mcc: MessagesControllerComponents,
+                               appConfig: AppConfig,
+                               mcc: MessagesControllerComponents
                               )(implicit ec: ExecutionContext) extends AuthRetrievals
   with AuthorisedFunctions {
 
@@ -51,17 +55,22 @@ class AuthRetrievalsImpl @Inject()(
 
      authorised(ConfidenceLevel.L250).retrieve(retrievals){
         case credentials ~ Some(nino) ~ confidenceLevel ~ email ~ affinityGroup ~ name =>
-          block(
-            RatepayerRegistrationValuationRequest(
-              request = request,
-              credId = CredId(credentials.map(_.providerId).getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))),
-              ratepayerRegistration = Some(RatepayerRegistration(
-                nino = Some(Nino(nino)),
-                name = None,
-                email = if(email.filter(_.nonEmpty).isEmpty){None}else Some(Email(email.getOrElse("")))
-              ))
+          if ((email.exists(appConfig.allowedUserEmailIds.contains(_)) && !appConfig.publicAccessAllowed) || appConfig.publicAccessAllowed) {
+            block(
+              RatepayerRegistrationValuationRequest(
+                request = request,
+                credId = CredId(credentials.map(_.providerId).getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))),
+                ratepayerRegistration = Some(RatepayerRegistration(
+                  nino = Some(Nino(nino)),
+                  name = None,
+                  email = if(email.filter(_.nonEmpty).isEmpty){None}else Some(Email(email.getOrElse("")))
+                ))
+              )
             )
-          )
+          } else {
+            Future.successful(Redirect(routes.CannotRegisterController.show())) // TODO: Update to 'cannot register' page when the page content is ready
+          }
+
         case _ ~ _ ~ confidenceLevel ~ _ => throw new Exception("confidenceLevel not met")
       }recoverWith {
       case ex: Throwable =>
