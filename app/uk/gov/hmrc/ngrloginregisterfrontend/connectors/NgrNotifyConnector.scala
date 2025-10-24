@@ -16,11 +16,15 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.OK
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import play.api.http.Status.{ACCEPTED, BAD_REQUEST, OK}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.RatepayerRegistration
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
+import java.net.URI
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,9 +33,10 @@ class NgrNotifyConnector @Inject()(
                                                appConfig: AppConfig
                                              )(implicit ec: ExecutionContext) {
 
+  private def uri(path: String) = new URI(s"${appConfig.ngrNotify}/$path")
+
   def isAllowedInPrivateBeta(credId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    val url = url"${appConfig.ngrNotify}/allowed-in-private-beta/$credId"
-    http.get(url)
+    http.get(uri(s"allowed-in-private-beta/$credId").toURL)
       .execute[HttpResponse]
       .map { response =>
         response.status match {
@@ -39,6 +44,18 @@ class NgrNotifyConnector @Inject()(
             (response.json \ "allowed").asOpt[Boolean].getOrElse(false)
           case _ =>
             false
+        }
+      }
+  }
+
+  def registerRatePayer(ratepayerRegistration: RatepayerRegistration)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http.post(uri("register-ratepayer").toURL)
+      .withBody(Json.toJson(ratepayerRegistration))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case ACCEPTED | BAD_REQUEST => response
+          case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
       }
   }
