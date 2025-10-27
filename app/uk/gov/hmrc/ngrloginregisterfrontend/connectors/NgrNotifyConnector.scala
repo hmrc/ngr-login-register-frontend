@@ -49,7 +49,7 @@ class NgrNotifyConnector @Inject()(
   }
 
   def registerRatePayer(ratepayerRegistration: RatepayerRegistration)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    http.post(uri("register-ratepayer").toURL)
+    http.post(uri("ratepayer").toURL)
       .withBody(Json.toJson(ratepayerRegistration))
       .execute[HttpResponse]
       .map { response =>

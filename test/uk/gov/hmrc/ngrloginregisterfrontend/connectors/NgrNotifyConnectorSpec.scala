@@ -85,7 +85,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
     "a valid ratepayer" should {
       "return a successful response" in {
         val successResponse = HttpResponse(status = ACCEPTED, json = Json.obj("status" -> "OK"), headers = Map.empty)
-        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/register-ratepayer")(successResponse)
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(successResponse)
 
         val result: Future[HttpResponse] = connector.registerRatePayer(testRegistrationModel)
         result.futureValue mustBe successResponse
@@ -99,7 +99,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
           json = Json.obj("status" -> "BAD_REQUEST", "error" -> "Missing required field: email"),
           headers = Map.empty
         )
-        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/register-ratepayer")(badRequestResponse)
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(badRequestResponse)
 
         val result: Future[HttpResponse] = connector.registerRatePayer(testRegistrationModel)
         result.futureValue mustBe badRequestResponse
@@ -114,7 +114,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
           headers = Map.empty
         )
 
-        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/register-ratepayer")(unexpectedResponse)
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(unexpectedResponse)
         val result = connector.registerRatePayer(testRegistrationModel)
         val thrown = intercept[Exception] {
           result.futureValue

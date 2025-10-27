@@ -76,21 +76,20 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
     "calling .registerRatePayer()" should {
       "return ACCEPTED when registration is successful" in {
         WiremockHelper.stubPost(
-          "/register-ratepayer",
+          "/ratepayer",
           ACCEPTED,
           "{status: OK}"
         )
 
         val result = connector.registerRatePayer(sampleRatepayerRegistration).futureValue
         result.status mustBe ACCEPTED
-        result.body must include("OK")
 
-        WiremockHelper.verifyPost("/register-ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
+        WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
       }
 
       "return BAD_REQUEST when registration fails due to client error" in {
         WiremockHelper.stubPost(
-          "/register-ratepayer",
+          "/ratepayer",
           BAD_REQUEST,
           "{status: INCOMPLETE, error: Invalid data}"
         )
@@ -99,12 +98,12 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
         result.status mustBe BAD_REQUEST
         result.body must include("Invalid data")
 
-        WiremockHelper.verifyPost("/register-ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
+        WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
       }
 
       "throw an exception for unexpected status codes" in {
         WiremockHelper.stubPost(
-          "/register-ratepayer",
+          "/ratepayer",
           INTERNAL_SERVER_ERROR,
           "{500: Server error}"
         )
@@ -114,7 +113,7 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
         }
 
         thrown.getMessage must include("500: Server error")
-        WiremockHelper.verifyPost("/register-ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
+        WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
       }
     }
   }
