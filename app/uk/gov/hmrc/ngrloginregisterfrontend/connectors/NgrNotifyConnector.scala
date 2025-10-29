@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST, OK}
+import play.api.http.Status.{ACCEPTED, OK}
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.RatepayerRegistration
-import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.net.URI
 import javax.inject.Inject
@@ -54,7 +54,8 @@ class NgrNotifyConnector @Inject()(
       .execute[HttpResponse]
       .map { response =>
         response.status match {
-          case ACCEPTED | BAD_REQUEST => response
+          case ACCEPTED => response
+          case status if status >= 400 && status < 500 => response
           case _ => throw new Exception(s"${response.status}: ${response.body}")
         }
       }

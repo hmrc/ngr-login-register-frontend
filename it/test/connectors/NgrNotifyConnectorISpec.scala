@@ -3,14 +3,10 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock
 import helpers.{IntegrationSpecBase, WiremockHelper}
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.test.Injecting
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NgrNotifyConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
-import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, TRNReferenceNumber, UserType}
 
 class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with Injecting {
 
@@ -19,20 +15,6 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
   override def beforeEach(): Unit = {
     WireMock.reset()
   }
-
-  val sampleRatepayerRegistration: RatepayerRegistration = RatepayerRegistration(
-    userType = Some(UserType.Individual),
-    agentStatus = Some(AgentStatus.Agent),
-    name = Some(Name("Jane Doe")),
-    tradingName = Some(TradingName("Jane's Bakery")),
-    email = Some(Email("jane.doe@example.com")),
-    nino = Some(Nino("AB123456C")),
-    contactNumber = Some(PhoneNumber("07123456789")),
-    secondaryNumber = Some(PhoneNumber("07987654321")),
-    address = Some(Address("1 High Street", None, "London", None, Postcode("SW1A 1AA"))),
-    trnReferenceNumber = Some(TRNReferenceNumber(NINO, "TRN123456")),
-    isRegistered = Some(true)
-  )
 
   "NgrNotifyConnector" when {
 
@@ -78,7 +60,7 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
         WiremockHelper.stubPost(
           "/ratepayer",
           ACCEPTED,
-          "{status: OK}"
+          """{"status": "OK"}"""
         )
 
         val result = connector.registerRatePayer(sampleRatepayerRegistration).futureValue
@@ -87,33 +69,40 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
         WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
       }
 
-      "return BAD_REQUEST when registration fails due to client error" in {
-        WiremockHelper.stubPost(
-          "/ratepayer",
-          BAD_REQUEST,
-          "{status: INCOMPLETE, error: Invalid data}"
-        )
+      val clientErrorCodes = Seq(400, 401, 403, 404, 405, 409, 410, 415, 422, 429)
 
-        val result = connector.registerRatePayer(sampleRatepayerRegistration).futureValue
-        result.status mustBe BAD_REQUEST
-        result.body must include("Invalid data")
+      clientErrorCodes.foreach { statusCode =>
+        s"return $statusCode response without throwing for client error" in {
+          WiremockHelper.stubPost(
+            "/ratepayer",
+            statusCode,
+            s"""{"status": "$statusCode", "error": "Client error"}"""
+          )
 
-        WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
+          val result = connector.registerRatePayer(sampleRatepayerRegistration).futureValue
+          result.status mustBe statusCode
+          result.body must include(s"""{"status": "$statusCode", "error": "Client error"}""")
+
+          WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))}
       }
 
-      "throw an exception for unexpected status codes" in {
-        WiremockHelper.stubPost(
-          "/ratepayer",
-          INTERNAL_SERVER_ERROR,
-          "{500: Server error}"
-        )
+      val serverErrorCodes = Seq(500, 502, 503)
 
-        val thrown = intercept[Exception] {
-          connector.registerRatePayer(sampleRatepayerRegistration).futureValue
+      serverErrorCodes.foreach { statusCode =>
+        s"throw an exception for $statusCode server error" in {
+          WiremockHelper.stubPost(
+            "/ratepayer",
+            statusCode,
+            s"$statusCode: Server error"
+          )
+
+          val thrown = intercept[Exception] {
+            connector.registerRatePayer(sampleRatepayerRegistration).futureValue
+          }
+
+          thrown.getMessage must include(s"$statusCode: Server error")
+          WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
         }
-
-        thrown.getMessage must include("500: Server error")
-        WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
       }
     }
   }
