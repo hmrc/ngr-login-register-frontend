@@ -20,6 +20,7 @@ import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_F
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
+import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 
 import scala.concurrent.Future
 
@@ -87,13 +88,13 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
         val successResponse = HttpResponse(status = ACCEPTED, json = Json.obj("status" -> "OK"), headers = Map.empty)
         setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(successResponse)
 
-        val result: Future[HttpResponse] = connector.registerRatePayer(testRegistrationModel)
-        result.futureValue mustBe successResponse
+        val result: Future[Either[ErrorResponse, HttpResponse]] = connector.registerRatePayer(testRegistrationModel)
+        result.futureValue mustBe Right(successResponse)
       }
     }
 
     "a ratepayer with missing data" should {
-      "return a bad request response" in {
+      "return a bad request response from ngr-notify" in {
         val badRequestResponse = HttpResponse(
           status = BAD_REQUEST,
           json = Json.obj("status" -> "BAD_REQUEST", "error" -> "Missing required field: email"),
@@ -101,25 +102,49 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
         )
         setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(badRequestResponse)
 
-        val result: Future[HttpResponse] = connector.registerRatePayer(testRegistrationModel)
-        result.futureValue mustBe badRequestResponse
+        val result: Future[Either[ErrorResponse, HttpResponse]] = connector.registerRatePayer(testRegistrationModel)
+
+        result.futureValue match {
+          case Left(ErrorResponse(status, body)) =>
+            status mustBe BAD_REQUEST
+            Json.parse(body) mustBe badRequestResponse.json
+          case _ =>
+            fail("Expected Left(ErrorResponse) for bad request")
+        }
       }
     }
 
-    "an unexpected response status" should {
-      "throw an exception with status and body" in {
+    "an unexpected server response from ngr-notify" should {
+      "return an internal server error from ngr-notify" in {
         val unexpectedResponse = HttpResponse(
           status = INTERNAL_SERVER_ERROR,
-          body = "Something went wrong",
+          body = "Server Error",
           headers = Map.empty
         )
 
         setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(unexpectedResponse)
         val result = connector.registerRatePayer(testRegistrationModel)
-        val thrown = intercept[Exception] {
-          result.futureValue
+        result.futureValue match {
+          case Left(ErrorResponse(status, body)) =>
+            status mustBe INTERNAL_SERVER_ERROR
+            body mustBe unexpectedResponse.body
+          case _ =>
+            fail("Expected Left(ErrorResponse) for an internal server error from ngr-notify")
         }
-        thrown.getMessage must include("500: Something went wrong")
+      }
+    }
+
+    "a failed call to ngr-notify ratepayer" should {
+      "generate an internal server error response" in {
+        setupMockHttpV2FailedPost(s"${mockConfig.ngrNotify}/ratepayer")
+        val result = connector.registerRatePayer(testRegistrationModel)
+        result.futureValue match {
+          case Left(ErrorResponse(status, body)) =>
+            status mustBe INTERNAL_SERVER_ERROR
+            body mustBe "Call to ngr-notify ratepayer failed: Request Failed"
+          case _ =>
+            fail("Expected Left(ErrorResponse) for a failed call to ngr-notify ratepayer")
+        }
       }
     }
   }

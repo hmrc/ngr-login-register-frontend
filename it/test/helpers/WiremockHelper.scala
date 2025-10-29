@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import com.github.tomakehurst.wiremock.http.{HttpHeader, HttpHeaders}
+import com.github.tomakehurst.wiremock.http.{Fault, HttpHeader, HttpHeaders}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -218,6 +218,19 @@ object WiremockHelper extends Eventually with IntegrationPatience {
           withBody(responseBody)
       )
     )
+
+  def stubWithFault(method: String, url: String, fault: Fault): StubMapping = {
+    stubFor(mappingBuilder(method, url).willReturn(aResponse().withFault(fault)))
+  }
+
+  private def mappingBuilder(method: String, url: String) = method.toLowerCase match {
+    case "get"    => get(urlEqualTo(url))
+    case "post"   => post(urlEqualTo(url))
+    case "put"    => put(urlEqualTo(url))
+    case "delete" => delete(urlEqualTo(url))
+    case "patch"  => patch(urlEqualTo(url))
+    case _        => throw new IllegalArgumentException(s"Unsupported HTTP method: $method")
+  }
 
   private def toHttpHeaders(toConvert: Map[String, String]): HttpHeaders = {
     val headersList = toConvert.map { case (key, value) =>
