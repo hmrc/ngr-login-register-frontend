@@ -16,10 +16,13 @@
 
 package helpers
 
-import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, LookedUpAddress, LookedUpAddressWrapper, Uprn, Location}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration, TradingName}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.addressLookup.{AddressLookupRequest, Location, LookedUpAddress, LookedUpAddressWrapper, Uprn}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.centralauth.{Enrolment, Identifier, Identity, TokenAttributesResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.cid.{Person, PersonAddress, PersonDetails}
-import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
+import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{Address, Email, Name, Nino, PhoneNumber}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{AgentStatus, TRNReferenceNumber, UserType}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 
 import java.time.LocalDate
 
@@ -212,6 +215,20 @@ trait IntegrationTestData {
     credId = "12345",
     eacdGroupId = Some("12345"),
     caUserId = Some("12345")
+  )
+
+  val sampleRatepayerRegistration: RatepayerRegistration = RatepayerRegistration(
+    userType = Some(UserType.Individual),
+    agentStatus = Some(AgentStatus.Agent),
+    name = Some(Name("Jane Doe")),
+    tradingName = Some(TradingName("Jane's Bakery")),
+    email = Some(Email("jane.doe@example.com")),
+    nino = Some(Nino("AB123456C")),
+    contactNumber = Some(PhoneNumber("07123456789")),
+    secondaryNumber = Some(PhoneNumber("07987654321")),
+    address = Some(Address("1 High Street", None, "London", None, Postcode("SW1A 1AA"))),
+    trnReferenceNumber = Some(TRNReferenceNumber(NINO, "TRN123456")),
+    isRegistered = Some(true)
   )
 
 }
