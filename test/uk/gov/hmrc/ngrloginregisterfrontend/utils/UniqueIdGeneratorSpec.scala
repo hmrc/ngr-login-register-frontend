@@ -38,11 +38,10 @@ class UniqueIdGeneratorSpec extends TestSupport {
 
     "validate good IDs" in {
       val validIds = List(
+        "fdfd-fdfd-dfdf",
         "VDJ4-5NSG-8RHW",
-        "BDJ6-867M-LMNE",
-        "NVJF-5245-BSMV",
-        "bdj6867mlmne",
-        "BDJ6867MLMNE"
+        "BDJ6867MLMNE",
+        "nvjf5245bsmv"
       )
 
       validIds.foreach { id =>
