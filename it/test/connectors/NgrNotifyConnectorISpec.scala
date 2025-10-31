@@ -7,9 +7,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.{ACCEPTED, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.test.Injecting
-import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NgrNotifyConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 
 class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with Injecting {
 
@@ -67,13 +65,7 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
         )
 
         val result = connector.registerRatePayer(sampleRatepayerRegistration).futureValue
-        result match {
-          case Right(HttpResponse(status, body, _)) =>
-            status mustBe ACCEPTED
-            body mustBe """{"status": "OK"}"""
-          case _ =>
-            fail("Expected Right(HttpResponse(status, body, _) for successful request")
-        }
+        result mustBe true
 
         WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
       }
@@ -89,7 +81,7 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
           )
 
           val result = connector.registerRatePayer(sampleRatepayerRegistration).futureValue
-          result mustBe Left(ErrorResponse(statusCode, s"""{"status": "$statusCode", "error": "Client error"}"""))
+          result mustBe false
 
           WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))}
       }
@@ -102,7 +94,7 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
           )
 
           val result = connector.registerRatePayer(sampleRatepayerRegistration).futureValue
-          result mustBe Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Call to ngr-notify ratepayer failed: Connection reset"))
+          result mustBe false
 
           WiremockHelper.verifyPost("/ratepayer", Some(Json.toJson(sampleRatepayerRegistration).toString()))
         }
