@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status
 import play.api.http.Status.{ACCEPTED, OK}
+import play.api.i18n.Lang.logger
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.{ErrorResponse, RatepayerRegistration}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.RatepayerRegistration
 
 import java.net.URI
 import javax.inject.Inject
@@ -50,18 +50,14 @@ class NgrNotifyConnector @Inject()(
   }
 
   def registerRatePayer(ratepayerRegistration: RatepayerRegistration)
-                       (implicit hc: HeaderCarrier): Future[Either[ErrorResponse, HttpResponse]] = {
+                       (implicit hc: HeaderCarrier): Future[Boolean] = {
     http.post(uri("ratepayer").toURL)
       .withBody(Json.toJson(ratepayerRegistration))
       .execute[HttpResponse]
-      .map { response =>
-        response.status match {
-          case ACCEPTED => Right(response)
-          case _ => Left(ErrorResponse(response.status, response.body))
-        }
-      } recover {
-      case ex =>
-        Left(ErrorResponse(Status.INTERNAL_SERVER_ERROR, s"Call to ngr-notify ratepayer failed: ${ex.getMessage}"))
-    }
+      .map(_.status == ACCEPTED)
+      .recover { case ex: Exception =>
+        logger.error(s"Call to ngr-notify ratepayer failed: ${ex.getMessage}")
+        false
+      }
   }
 }

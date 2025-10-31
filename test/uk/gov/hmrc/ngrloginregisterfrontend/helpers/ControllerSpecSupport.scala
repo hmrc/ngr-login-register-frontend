@@ -21,8 +21,8 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.addressLookup.AddressLookupConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{NGRConnector, NgrNotifyConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
@@ -43,6 +43,7 @@ trait ControllerSpecSupport extends TestSupport with TestData {
 
 //  val mockNgrFindAddressRepo: NgrFindAddressRepo = mock[NgrFindAddressRepo]
   val mockNGRConnector: NGRConnector = mock[NGRConnector]
+  val mockNGRNotifyConnector: NgrNotifyConnector = mock[NgrNotifyConnector]
   val mockSessionManager: SessionManager = mock[SessionManager]
   val mockNGRLogger: NGRLogger = mock[NGRLogger]
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
@@ -52,10 +53,11 @@ trait ControllerSpecSupport extends TestSupport with TestData {
 
   def mockRequest(
                    credId: String = "1234",
-                   hasNino: Boolean = true
+                   hasNino: Boolean = true,
+                   rateRegIsMandatory: Boolean = true
                  ): Unit = {
     val testNino = if (hasNino) Some(Nino("AA000003D")) else None
-    val updatedModel = testRegistrationModel.copy(nino = testNino)
+    val updatedModel = if (rateRegIsMandatory) Some(testRegistrationModel.copy(nino = testNino)) else None
     val finalActionBuilder = new ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent] {
       override def invokeBlock[A](
                                    request: Request[A],
@@ -64,7 +66,7 @@ trait ControllerSpecSupport extends TestSupport with TestData {
         val fakeReq = RatepayerRegistrationValuationRequest(
           request = request,
           credId = CredId(credId),
-          ratepayerRegistration = Some(updatedModel)
+          ratepayerRegistration = updatedModel
         )
         block(fakeReq)
       }

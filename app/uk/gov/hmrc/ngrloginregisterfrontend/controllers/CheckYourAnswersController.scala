@@ -17,11 +17,11 @@
 package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{NGRConnector, NgrNotifyConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
@@ -38,9 +38,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            isRegisteredCheck: RegistrationAction,
                                            hasMandotoryDetailsAction: HasMandotoryDetailsAction,
-                                           mongo: RatepayerRegistrationRepo,
+                                           ratepayerRegistrationRepo: RatepayerRegistrationRepo,
                                            authenticate: AuthRetrievals,
                                            ngrConnector: NGRConnector,
+                                           ngrNotifyConnector: NgrNotifyConnector,
                                            mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
@@ -59,19 +60,28 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
   def submit(): Action[AnyContent] =
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       val credId = CredId(request.credId.value)
-      val ratepayerData = request.ratepayerRegistration.map(_.copy(isRegistered = Some(true)))
-      ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(credId, ratepayerData)).flatMap { response =>
-        if (response.status == CREATED) {
-          mongo.deleteRecord(credId).map { _ =>
-            Redirect(routes.RegistrationCompleteController.show(Some("234567")))
-          }.recoverWith { case ex =>
-            Future.failed(new Exception(s"Upsert succeeded, but failed to delete mongo record for $credId", ex))
-          }
-        } else {
-          Future.failed(new Exception("Failed upsert to backend"))
-        }
-      }
+      val ratepayerDataOpt = request.ratepayerRegistration.map(_.copy(isRegistered = Some(true)))
+      submitData(credId, ratepayerDataOpt)
     }
+
+private def submitData(credId: CredId, ratepayerDataOpt: Option[RatepayerRegistration])(implicit request: Request[AnyContent]): Future[Result] = {
+  ratepayerDataOpt match {
+    case Some(ratepayerData) =>
+      for {
+        response <- ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(credId, ratepayerDataOpt))
+        _ <- if (response) Future.unit else Future.failed(new Exception("Failed upsert to backend"))
+        notifySuccess <- ngrNotifyConnector.registerRatePayer(ratepayerData)
+        deleteResult <- if (notifySuccess) ratepayerRegistrationRepo.deleteRecord(credId) else Future.failed(new Exception(s"Failed to send registration for credId $credId"))
+        result <- if (deleteResult) {
+          Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567")))) // TODO replace with actual reference number from response when backend implemented
+        } else {
+          Future.failed(new Exception(s"Failed to delete record for credId $credId"))
+        }
+      } yield result
+    case None =>
+      Future.failed(new Exception("No ratepayer data found in request"))
+  }
+}
 
   private[controllers] def createTRNSummaryRows(ratepayerRegistrationValuation: RatepayerRegistrationValuation)(implicit messages: Messages): SummaryList = {
     def getUrl(linkId: String, messageKey: String): Option[Link] =
