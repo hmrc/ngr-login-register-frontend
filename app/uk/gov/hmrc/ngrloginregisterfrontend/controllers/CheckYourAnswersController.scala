@@ -73,7 +73,7 @@ private def submitData(credId: CredId, ratepayerDataOpt: Option[RatepayerRegistr
         notifySuccess <- ngrNotifyConnector.registerRatePayer(ratepayerData)
         deleteResult <- if (notifySuccess) ratepayerRegistrationRepo.deleteRecord(credId) else Future.failed(new Exception(s"Failed to send registration for credId $credId"))
         result <- if (deleteResult) {
-          Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567")))) // TODO replace with actual reference number from response when backend implemented
+          Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567")))) // TODO NGR-3310 replace with actual reference number from response when backend implemented
         } else {
           Future.failed(new Exception(s"Failed to delete record for credId $credId"))
         }
