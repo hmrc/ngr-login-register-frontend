@@ -24,7 +24,6 @@ import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.Updates.combine
 import org.mongodb.scala.model._
 import play.api.Logging
-import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.ngrloginregisterfrontend.config.FrontendAppConfig
@@ -99,12 +98,11 @@ case class RatepayerRegistrationRepo @Inject()(mongo: MongoComponent,
     ).headOption()
   }
 
-  def deleteRecord(credId: CredId):Future[Result] = {
+  def deleteRecord(credId: CredId): Future[Boolean] = {
     collection.deleteOne(
       equal("credId.value", credId.value)
-    ).toFuture().map(_ => Results.Ok(s"User $credId info dropped from frontend")).recover { case e =>
-      e.printStackTrace()
-      Results.InternalServerError(e.toString)
+    ).toFuture().map(_.wasAcknowledged()).recover { case _ =>
+      false
     }
   }
 

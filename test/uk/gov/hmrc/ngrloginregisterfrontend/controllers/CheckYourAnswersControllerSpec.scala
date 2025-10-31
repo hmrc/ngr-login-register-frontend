@@ -20,10 +20,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
-import play.api.mvc.Results
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
-import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.{ControllerSpecSupport, TestData}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, TRNReferenceNumber}
@@ -43,6 +41,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
     mockRatepayerRegistraionRepo,
     mockAuthJourney,
     mockNGRConnector,
+    mockNGRNotifyConnector,
     mcc)
 
   "Controller" must {
@@ -56,7 +55,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       val ratepayer = RatepayerRegistrationValuation(credId, Some(testRegistrationModel.copy(trnReferenceNumber = None)))
       val summaryList = controller().createTRNSummaryRows(ratepayer)
       summaryList.rows.length shouldBe 1
-      summaryList.rows(0).value.content.toString must include("<a id=\"sautr-linkid\" href=\"/ngr-login-register-frontend/confirm-utr\" class=\"govuk-link\">Provide your UTR</a>")
+      summaryList.rows.head.value.content.toString must include("<a id=\"sautr-linkid\" href=\"/ngr-login-register-frontend/confirm-utr\" class=\"govuk-link\">Provide your UTR</a>")
     }
 
     "Tax reference row will show provide your UTR when referenceType is SAUTR but no value" in {
@@ -64,7 +63,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
       val summaryList = controller().createTRNSummaryRows(ratepayer)
       summaryList.rows.length shouldBe 1
-      summaryList.rows(0).value.content.toString must include("<a id=\"sautr-linkid\" href=\"/ngr-login-register-frontend/confirm-utr\" class=\"govuk-link\">Provide your UTR</a>")
+      summaryList.rows.head.value.content.toString must include("<a id=\"sautr-linkid\" href=\"/ngr-login-register-frontend/confirm-utr\" class=\"govuk-link\">Provide your UTR</a>")
     }
 
     "Tax reference row will show masked SAUTR value when referenceType is SAUTR and value has been provided" in {
@@ -72,7 +71,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
       val summaryList = controller().createTRNSummaryRows(ratepayer)
       summaryList.rows.length shouldBe 1
-      summaryList.rows(0).value.content.toString must include("*****789")
+      summaryList.rows.head.value.content.toString must include("*****789")
     }
 
     "Tax reference row will show masked NINO value when referenceType is NINO and value has been provided" in {
@@ -80,14 +79,14 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       val ratepayer = RatepayerRegistrationValuation(credId, Some(model))
       val summaryList = controller().createTRNSummaryRows(ratepayer)
       summaryList.rows.length shouldBe 1
-      summaryList.rows(0).value.content.toString must include("******56C")
+      summaryList.rows.head.value.content.toString must include("******56C")
     }
 
     "Calling the submit function return a 303 and the correct redirect location" in {
       mockRequest()
-      val httpResponse = HttpResponse(CREATED, "Created Successfully")
-      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(httpResponse))
-      when(mockRatepayerRegistraionRepo.deleteRecord(any())).thenReturn(Future.successful(Results.Ok))
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(true))
+      when(mockNGRNotifyConnector.registerRatePayer(any())(any())).thenReturn(Future.successful(true))
+      when(mockRatepayerRegistraionRepo.deleteRecord(any())).thenReturn(Future.successful(true))
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) shouldBe Some(routes.RegistrationCompleteController.show(Some("234567")).url)
@@ -95,25 +94,46 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
 
     "Calling the submit function return a exception when failing to upsert to backend" in {
       mockRequest()
-      val httpResponse = HttpResponse(INTERNAL_SERVER_ERROR, "Failed upsert to backend")
-      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(httpResponse))
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(false))
+      when(mockNGRNotifyConnector.registerRatePayer(any())(any())).thenReturn(Future.successful(true))
+      when(mockRatepayerRegistraionRepo.deleteRecord(any())).thenReturn(Future.successful(true))
       val exception = intercept[Exception] {
         controller().submit()(authenticatedFakeRequest).futureValue
       }
       exception.getMessage must include("Failed upsert to backend")
     }
 
-    "Calling the submit function return a exception when failing to drop the frontend mongo" in {
+    "Calling the submit function return a exception when failing to registerRatePayer" in {
       mockRequest()
-      val httpResponse = HttpResponse(CREATED, "Created Successfully")
-      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(httpResponse))
-      val mongoFailure = new RuntimeException("mongo delete failed")
-      when(mockRatepayerRegistraionRepo.deleteRecord(eqTo(credId)))
-        .thenReturn(Future.failed(mongoFailure))
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(true))
+      when(mockNGRNotifyConnector.registerRatePayer(any())(any())).thenReturn(Future.successful(false))
+      when(mockRatepayerRegistraionRepo.deleteRecord(any())).thenReturn(Future.successful(true))
       val exception = intercept[Exception] {
         controller().submit()(authenticatedFakeRequest).futureValue
       }
-      exception.getMessage must include("Upsert succeeded, but failed to delete mongo record for")
+      exception.getMessage must include("Failed to send registration for credId CredId(1234).")
+    }
+
+    "Calling the submit function return a exception when failing to drop the frontend mongo" in {
+      mockRequest()
+      when(mockNGRConnector.upsertRatepayer(any())(any())).thenReturn(Future.successful(true))
+      when(mockNGRNotifyConnector.registerRatePayer(any())(any())).thenReturn(Future.successful(true))
+      val mongoFailure = new RuntimeException("mongo delete failed")
+      when(mockRatepayerRegistraionRepo.deleteRecord(eqTo(credId)))
+        .thenReturn(Future.successful(false))
+
+      val exception = intercept[Exception] {
+        controller().submit()(authenticatedFakeRequest).futureValue
+      }
+      exception.getMessage must include("Failed to delete record for credId CredId(1234).")
+    }
+
+    "Calling the submit function return a exception when no ratepayer data found" in {
+      mockRequest(rateRegIsMandatory = false)
+      val exception = intercept[Exception] {
+        controller().submit()(authenticatedFakeRequest).futureValue
+      }
+      exception.getMessage must include("No ratepayer data found in request")
     }
   }
 }

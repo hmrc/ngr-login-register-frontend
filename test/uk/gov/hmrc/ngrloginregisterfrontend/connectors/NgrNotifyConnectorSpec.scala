@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.connectors
 
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockHttpV2
-import uk.gov.hmrc.ngrloginregisterfrontend.models.ErrorResponse
 
 import scala.concurrent.Future
 
@@ -88,8 +87,8 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
         val successResponse = HttpResponse(status = ACCEPTED, json = Json.obj("status" -> "OK"), headers = Map.empty)
         setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(successResponse)
 
-        val result: Future[Either[ErrorResponse, HttpResponse]] = connector.registerRatePayer(testRegistrationModel)
-        result.futureValue mustBe Right(successResponse)
+        val result: Future[Boolean] = connector.registerRatePayer(testRegistrationModel)
+        result.futureValue mustBe true
       }
     }
 
@@ -102,15 +101,9 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
         )
         setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(badRequestResponse)
 
-        val result: Future[Either[ErrorResponse, HttpResponse]] = connector.registerRatePayer(testRegistrationModel)
+        val result: Future[Boolean] = connector.registerRatePayer(testRegistrationModel)
 
-        result.futureValue match {
-          case Left(ErrorResponse(status, body)) =>
-            status mustBe BAD_REQUEST
-            Json.parse(body) mustBe badRequestResponse.json
-          case _ =>
-            fail("Expected Left(ErrorResponse) for bad request")
-        }
+        result.futureValue mustBe false
       }
     }
 
@@ -124,13 +117,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
 
         setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(unexpectedResponse)
         val result = connector.registerRatePayer(testRegistrationModel)
-        result.futureValue match {
-          case Left(ErrorResponse(status, body)) =>
-            status mustBe INTERNAL_SERVER_ERROR
-            body mustBe unexpectedResponse.body
-          case _ =>
-            fail("Expected Left(ErrorResponse) for an internal server error from ngr-notify")
-        }
+        result.futureValue mustBe false
       }
     }
 
@@ -138,13 +125,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
       "generate an internal server error response" in {
         setupMockHttpV2FailedPost(s"${mockConfig.ngrNotify}/ratepayer")
         val result = connector.registerRatePayer(testRegistrationModel)
-        result.futureValue match {
-          case Left(ErrorResponse(status, body)) =>
-            status mustBe INTERNAL_SERVER_ERROR
-            body mustBe "Call to ngr-notify ratepayer failed: Request Failed"
-          case _ =>
-            fail("Expected Left(ErrorResponse) for a failed call to ngr-notify ratepayer")
-        }
+        result.futureValue mustBe false
       }
     }
   }

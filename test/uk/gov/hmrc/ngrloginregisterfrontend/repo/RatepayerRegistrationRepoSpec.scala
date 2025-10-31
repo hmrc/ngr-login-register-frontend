@@ -25,8 +25,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.TR
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.UserType.Individual
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{RatepayerRegistrationValuation, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{Postcode, RatepayerRegistration, TradingName}
-import play.api.test.Helpers.{defaultAwaitTimeout, status}
-import play.api.http.Status.OK
 
 
 class RatepayerRegistrationRepoSpec extends TestSupport
@@ -217,7 +215,7 @@ class RatepayerRegistrationRepoSpec extends TestSupport
         check.get.ratepayerRegistration.get shouldBe ratepayerRegistration
 
         val drop = repository.deleteRecord(credId)
-        status(drop) shouldBe OK
+        await(drop) shouldBe true
       }
 
       "credId doesn't exist in mongoDB" in {

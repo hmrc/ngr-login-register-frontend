@@ -34,26 +34,24 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
   val trn: TRNReferenceNumber = TRNReferenceNumber(TRN, "1234")
 
     "upsertRatepayer" when {
-      "return HttpResponse when the response is 201 CREATED" in {
+      "return true when the response is 201 CREATED" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration()
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
         val response: HttpResponse = HttpResponse(201, "Created")
         setupMockHttpV2Post(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/upsert-ratepayer")(response)
-        val result: Future[HttpResponse] = ngrConnector.upsertRatepayer(model)
-        result.futureValue.status mustBe 201
+        val result= ngrConnector.upsertRatepayer(model)
+        result.futureValue mustBe true
       }
 
-      "throw an exception when response is not 201" in {
+      "return false when response is not 201" in {
         val ratepayer: RatepayerRegistration = RatepayerRegistration()
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
         val response: HttpResponse = HttpResponse(400, "Bad Request")
 
         setupMockHttpV2Post(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/upsert-ratepayer")(response)
 
-        val exception = intercept[Exception] {
-          ngrConnector.upsertRatepayer(model).futureValue
-        }
-        exception.getMessage must include("400: Bad Request")
+        val result= ngrConnector.upsertRatepayer(model)
+        result.futureValue mustBe false
       }
 
       "propagate exception when the request fails" in {
@@ -61,10 +59,8 @@ class NGRConnectorSpec extends MockHttpV2 with TestData {
         val model: RatepayerRegistrationValuation = RatepayerRegistrationValuation(credId, Some(ratepayer))
 
         setupMockHttpV2FailedPost(s"${mockConfig.nextGenerationRatesUrl}/next-generation-rates/upsert-ratepayer")
-        val exception = intercept[RuntimeException] {
-          ngrConnector.upsertRatepayer(model).futureValue
-        }
-        exception.getMessage must include("Request Failed")
+        val result = ngrConnector.upsertRatepayer(model)
+        result.futureValue mustBe false
       }
     }
 
