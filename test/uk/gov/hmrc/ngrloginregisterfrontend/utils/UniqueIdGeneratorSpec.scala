@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.ngrloginregisterfrontend.utils
 
-import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class UniqueIdGeneratorSpec extends TestSupport {
+class UniqueIdGeneratorSpec extends AnyFreeSpec with Matchers {
 
   private val allowedChars = UniqueIdGenerator.allowedChars
 
-  "UniqueIdGenerator" must {
+  "UniqueIdGenerator" - {
 
     "generate a 12-char ID with 2 hyphens in correct format" in {
       val id = UniqueIdGenerator.generateId
