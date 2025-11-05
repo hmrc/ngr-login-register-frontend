@@ -37,19 +37,16 @@ class NGRConnector @Inject()(http: HttpClientV2,
 
   private def url(path: String): URL = url"${appConfig.nextGenerationRatesUrl}/next-generation-rates/$path"
 
-  def upsertRatepayer(model: RatepayerRegistrationValuation)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def upsertRatepayer(model: RatepayerRegistrationValuation)(implicit hc: HeaderCarrier): Future[Boolean] = {
     http.post(url("upsert-ratepayer"))
       .withBody(Json.toJson(model))
       .execute[HttpResponse]
-      .map { response =>
-        logger.info("Upsert Ratepayer" + model)
-        response.status match {
-          case CREATED => response
-          case _ => throw new Exception(s"${response.status}: ${response.body}")
-        }
+      .map(_.status == CREATED)
+      .recover { case ex: Exception =>
+          logger.error(s"Upsert Ratepayer exception: ${ex.getMessage}")
+        false
       }
   }
-
 
   def getRatepayer(credId: CredId)(implicit hc: HeaderCarrier): Future[Option[RatepayerRegistrationValuation]] = {
     implicit val rds: HttpReads[RatepayerRegistrationValuation] = readFromJson
