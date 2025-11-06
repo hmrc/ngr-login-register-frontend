@@ -32,7 +32,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
     "a valid and 'allowed'=true credId" should {
       "return true" in {
         val successResponse = HttpResponse(status = OK, json = Json.obj("allowed" -> true), headers = Map.empty)
-        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/allowed-in-private-beta/${credId.value}")(successResponse)
+        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/ngr-notify/allowed-in-private-beta/${credId.value}")(successResponse)
 
         val result: Future[Boolean] = connector.isAllowedInPrivateBeta(credId.value)
         result.futureValue mustBe true
@@ -42,7 +42,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
     "a valid and 'allowed'=false credId " should {
       "return false" in {
         val successResponse = HttpResponse(status = OK, json = Json.obj("allowed" -> false), headers = Map.empty)
-        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/allowed-in-private-beta/${credId.value}")(successResponse)
+        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/ngr-notify/allowed-in-private-beta/${credId.value}")(successResponse)
 
         val result: Future[Boolean] = connector.isAllowedInPrivateBeta(credId.value)
         result.futureValue mustBe false
@@ -52,7 +52,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
     "json missing 'allowed' filed" should {
       "return false" in {
         val successResponse = HttpResponse(status = OK, json = Json.obj(), headers = Map.empty)
-        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/allowed-in-private-beta/${credId.value}")(successResponse)
+        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/ngr-notify/allowed-in-private-beta/${credId.value}")(successResponse)
 
         val result: Future[Boolean] = connector.isAllowedInPrivateBeta(credId.value)
         result.futureValue mustBe false
@@ -62,7 +62,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
     "a 400-499 response is returned" should {
       "return false" in {
         val errorResponse = HttpResponse(status = NOT_FOUND, """CredId not found""", headers = Map.empty)
-        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/allowed-in-private-beta/${credId.value}")(errorResponse)
+        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/ngr-notify/allowed-in-private-beta/${credId.value}")(errorResponse)
 
         val result: Future[Boolean] = connector.isAllowedInPrivateBeta(credId.value)
         result.futureValue mustBe false
@@ -72,7 +72,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
     "a 500-599 response is returned" should {
       "return false" in {
         val errorResponse = HttpResponse(status = INTERNAL_SERVER_ERROR, body = "Server error", headers = Map.empty)
-        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/allowed-in-private-beta/${credId.value}")(errorResponse)
+        setupMockHttpV2Get(s"${mockConfig.ngrNotify}/ngr-notify/allowed-in-private-beta/${credId.value}")(errorResponse)
 
         val result: Future[Boolean] = connector.isAllowedInPrivateBeta(credId.value)
         result.futureValue mustBe false
@@ -85,7 +85,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
     "a valid ratepayer" should {
       "return a successful response" in {
         val successResponse = HttpResponse(status = ACCEPTED, json = Json.obj("status" -> "OK"), headers = Map.empty)
-        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(successResponse)
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ngr-notify/register-ratepayer")(successResponse)
 
         val result: Future[Boolean] = connector.registerRatePayer(testRegistrationModel)
         result.futureValue mustBe true
@@ -99,7 +99,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
           json = Json.obj("status" -> "BAD_REQUEST", "error" -> "Missing required field: email"),
           headers = Map.empty
         )
-        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(badRequestResponse)
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ngr-notify/register-ratepayer")(badRequestResponse)
 
         val result: Future[Boolean] = connector.registerRatePayer(testRegistrationModel)
 
@@ -115,7 +115,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
           headers = Map.empty
         )
 
-        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ratepayer")(unexpectedResponse)
+        setupMockHttpV2Post(s"${mockConfig.ngrNotify}/ngr-notify/register-ratepayer")(unexpectedResponse)
         val result = connector.registerRatePayer(testRegistrationModel)
         result.futureValue mustBe false
       }
@@ -123,7 +123,7 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
 
     "a failed call to ngr-notify ratepayer" should {
       "generate an internal server error response" in {
-        setupMockHttpV2FailedPost(s"${mockConfig.ngrNotify}/ratepayer")
+        setupMockHttpV2FailedPost(s"${mockConfig.ngrNotify}/ngr-notify/register-ratepayer")
         val result = connector.registerRatePayer(testRegistrationModel)
         result.futureValue mustBe false
       }

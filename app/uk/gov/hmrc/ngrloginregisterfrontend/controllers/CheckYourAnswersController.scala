@@ -70,7 +70,7 @@ private def submitData(credId: CredId, ratepayerDataOpt: Option[RatepayerRegistr
       for {
         response <- ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(credId, ratepayerDataOpt))
         _ <- if (response) Future.unit else Future.failed(new Exception("Failed upsert to backend"))
-        notifySuccess <- ngrNotifyConnector.registerRatePayer(ratepayerData)
+        notifySuccess <- ngrNotifyConnector.registerRatePayer(ratepayerData.copy(ratepayerCredId = Some(credId.value)))
         deleteResult <- if (notifySuccess) ratepayerRegistrationRepo.deleteRecord(credId) else Future.failed(new Exception(s"Failed to send registration for credId $credId"))
         result <- if (deleteResult) {
           Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567")))) // TODO NGR-3310 replace with actual reference number from response when backend implemented

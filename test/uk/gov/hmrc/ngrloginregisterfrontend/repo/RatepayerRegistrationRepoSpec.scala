@@ -36,11 +36,11 @@ class RatepayerRegistrationRepoSpec extends TestSupport
     await(repository.ensureIndexes())
   }
 
-  private val ratepayerRegistration: RatepayerRegistration = RatepayerRegistration(Some(Individual), Some(Autonomous), Some(Name("Jake")),
+  private val ratepayerRegistration: RatepayerRegistration = RatepayerRegistration( None ,Some(Individual), Some(Autonomous), Some(Name("Jake")),
     Some(TradingName("Jake Ltd.")), Some(Email("jake.r@jakeltd.com")), Some(Nino("AA000003D")), Some(PhoneNumber("07702467839")), None,
     Some(Address("Address Line 1", None, "Cambridge", None, Postcode("CB2 1HW"))), None, Some(false))
 
-  private val ratepayerRegistration2: RatepayerRegistration = RatepayerRegistration(Some(Individual), Some(Autonomous), Some(Name("Anna")),
+  private val ratepayerRegistration2: RatepayerRegistration = RatepayerRegistration(None, Some(Individual), Some(Autonomous), Some(Name("Anna")),
     Some(TradingName("Anna Ltd.")), Some(Email("Anna.s@annaltd.com")), Some(Nino("AA000003D")), Some(PhoneNumber("08707632451")), None,
     Some(Address("Address Line 1", None, "Chester", None, Postcode("CH2 7RH"))), None, Some(false))
 
