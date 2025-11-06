@@ -34,7 +34,7 @@ class NgrNotifyConnector @Inject()(
                                                appConfig: AppConfig
                                              )(implicit ec: ExecutionContext) {
 
-  private def uri(path: String) = new URI(s"${appConfig.ngrNotify}/$path")
+  private def uri(path: String) = new URI(s"${appConfig.ngrNotify}/ngr-notify/$path")
 
   def isAllowedInPrivateBeta(credId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
     http.get(uri(s"allowed-in-private-beta/$credId").toURL)
@@ -51,7 +51,7 @@ class NgrNotifyConnector @Inject()(
 
   def registerRatePayer(ratepayerRegistration: RatepayerRegistration)
                        (implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.post(uri("ratepayer").toURL)
+    http.post(uri("register-ratepayer").toURL)
       .withBody(Json.toJson(ratepayerRegistration))
       .execute[HttpResponse]
       .map(_.status == ACCEPTED)
