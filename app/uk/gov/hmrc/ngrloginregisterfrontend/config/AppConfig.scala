@@ -18,12 +18,14 @@ package uk.gov.hmrc.ngrloginregisterfrontend.config
 
 import play.api.Configuration
 import uk.gov.hmrc.ngrloginregisterfrontend.config.features.Features
+import uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
 
 trait AppConfig {
   val features: Features
+  val logoutUrl:String
   val gtmContainer: String
   val citizenDetailsUrl: String
   val nextGenerationRatesUrl: String
@@ -33,6 +35,9 @@ trait AppConfig {
   val timeToLive: String
   val dashboard: String
   val ngrNotify: String
+  val timeout: Int
+  val countdown: Int
+  val feedbackFrontendUrl:String
 }
 
 @Singleton
@@ -46,6 +51,13 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   override val centralAuthServerUrl: String = sc.baseUrl("centralised-authorisation-server")
   override val dashboard: String = sc.baseUrl("ngr-dashboard-frontend")
   override val ngrNotify: String = sc.baseUrl("ngr-notify")
+  private lazy val basGatewayHost = getString("microservice.services.bas-gateway-frontend.host")
+  lazy val logoutUrl: String = s"$basGatewayHost/bas-gateway/sign-out-without-state?continue=$registrationBeforeYouGoUrl"
+  private lazy val envHost = getString("environment.host")
+  private lazy val registrationBeforeYouGoUrl: String = s"$envHost${routes.BeforeYouGoController.show.url}"
+  private lazy val feedbackFrontendHost = getString("microservice.services.feedback-survey-frontend.host")
+  lazy val feedbackFrontendUrl: String = s"$feedbackFrontendHost/feedback/Next-Generation-Rates"
+
 
   def getString(key: String): String =
     config.getOptional[String](key)
@@ -54,4 +66,6 @@ class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) ext
   private def throwConfigNotFoundError(key: String): String =
     throw new RuntimeException(s"Could not find config key '$key'")
 
+  override val timeout: Int = config.get[Int]("timeout-dialog.timeout")
+  override val countdown: Int = config.get[Int]("timeout-dialog.countdown")
 }

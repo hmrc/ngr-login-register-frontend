@@ -86,6 +86,8 @@ case class RatepayerRegistrationRepo @Inject()(mongo: MongoComponent,
     }
   }
 
+
+
   def findAndUpdateByCredId(credId: CredId, updates: Bson*): Future[Option[RatepayerRegistrationValuation]] = {
     collection.findOneAndUpdate(filterByCredId(credId),
         combine(updates :+ Updates.set("createdAt", Instant.now()): _*),
@@ -146,4 +148,16 @@ case class RatepayerRegistrationRepo @Inject()(mongo: MongoComponent,
   def registerAccount(credId: CredId): Future[Option[RatepayerRegistrationValuation]] = {
     findAndUpdateByCredId(credId, Updates.set("ratepayerRegistration.isRegistered", true))
   }
+
+
+  def keepAlive(credId: CredId): Future[Boolean] = {
+    collection
+      .updateOne(
+        filter = equal("credId.value", credId.value),
+        update = Updates.set("createdAt", Instant.now())
+      )
+      .toFuture()
+      .map(_.wasAcknowledged())
+  }
+
 }
