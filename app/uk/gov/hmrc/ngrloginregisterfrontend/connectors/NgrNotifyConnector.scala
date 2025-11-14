@@ -30,34 +30,41 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class NgrNotifyConnector @Inject()(
-                                               http: HttpClientV2,
-                                               appConfig: AppConfig
-                                             )(implicit ec: ExecutionContext) {
+                                    http: HttpClientV2,
+                                    appConfig: AppConfig
+                                  )(implicit ec: ExecutionContext) {
 
   private def uri(path: String) = new URI(s"${appConfig.ngrNotify}/ngr-notify/$path")
 
   def isAllowedInPrivateBeta(credId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.get(uri(s"allowed-in-private-beta/$credId").toURL)
-      .execute[HttpResponse]
-      .map { response =>
-        response.status match {
-          case OK =>
-            (response.json \ "allowed").asOpt[Boolean].getOrElse(false)
-          case _ =>
-            false
+    if (appConfig.features.bridgeEndpointEnabled()) {
+      http.get(uri(s"allowed-in-private-beta/$credId").toURL)
+        .execute[HttpResponse]
+        .map { response =>
+          response.status match {
+            case OK =>
+              (response.json \ "allowed").asOpt[Boolean].getOrElse(false)
+            case _ =>
+              false
+          }
         }
-      }
+    } else {
+      Future.successful(true)
+    }
   }
 
   def registerRatePayer(ratepayerRegistration: RatepayerRegistration)
                        (implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.post(uri("register-ratepayer").toURL)
-      .withBody(Json.toJson(ratepayerRegistration))
-      .execute[HttpResponse]
-      .map(_.status == ACCEPTED)
-      .recover { case ex: Exception =>
-        logger.error(s"Call to ngr-notify ratepayer failed: ${ex.getMessage}")
-        false
-      }
+    if (appConfig.features.bridgeEndpointEnabled()) {
+      http.post(uri("register-ratepayer").toURL)
+        .withBody(Json.toJson(ratepayerRegistration))
+        .execute[HttpResponse]
+        .map(_.status == ACCEPTED)
+        .recover { case ex: Exception =>
+          logger.error(s"Call to ngr-notify ratepayer failed: ${ex.getMessage}")
+          false
+        }
+    } else {
+      Future.successful(true)}
   }
 }

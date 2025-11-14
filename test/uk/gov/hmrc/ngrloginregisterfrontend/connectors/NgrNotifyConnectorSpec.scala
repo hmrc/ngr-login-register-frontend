@@ -27,6 +27,11 @@ class NgrNotifyConnectorSpec extends MockHttpV2 {
 
   val connector = new NgrNotifyConnector(mockHttpClientV2, mockConfig)
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    mockConfig.features.bridgeEndpointEnabled(true)
+  }
+
   "Calling the private beta access endpoint" when {
 
     "a valid and 'allowed'=true credId" should {
