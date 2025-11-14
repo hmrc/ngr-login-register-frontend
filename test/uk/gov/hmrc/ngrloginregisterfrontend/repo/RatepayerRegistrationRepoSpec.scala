@@ -224,5 +224,18 @@ class RatepayerRegistrationRepoSpec extends TestSupport
         actual shouldBe None
       }
     }
+
+    "keep alive ratepayerRegistration" when {
+      "existing credId in mongoDB" in {
+        val isSuccessful = await(repository.upsertRatepayerRegistration(ratepayerRegistrationValuation))
+        isSuccessful shouldBe true
+
+        val check = await(repository.findByCredId(credId))
+        check.isDefined shouldBe true
+
+        val keepAlive = repository.keepAlive(credId)
+        await(keepAlive) shouldBe true
+      }
+    }
   }
 }

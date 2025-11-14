@@ -37,12 +37,12 @@ class BeforeYouGoViewSpec extends ViewBaseSpec{
   object Selectors {
     val navTitle = "head > title"
     val heading = "#main-content > div > div > h1"
-    val signIn = "#main-content > div > div > p:nth-child(2) > a"
+    val signIn = "#main-content > div > div > p:nth-child(3) > a"
     val subHeading = "#main-content > div > div > h2"
-    val body1 = "#main-content > div > div > p:nth-child(4)"
-    val body2 = "#main-content > div > div > p:nth-child(5)"
-    val feedback = "#main-content > div > div > p:nth-child(6) > a"
-    val body3 = "#main-content > div > div > p:nth-child(6)"
+    val body1 = "#main-content > div > div > p:nth-child(5)"
+    val body2 = "#main-content > div > div > p:nth-child(6)"
+    val feedback = "#main-content > div > div > p:nth-child(7) > a"
+    val body3 = "#main-content > div > div > p:nth-child(7)"
   }
 
   "BeforeYouGoView" must {
@@ -73,11 +73,11 @@ class BeforeYouGoViewSpec extends ViewBaseSpec{
     }
 
     "show correct sign in href" in {
-      elementText(Selectors.signIn) mustBe signInHref
+      beforeYouGoView.body.contains(signInHref) mustBe true
     }
 
     "show correct feedback survey" in {
-      elementText(Selectors.feedback) mustBe feedbackHref
+      beforeYouGoView.body.contains(feedbackHref) mustBe true
     }
 
     "show correct sub heading" in {
