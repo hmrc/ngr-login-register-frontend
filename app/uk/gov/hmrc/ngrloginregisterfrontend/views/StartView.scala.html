@@ -22,7 +22,7 @@
 
 @()(implicit messages: Messages, appConfig: AppConfig, request: RequestHeader)
 
-@layout(pageTitle = Some(messages("startView.heading")), showBackLink = false) {
+@layout(pageTitle = Some(messages("startView.heading")), showBackLink = false, timeout = false) {
 
 @formHelper(action = uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.StartController.submit, Symbol("autoComplete") -> "off") {
 

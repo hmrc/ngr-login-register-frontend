@@ -34,5 +34,9 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig {
   override val allowedUserEmailIds: Seq[String] = Seq("user@test.com")
   val dashboard: String = "https://localhost:1503"
   val ngrNotify: String = "https://localhost:1515"
+  override val logoutUrl: String = "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:1502/ngr-login-register-frontend/beforeYouGo"
+  override val timeout: Int = 900
+  override val countdown: Int = 200
+  override val feedbackFrontendUrl: String = "http://localhost:9514/feedback/NGR-Dashboard"
   override val publicAccessAllowed: Boolean = false
 }

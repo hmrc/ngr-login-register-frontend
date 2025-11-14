@@ -155,3 +155,17 @@ registrationComplete.h1       = What happens next
 registrationComplete.p5       = Use your Government Gateway ID details next time you sign in to your manage your business rates valuation account
 registrationComplete.button   = Go to account home
 registrationComplete.printLink = Print this page
+
+timeout.title = You’re about to be signed out
+timeout.message = Your session is about to expire due to inactivity.
+timeout.keepAlive = Stay Signed In
+timeout.signOut = Sign Out Now
+
+#BeforeYouGo
+beforeYouGo.title=You have signed out
+beforeYouGo.signin=Sign in to the service
+beforeYouGo.h2=Before you go
+beforeYouGo.p1=We will save your answers for 28 days.
+beforeYouGo.p2=Your feedback helps us make our service better.
+beforeYouGo.feedback=Take a short survey
+beforeYouGo.p3= to share your feedback on this service.
