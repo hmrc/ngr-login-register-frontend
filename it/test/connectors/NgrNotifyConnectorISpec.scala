@@ -27,9 +27,9 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NgrNotifyConnector
 
 class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with Injecting {
 
+
   lazy val connector: NgrNotifyConnector = app.injector.instanceOf[NgrNotifyConnector]
 
-  sys.props += "features.bridgeEnabled" -> "true"
 
   override def beforeEach(): Unit = {
     WireMock.reset()
