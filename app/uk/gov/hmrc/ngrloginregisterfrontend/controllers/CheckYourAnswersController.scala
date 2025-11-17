@@ -27,7 +27,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models._
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
-import uk.gov.hmrc.ngrloginregisterfrontend.utils.{StringHelper, SummaryListHelper}
+import uk.gov.hmrc.ngrloginregisterfrontend.utils.{StringHelper, SummaryListHelper, UniqueIdGenerator}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckYourAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -70,10 +70,11 @@ private def submitData(credId: CredId, ratepayerDataOpt: Option[RatepayerRegistr
       for {
         response <- ngrConnector.upsertRatepayer(RatepayerRegistrationValuation(credId, ratepayerDataOpt))
         _ <- if (response) Future.unit else Future.failed(new Exception("Failed upsert to backend"))
-        notifySuccess <- ngrNotifyConnector.registerRatePayer(ratepayerData.copy(ratepayerCredId = Some(credId.value)))
+        updatedRatepayerData = ratepayerData.copy(ratepayerCredId = Some(credId.value), recoveryId = Some(UniqueIdGenerator.generateId))
+        notifySuccess <- ngrNotifyConnector.registerRatePayer(updatedRatepayerData)
         deleteResult <- if (notifySuccess) ratepayerRegistrationRepo.deleteRecord(credId) else Future.failed(new Exception(s"Failed to send registration for credId $credId"))
         result <- if (deleteResult) {
-          Future.successful(Redirect(routes.RegistrationCompleteController.show(Some("234567")))) // TODO NGR-3310 replace with actual reference number from response when backend implemented
+          Future.successful(Redirect(routes.RegistrationCompleteController.show(updatedRatepayerData.recoveryId)))
         } else {
           Future.failed(new Exception(s"Failed to delete record for credId $credId"))
         }

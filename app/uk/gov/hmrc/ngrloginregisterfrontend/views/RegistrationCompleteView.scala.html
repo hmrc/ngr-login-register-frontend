@@ -30,7 +30,7 @@
 @(recoveryId: Option[String], email: String)(implicit request: RequestHeader, messages: Messages,  appConfig: AppConfig)
 
 @panelContent = {
-    @Messages("registrationComplete.p1") @recoveryId.getOrElse("TestRecoveryId")
+    @Messages("registrationComplete.p1") @recoveryId.getOrElse("")
 }
 
 @layout(pageTitle = Some(messages("registrationComplete.title")), showBackLink = false) {
