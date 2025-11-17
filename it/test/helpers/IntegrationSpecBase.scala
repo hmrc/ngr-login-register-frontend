@@ -32,7 +32,7 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
   val mockPort: String = WiremockHelper.wiremockPort.toString
   val mockUrl: String = s"http://$mockHost:$mockPort"
 
-  def config: Map[String, Object] = Map(
+  def config: Map[String, Any] = Map(
     "play.filters.disabled" -> Seq("uk.gov.hmrc.play.bootstrap.frontend.filters.SessionIdFilter"),
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.auth.host" -> mockHost,
@@ -44,7 +44,8 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
     "microservice.services.centralised-authorisation-server.host" -> mockHost,
     "microservice.services.centralised-authorisation-server.port" -> mockPort,
     "microservice.services.ngr-notify.host" -> mockHost,
-    "microservice.services.ngr-notify.port" -> mockPort
+    "microservice.services.ngr-notify.port" -> mockPort,
+    "features.bridgeEnabled" -> true
   )
 
   override implicit lazy val app: Application =
