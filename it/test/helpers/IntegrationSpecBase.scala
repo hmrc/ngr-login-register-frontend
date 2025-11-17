@@ -45,7 +45,7 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
     "microservice.services.centralised-authorisation-server.port" -> mockPort,
     "microservice.services.ngr-notify.host" -> mockHost,
     "microservice.services.ngr-notify.port" -> mockPort,
-    "features.bridgeEnabled" -> true
+    "features.bridgeEnabled" -> java.lang.Boolean.TRUE
   )
 
   override implicit lazy val app: Application =
