@@ -31,7 +31,8 @@ final case class RatepayerRegistration(ratepayerCredId: Option[String] = None,
                                        secondaryNumber: Option[PhoneNumber] = None,
                                        address: Option[Address] = None,
                                        trnReferenceNumber: Option[TRNReferenceNumber] = None,
-                                       isRegistered: Option[Boolean] = Some(false)
+                                       isRegistered: Option[Boolean] = Some(false),
+                                       recoveryId: Option[String] = None
                                 )
 
 

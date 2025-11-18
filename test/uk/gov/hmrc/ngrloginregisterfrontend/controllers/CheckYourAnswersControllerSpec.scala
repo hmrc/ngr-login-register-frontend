@@ -89,7 +89,11 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
       when(mockRatepayerRegistraionRepo.deleteRecord(any())).thenReturn(Future.successful(true))
       val result = controller().submit()(authenticatedFakeRequest)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(routes.RegistrationCompleteController.show(Some("234567")).url)
+      val locationOpt = redirectLocation(result)
+      val location = locationOpt.get
+      location must startWith("/ngr-login-register-frontend/registration-complete?recoveryId=")
+      val recoveryId = location.split("recoveryId=").last
+      recoveryId must fullyMatch regex """^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$"""
     }
 
     "Calling the submit function return a exception when failing to upsert to backend" in {
