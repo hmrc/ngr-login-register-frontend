@@ -49,7 +49,7 @@ class AuthRetrievalsImpl @Inject()(
       Retrievals.affinityGroup and
       Retrievals.name
 
-     authorised(ConfidenceLevel.L250).retrieve(retrievals){
+    authorised(ConfidenceLevel.L250).retrieve(retrievals){
         case credentials ~ Some(nino) ~ confidenceLevel ~ email ~ affinityGroup ~ name =>
           block(
             RatepayerRegistrationValuationRequest(
