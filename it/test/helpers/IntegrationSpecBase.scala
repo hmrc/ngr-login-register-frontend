@@ -54,7 +54,7 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
     "microservice.services.ngr-notify.host" -> mockHost,
     "microservice.services.ngr-notify.port" -> mockPort,
     "features.bridgeEnabled" -> true,
-    "allowedUsers.emailIds.0" ->  "test@test.co.uk"
+    "allowedUsers.emailIds.0" -> "test@test.co.uk"
   )
 
   lazy val client: WSClient = app.injector.instanceOf[WSClient]
