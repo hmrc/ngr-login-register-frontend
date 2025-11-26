@@ -53,6 +53,8 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
     "microservice.services.centralised-authorisation-server.port" -> mockPort,
     "microservice.services.ngr-notify.host" -> mockHost,
     "microservice.services.ngr-notify.port" -> mockPort,
+    "microservice.services.next-generation-rates.host" -> mockHost,
+    "microservice.services.next-generation-rates.port" -> mockPort,
     "features.bridgeEnabled" -> true,
     "allowedUsers.emailIds.0" -> "test@test.co.uk"
   )

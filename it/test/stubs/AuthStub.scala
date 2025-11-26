@@ -43,16 +43,6 @@ object AuthStub {
       |  ]
       |}""".stripMargin
 
-  private val authorisedWithInsufficientConfidenceLevel: String =
-    """{
-      |  "authorise": [
-      |    {
-      |      "confidenceLevel": 200
-      |    }
-      |  ]
-      |}""".stripMargin
-
-
 
   def authorised: StubMapping =
     stubFor(
@@ -72,17 +62,6 @@ object AuthStub {
                 |  "optionalName": { "name": "Joe Bloggs" }
                 |}""".stripMargin
             )
-        )
-    )
-
-  def insufficientConfidenceLevel: StubMapping =
-    stubFor(
-      post(urlPathEqualTo("/auth/authorise"))
-        .withRequestBody(equalToJson(authorisedWithInsufficientConfidenceLevel,false,true))
-        .willReturn(
-          aResponse()
-            .withStatus(401)
-            .withHeader("WWW-Authenticate", """MDTP detail="InsufficientConfidenceLevel"""")
         )
     )
 

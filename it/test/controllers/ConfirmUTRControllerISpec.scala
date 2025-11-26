@@ -16,7 +16,7 @@
 
 package controllers
 
-import stubs.{AuthStub, CitizenDetailsStub}
+import stubs.{AuthStub, CitizenDetailsStub, NGRStub}
 import helpers.{IntegrationSpecBase, IntegrationTestData}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -40,6 +40,7 @@ class ConfirmUTRControllerISpec extends AnyWordSpec with IntegrationSpecBase wit
         AuthStub.authorised
         CitizenDetailsStub.matchingStub
         CitizenDetailsStub.designatoryDetails
+        NGRStub.getRatePayer
         val request: WSRequest = buildRequest("/confirm-utr")
         val response: WSResponse = await(request.get())
         val document: Document = Jsoup.parse(response.body)

@@ -93,7 +93,7 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
       clientErrorCodes.foreach { statusCode =>
         s"return $statusCode response without throwing for client error" in {
           WiremockHelper.stubPost(
-            "/ratepayer",
+            "/ngr-notify/register-ratepayer",
             statusCode,
             s"""{"status": "$statusCode", "error": "Client error"}"""
           )
@@ -107,7 +107,7 @@ class NgrNotifyConnectorISpec extends AnyWordSpec with IntegrationSpecBase with 
      "throw an exception for $statusCode server error" in {
           WiremockHelper.stubWithFault(
             "POST",
-            "/ratepayer",
+            "/ngr-notify/register-ratepayer",
             Fault.CONNECTION_RESET_BY_PEER
           )
 
