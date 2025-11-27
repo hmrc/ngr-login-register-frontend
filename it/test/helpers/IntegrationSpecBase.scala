@@ -23,9 +23,16 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.{Application, Environment, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
+import play.api.libs.ws.{WSClient, WSCookie, WSRequest}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys, client}
+import play.api.http.HeaderNames
+import play.api.mvc.{Cookie, Session, SessionCookieBaker => CSessionCookieBaker}
+import play.api.test.Injecting
+import uk.gov.hmrc.crypto.PlainText
+import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 
 trait IntegrationSpecBase extends TestSuite with GuiceOneServerPerSuite with ScalaFutures with IntegrationPatience with Matchers
-with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventually with IntegrationTestData {
+with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventually with IntegrationTestData with Injecting {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   val mockHost: String = WiremockHelper.wiremockHost
@@ -35,6 +42,7 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
   def config: Map[String, Any] = Map(
     "play.filters.disabled" -> Seq("uk.gov.hmrc.play.bootstrap.frontend.filters.SessionIdFilter"),
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
+    "centralised-authorisation-resource-client.filter.enabled" -> "false",
     "microservice.services.auth.host" -> mockHost,
     "microservice.services.auth.port" -> mockPort,
     "microservice.services.citizen-details.host" -> mockHost,
@@ -45,8 +53,60 @@ with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with Eventual
     "microservice.services.centralised-authorisation-server.port" -> mockPort,
     "microservice.services.ngr-notify.host" -> mockHost,
     "microservice.services.ngr-notify.port" -> mockPort,
-    "features.bridgeEnabled" -> true
+    "microservice.services.next-generation-rates.host" -> mockHost,
+    "microservice.services.next-generation-rates.port" -> mockPort,
+    "features.bridgeEnabled" -> true,
+    "allowedUsers.emailIds.0" -> "test@test.co.uk"
   )
+
+  lazy val client: WSClient = app.injector.instanceOf[WSClient]
+
+  def buildRequest(path: String): WSRequest =
+    client.url(s"http://localhost:$port/ngr-login-register-frontend$path")
+      .withHttpHeaders(bakeCookie())
+      .withCookies(mockSessionCookie)
+      .withFollowRedirects(false)
+
+  private def bakeCookie(sessionData: (String, String)*): (String, String) =
+    HeaderNames.COOKIE -> SessionCookieBaker.bakeSessionCookie(sessionData.toMap)
+
+
+  def mockSessionCookie: WSCookie = {
+
+    def makeSessionCookie(session: Session): Cookie = {
+      val cookieCrypto   = inject[SessionCookieCrypto]
+      val cookieBaker    = inject[CSessionCookieBaker]
+      val sessionCookie  = cookieBaker.encodeAsCookie(session)
+      val encryptedValue = cookieCrypto.crypto.encrypt(PlainText(sessionCookie.value))
+      sessionCookie.copy(value = encryptedValue.value)
+    }
+
+    val mockSession = Session(
+      Map(
+        SessionKeys.lastRequestTimestamp -> System.currentTimeMillis().toString,
+        SessionKeys.authToken            -> "mock-bearer-token",
+        SessionKeys.sessionId            -> "mock-sessionid"
+      )
+    )
+
+    val cookie = makeSessionCookie(mockSession)
+
+    new WSCookie() {
+      override def name: String = cookie.name
+
+      override def value: String = cookie.value
+
+      override def domain: Option[String] = cookie.domain
+
+      override def path: Option[String] = Some(cookie.path)
+
+      override def maxAge: Option[Long] = cookie.maxAge.map(_.toLong)
+
+      override def secure: Boolean = cookie.secure
+
+      override def httpOnly: Boolean = cookie.httpOnly
+    }
+  }
 
   override implicit lazy val app: Application =
     new GuiceApplicationBuilder()
