@@ -23,20 +23,29 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.Layout
 
 class LayoutSpec extends ViewBaseSpec {
-
+//TODO delete dead code
   val injectedView: Layout = injector.instanceOf[Layout]
   val navTitle = "Manage your business rates valuation"
   val backLink = "Back"
 
   object Selectors {
-    val navTitle = ".govuk-header__service-name"
-    val languageSelector = "#main-content > div > div > nav > ul > li:nth-child(1) > span"
+    val navTitleOld = ".govuk-header__service-name"
+    val navTitle = ".govuk-service-navigation__service-name"
+    val languageSelector = "nav.hmrc-service-navigation-language-select span[aria-current=\"true\"]"
+    val languageSelectorOld = "#main-content > div > div > nav > ul > li:nth-child(1) > span"
     val backLink = ".govuk-back-link"
   }
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     mockConfig.features.welshLanguageSupportEnabled(false)
+  }
+
+  private def printHtml(html: String, title: String = "Pretty Printed HTML"): Unit = {
+    val doc = Jsoup.parse(html)
+    doc.outputSettings(new Document.OutputSettings().prettyPrint(true).indentAmount(2))
+    println(s"\n=== $title ===")
+    println(doc.outerHtml())
   }
 
 
@@ -55,6 +64,7 @@ class LayoutSpec extends ViewBaseSpec {
       "show the nav title" in {
         lazy val view = injectedView(pageTitle = Some("Title of page"),showBackLink = false)(Html("Test"))(request,messages,mockConfig)
         lazy implicit val document: Document = Jsoup.parse(view.body)
+        printHtml(view.body, "LayoutSpec: nav title test view")
 
         elementText(Selectors.navTitle) mustBe navTitle
       }
@@ -62,6 +72,7 @@ class LayoutSpec extends ViewBaseSpec {
       "should not display the language selector" in {
         lazy val view = injectedView(pageTitle = Some("Title of page"),showBackLink = false)(Html("Test"))(request,messages,mockConfig)
         lazy implicit val document: Document = Jsoup.parse(view.body)
+
 
         elementExtinct(Selectors.languageSelector)
       }
@@ -78,7 +89,7 @@ class LayoutSpec extends ViewBaseSpec {
         lazy val view = injectedView(pageTitle = Some("Title of page"),showBackLink = false)(Html("Test"))(request,messages,  mockConfig)
         lazy implicit val document: Document = Jsoup.parse(view.body)
 
-        elementText(Selectors.languageSelector) mustBe "English"
+        elementText(Selectors.languageSelector) mustBe "ENG"
         mockConfig.features.welshLanguageSupportEnabled(false)
       }
     }
