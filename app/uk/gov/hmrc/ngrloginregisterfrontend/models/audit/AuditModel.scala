@@ -19,7 +19,7 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.audit
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.CredId
 
-case class ConfirmUtrAuditModel (credId: String, nextPage: String) extends ExtendedAuditModel {
+case class AuditModel(credId: String, nextPage: String) extends ExtendedAuditModel {
   override val auditType: String = s"ngr-login-register-frontend-$nextPage"
   override val detail: Map[String, String] = Map("credId" -> credId)
 }

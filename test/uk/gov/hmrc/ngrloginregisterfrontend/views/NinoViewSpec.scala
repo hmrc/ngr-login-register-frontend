@@ -37,7 +37,7 @@ class NinoViewSpec  extends ViewBaseSpec {
 
   object Selectors {
     val backLink = "body > div > a"
-    val caption = "#main-content > div > div > form > span"
+    val caption  = "#main-content > div > div > form > span"
     val heading = "#main-content > div > div > form > h1"
     val label = "#main-content > div > div > form > div > label"
     val hint = "#nino-value-hint"

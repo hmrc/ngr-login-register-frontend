@@ -18,14 +18,14 @@ package uk.gov.hmrc.ngrloginregisterfrontend.models.audits
 
 import org.scalatest.wordspec.AnyWordSpecLike
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.ConfirmUtrAuditModel
+import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.AuditModel
 
 
-class ConfirmUtrAuditModelSpec extends TestSupport with AnyWordSpecLike {
+class AuditModelSpec extends TestSupport with AnyWordSpecLike {
 
   "ConfirmUtrAuditModel" should {
 
-    val exampleModel = ConfirmUtrAuditModel("123456", "provide-your-national-insurance-number")
+    val exampleModel = AuditModel("123456", "provide-your-national-insurance-number")
 
     "have the correct auditType when going to the national-insurance page" in {
      exampleModel.auditType mustBe "ngr-login-register-frontend-provide-your-national-insurance-number"
