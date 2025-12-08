@@ -42,7 +42,8 @@ class CheckYourAnswersControllerSpec extends ControllerSpecSupport with TestData
     mockAuthJourney,
     mockNGRConnector,
     mockNGRNotifyConnector,
-    mcc)
+    mcc,
+    mockAuditingService)
 
   "Controller" must {
     "return OK and the correct view for a GET" in {

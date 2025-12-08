@@ -31,7 +31,8 @@ class ProvideTRNControllerSpec extends ControllerSpecSupport{
       isRegisteredCheck = mockIsRegisteredCheck,
       authenticate = mockAuthJourney,
       hasMandotoryDetailsAction = mockHasMandotoryDetailsAction,
-      mcc = mcc
+      mcc = mcc,
+      auditingService = mockAuditingService
     )
 
   "ProvideTRNController" must {

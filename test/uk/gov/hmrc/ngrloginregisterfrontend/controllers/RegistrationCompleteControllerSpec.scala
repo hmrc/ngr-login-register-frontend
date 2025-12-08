@@ -60,7 +60,8 @@ class RegistrationCompleteControllerSpec extends ControllerSpecSupport with Test
     mockHasMandotoryDetailsAction,
     mockAuthRetrievals(),
     mockNGRConnector,
-    mcc
+    mcc,
+    mockAuditingService
   )
 
   "RegistrationComplete Controller" must {
@@ -92,7 +93,8 @@ class RegistrationCompleteControllerSpec extends ControllerSpecSupport with Test
           mockHasMandotoryDetailsAction,
           mockAuthJourney,
           mockNGRConnector,
-          mcc
+          mcc,
+          mockAuditingService
         )
         val result = controller().submit(Some("12345xyz"))(authenticatedFakeRequestWithEmail)
         status(result) mustBe SEE_OTHER
