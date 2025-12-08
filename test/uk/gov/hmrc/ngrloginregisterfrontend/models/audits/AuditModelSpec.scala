@@ -32,7 +32,7 @@ class AuditModelSpec extends TestSupport with AnyWordSpecLike {
     }
 
     "have the correct detail" in {
-      val expectedDetail = Map("credId" -> exampleModel.credId)
+      val expectedDetail = Map("credId" -> exampleModel.credId, "nino" -> "")
       exampleModel.detail mustBe expectedDetail
     }
     "have the correct auditType when going to the check your answers page" in {
