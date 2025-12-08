@@ -70,7 +70,7 @@
     ),
     serviceNavigation = Some(
          if(appConfig.features.welshLanguageSupportEnabled()){
-                ServiceNavigation(serviceName = Some(messages("service.name"))).withLanguageToggle
+                ServiceNavigation(serviceName = Some(messages("service.name"))).withLanguageToggle()
          } else{
                 ServiceNavigation(serviceName = Some(messages("service.name")))
          }
