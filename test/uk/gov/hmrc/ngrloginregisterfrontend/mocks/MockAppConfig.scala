@@ -39,5 +39,4 @@ class MockAppConfig(val runModeConfiguration: Configuration) extends AppConfig {
   override val countdown: Int = 200
   override val feedbackFrontendUrl: String = "http://localhost:9514/feedback/NGR-Dashboard"
   override val publicAccessAllowed: Boolean = false
-  override val appName: String = "ngr-login-register-frontend"
 }

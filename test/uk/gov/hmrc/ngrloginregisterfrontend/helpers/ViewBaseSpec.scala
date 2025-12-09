@@ -27,7 +27,6 @@ import play.api.inject.Injector
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeRequest, Injecting}
 import play.twirl.api.Html
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.mocks.MockAppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Email
 
@@ -35,7 +34,6 @@ trait ViewBaseSpec extends PlaySpec with GuiceOneAppPerSuite with Injecting with
   def injector: Injector = app.injector
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
   lazy val messagesApi: MessagesApi             = inject[MessagesApi]
-  implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   def element(cssSelector: String)(implicit document: Document): Element = {
     val elements = document.select(cssSelector)

@@ -18,24 +18,19 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
-import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.AuditModel
-import uk.gov.hmrc.ngrloginregisterfrontend.services.AuditingService
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ProvideTRNView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
 
 @Singleton
 class ProvideTRNController @Inject()(view: ProvideTRNView,
                                      isRegisteredCheck: RegistrationAction,
                                      hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                      authenticate: AuthRetrievals,
-                                     mcc: MessagesControllerComponents, auditingService: AuditingService)(implicit appConfig: AppConfig, ex: ExecutionContext)
+                                     mcc: MessagesControllerComponents)(implicit appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
 
   def show(): Action[AnyContent] =
@@ -44,11 +39,7 @@ class ProvideTRNController @Inject()(view: ProvideTRNView,
     }
 
   def submit() : Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction) { request =>
-      implicit val hc: HeaderCarrier =
-        HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      auditingService.extendedAudit(AuditModel(request.credId.value,"confirm-utr"),
-        uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ProvideTRNController.show().url)
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction) {
       Redirect(routes.ConfirmUTRController.show)
     }
 

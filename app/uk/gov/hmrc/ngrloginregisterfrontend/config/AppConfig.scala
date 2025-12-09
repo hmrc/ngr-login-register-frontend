@@ -24,7 +24,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import javax.inject.{Inject, Singleton}
 
 trait AppConfig {
-  val appName: String
   val features: Features
   val logoutUrl:String
   val gtmContainer: String
@@ -45,7 +44,6 @@ trait AppConfig {
 
 @Singleton
 class FrontendAppConfig @Inject()(config: Configuration, sc: ServicesConfig) extends AppConfig {
-  override val appName: String = sc.getString("appName")
   override val features = new Features()(config)
   override val timeToLive: String = sc.getString("time-to-live.time")
   override val gtmContainer: String = sc.getString("tracking-consent-frontend.gtm.container")

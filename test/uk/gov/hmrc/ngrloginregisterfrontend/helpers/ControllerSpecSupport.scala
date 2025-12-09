@@ -26,7 +26,6 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{NGRConnector, NgrNotifyC
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
-import uk.gov.hmrc.ngrloginregisterfrontend.services.AuditingService
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -37,7 +36,6 @@ trait ControllerSpecSupport extends TestSupport with TestData {
   implicit lazy val msgs: Messages = MessagesImpl(Lang("en"), inject[MessagesApi])
   val mockRatepayerRegistraionRepo: RatepayerRegistrationRepo = mock[RatepayerRegistrationRepo]
   val mockAuthJourney: AuthRetrievals = mock[AuthRetrievals]
-  val mockAuditingService: AuditingService = mock[AuditingService]
   val mockIsRegisteredCheck: RegistrationAction = mock[RegistrationAction]
   val mockHasMandotoryDetailsAction: HasMandotoryDetailsAction  = mock[HasMandotoryDetailsAction]
   val mockComposedAction:ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]  = mock[ActionBuilder[RatepayerRegistrationValuationRequest, AnyContent]]

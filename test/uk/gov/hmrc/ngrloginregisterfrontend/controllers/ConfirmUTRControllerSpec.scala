@@ -46,8 +46,7 @@ class ConfirmUTRControllerSpec extends ControllerSpecSupport {
     mockAuthJourney,
     mockCIDConnector,
     mockRatepayerRegistraionRepo,
-    mcc,
-    mockAuditingService)
+    mcc)
   val matchingDetails: MatchingDetails = MatchingDetails("bob", "jones", Some(SaUtr("1234567890")))
   val matchingDetailsNoUTR: MatchingDetails = MatchingDetails("bob", "jones", None)
   val pageTitle: String = "Confirm your Self Assessment Unique Taxpayer Reference"
