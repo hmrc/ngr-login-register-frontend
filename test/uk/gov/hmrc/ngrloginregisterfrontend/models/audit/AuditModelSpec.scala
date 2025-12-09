@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.ngrloginregisterfrontend.models.audits
+package uk.gov.hmrc.ngrloginregisterfrontend.models.audit
 
 import org.scalatest.wordspec.AnyWordSpecLike
 import uk.gov.hmrc.ngrloginregisterfrontend.helpers.TestSupport
-import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.RegistrationCompleteAuditModel
 
-class RegistrationCompleteAuditModelSpec extends TestSupport with AnyWordSpecLike {
 
-  "RegistrationCompleteAuditModel" should {
+class AuditModelSpec extends TestSupport with AnyWordSpecLike {
 
-    val exampleModel = RegistrationCompleteAuditModel("123456", "dashboard")
+  "Audit Model" should {
+
+    val exampleModel = AuditModel("123456", "provide-your-national-insurance-number")
 
     "have the correct auditType when going to the national-insurance page" in {
-      exampleModel.auditType mustBe "ngr-dashboard-frontend-dashboard"
+      exampleModel.auditType mustBe "ngr-login-register-frontend-provide-your-national-insurance-number"
     }
 
     "have the correct detail" in {
       val expectedDetail = Map("credId" -> exampleModel.credId)
       exampleModel.detail mustBe expectedDetail
+    }
+    "have the correct auditType when going to the check your answers page" in {
+      val model = exampleModel.copy(nextPage = "check-answers")
+      model.auditType mustBe "ngr-login-register-frontend-check-answers"
     }
   }
 }

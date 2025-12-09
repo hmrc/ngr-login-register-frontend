@@ -26,6 +26,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{NGRConnector, NgrNotifyC
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuationRequest}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.services.AuditingService
 import uk.gov.hmrc.ngrloginregisterfrontend.session.SessionManager
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.NGRLogger
 
@@ -47,6 +48,7 @@ trait ControllerSpecSupport extends TestSupport with TestData {
   val mockSessionManager: SessionManager = mock[SessionManager]
   val mockNGRLogger: NGRLogger = mock[NGRLogger]
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
+  val mockAuditingService: AuditingService = mock[AuditingService]
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   mockRequest()

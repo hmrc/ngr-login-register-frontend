@@ -31,6 +31,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SA
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.TRNReferenceNumber
 import uk.gov.hmrc.ngrloginregisterfrontend.models.{NGRRadio, NGRRadioButtons, NGRRadioName, NGRSummaryListRow}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.services.AuditingService
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.StringHelper
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.ConfirmUTRView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -45,7 +46,8 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      authenticate: AuthRetrievals,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      mongo: RatepayerRegistrationRepo,
-                                     mcc: MessagesControllerComponents, auditService: AuditingService)(implicit appConfig: AppConfig, ec: ExecutionContext)
+                                     mcc: MessagesControllerComponents,
+                                     auditService: AuditingService)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with StringHelper {
 
   private var savedUtr: String = ""

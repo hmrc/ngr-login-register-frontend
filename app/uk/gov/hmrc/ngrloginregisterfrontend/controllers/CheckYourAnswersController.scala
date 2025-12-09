@@ -28,6 +28,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.AuditModel
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.services.AuditingService
 import uk.gov.hmrc.ngrloginregisterfrontend.utils.{StringHelper, SummaryListHelper, UniqueIdGenerator}
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.CheckYourAnswersView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
