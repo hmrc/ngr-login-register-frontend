@@ -24,6 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.{AuditModel, RegistrationCompleteAuditModel}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes, form}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
@@ -44,7 +45,7 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
                                      authenticate: AuthRetrievals,
                                      citizenDetailsConnector: CitizenDetailsConnector,
                                      mongo: RatepayerRegistrationRepo,
-                                     mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
+                                     mcc: MessagesControllerComponents, auditService: AuditingService)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with StringHelper {
 
   private var savedUtr: String = ""
@@ -103,11 +104,23 @@ class ConfirmUTRController @Inject()(view: ConfirmUTRView,
           {
             case ConfirmUTR.Yes(utr) =>
               mongo.updateTRN(request.credId, TRNReferenceNumber(SAUTR, utr))
+              auditService.extendedAudit(
+                AuditModel(request.credId.value,"check-answers"),
+                uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmUTRController.show.url
+              )
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
             case ConfirmUTR.NoNI =>
+              auditService.extendedAudit(
+                AuditModel(request.credId.value,"provide-national-insurance-number"),
+                uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmUTRController.show.url
+              )
               Future.successful(Redirect(routes.NinoController.show))
             case ConfirmUTR.NoLater =>
               mongo.updateTRN(request.credId, TRNReferenceNumber(SAUTR, ""))
+              auditService.extendedAudit(
+                AuditModel(request.credId.value,"check-answers"),
+                uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.ConfirmUTRController.show.url
+              )
               Future.successful(Redirect(routes.CheckYourAnswersController.show))
           }
         )

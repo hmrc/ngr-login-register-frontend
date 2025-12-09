@@ -24,6 +24,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{NGRConnector, NgrNotifyConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
+import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.{AuditModel, RegistrationCompleteAuditModel}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
@@ -42,7 +43,7 @@ class CheckYourAnswersController @Inject()(view: CheckYourAnswersView,
                                            authenticate: AuthRetrievals,
                                            ngrConnector: NGRConnector,
                                            ngrNotifyConnector: NgrNotifyConnector,
-                                           mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
+                                           mcc: MessagesControllerComponents, auditingService: AuditingService)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SummaryListHelper with StringHelper {
 
   def show(): Action[AnyContent] =
@@ -74,6 +75,9 @@ private def submitData(credId: CredId, ratepayerDataOpt: Option[RatepayerRegistr
         notifySuccess <- ngrNotifyConnector.registerRatePayer(updatedRatepayerData)
         deleteResult <- if (notifySuccess) ratepayerRegistrationRepo.deleteRecord(credId) else Future.failed(new Exception(s"Failed to send registration for credId $credId"))
         result <- if (deleteResult) {
+          auditingService.extendedAudit(
+            AuditModel(credId.value, "registration-complete"),
+            uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.CheckYourAnswersController.show.url)
           Future.successful(Redirect(routes.RegistrationCompleteController.show(updatedRatepayerData.recoveryId)))
         } else {
           Future.failed(new Exception(s"Failed to delete record for credId $credId"))
