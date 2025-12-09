@@ -23,14 +23,13 @@ import uk.gov.hmrc.ngrloginregisterfrontend.helpers.ViewBaseSpec
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.Layout
 
 class LayoutSpec extends ViewBaseSpec {
-
   val injectedView: Layout = injector.instanceOf[Layout]
   val navTitle = "Manage your business rates valuation"
   val backLink = "Back"
 
   object Selectors {
-    val navTitle = ".govuk-header__service-name"
-    val languageSelector = "#main-content > div > div > nav > ul > li:nth-child(1) > span"
+    val navTitle = ".govuk-service-navigation__service-name"
+    val languageSelector = "nav.hmrc-service-navigation-language-select span[aria-current=\"true\"]"
     val backLink = ".govuk-back-link"
   }
 
@@ -38,7 +37,6 @@ class LayoutSpec extends ViewBaseSpec {
     super.beforeEach()
     mockConfig.features.welshLanguageSupportEnabled(false)
   }
-
 
   "The Layout template" when {
 
@@ -78,7 +76,7 @@ class LayoutSpec extends ViewBaseSpec {
         lazy val view = injectedView(pageTitle = Some("Title of page"),showBackLink = false)(Html("Test"))(request,messages,  mockConfig)
         lazy implicit val document: Document = Jsoup.parse(view.body)
 
-        elementText(Selectors.languageSelector) mustBe "English"
+        elementText(Selectors.languageSelector) mustBe "ENG"
         mockConfig.features.welshLanguageSupportEnabled(false)
       }
     }

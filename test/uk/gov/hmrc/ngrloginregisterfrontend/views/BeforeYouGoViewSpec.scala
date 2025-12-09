@@ -39,10 +39,10 @@ class BeforeYouGoViewSpec extends ViewBaseSpec{
     val heading = "#main-content > div > div > h1"
     val signIn = "#main-content > div > div > p:nth-child(3) > a"
     val subHeading = "#main-content > div > div > h2"
-    val body1 = "#main-content > div > div > p:nth-child(5)"
-    val body2 = "#main-content > div > div > p:nth-child(6)"
+    val body1 = "#main-content > div > div > p:nth-child(4)"
+    val body2 = "#main-content > div > div > p:nth-child(5)"
     val feedback = "#main-content > div > div > p:nth-child(7) > a"
-    val body3 = "#main-content > div > div > p:nth-child(7)"
+    val body3 = "#main-content > div > div > p:nth-child(6)"
   }
 
   "BeforeYouGoView" must {

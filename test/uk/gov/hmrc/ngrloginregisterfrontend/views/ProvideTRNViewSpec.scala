@@ -41,7 +41,7 @@ class ProvideTRNViewSpec extends ViewBaseSpec {
   val buttonText = "Continue"
 
   object Selectors {
-    val navTitle = ".govuk-header__service-name"
+    val navTitle = ".govuk-service-navigation__service-name"
     val caption  = "#main-content > div > div > form > span"
     val heading = "#main-content > div > div > form > h1"
     val paragraph = "#main-content > div > div > form > p:nth-child(3)"

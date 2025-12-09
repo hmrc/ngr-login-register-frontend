@@ -37,7 +37,7 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
   val printLinkText = "Print this page"
 
   object Selectors {
-    val navTitle = ".govuk-header__service-name"
+    val navTitle = ".govuk-service-navigation__service-name"
     val headingSelector = "#main-content > div > div > form > div > h1"
     val body1Selector = "#main-content > div > div > form > div > div"
     val bodyEmailSelector = "#main-content > div > div > form > p:nth-child(3)"

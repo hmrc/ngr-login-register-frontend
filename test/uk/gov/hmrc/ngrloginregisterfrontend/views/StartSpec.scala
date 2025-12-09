@@ -40,7 +40,7 @@ class StartSpec extends ViewBaseSpec {
   val bullet3 = "provide a valid Tax Reference Number"
 
   object Selectors {
-    val navTitle = ".govuk-header__service-name"
+    val navTitle = ".govuk-service-navigation__service-name"
     val languageSelector = "#main-content > div > div > nav > ul > li:nth-child(1) > span"
     val headingSelector = "#main-content > div > div > form > h1"
     val backLink = ".govuk-back-link"
