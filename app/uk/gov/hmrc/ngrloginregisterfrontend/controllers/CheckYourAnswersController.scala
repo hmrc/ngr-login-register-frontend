@@ -24,7 +24,7 @@ import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.{NGRConnector, NgrNotifyConnector}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.NGRSummaryListRow.summarise
 import uk.gov.hmrc.ngrloginregisterfrontend.models._
-import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.{AuditModel, RegistrationCompleteAuditModel}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.AuditModel
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.{NINO, SAUTR}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, RatepayerRegistrationValuation}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo

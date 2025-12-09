@@ -24,7 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.CitizenDetailsConnector
-import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.{AuditModel, RegistrationCompleteAuditModel}
+import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.AuditModel
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.ConfirmUTR.{NoLater, NoNI, Yes, form}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.{ConfirmUTR, Nino}
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.SAUTR
