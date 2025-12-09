@@ -24,14 +24,14 @@ class AuditModelSpec extends TestSupport with AnyWordSpecLike {
 
   "Audit Model" should {
 
-    val exampleModel = AuditModel("123456", "provide-your-national-insurance-number")
+    val exampleModel = AuditModel("123456", "provide-your-national-insurance-number", nino = "AA000003D")
 
     "have the correct auditType when going to the national-insurance page" in {
       exampleModel.auditType mustBe "ngr-login-register-frontend-provide-your-national-insurance-number"
     }
 
     "have the correct detail" in {
-      val expectedDetail = Map("credId" -> exampleModel.credId)
+      val expectedDetail = Map("credId" -> exampleModel.credId, "nino" -> "AA000003D")
       exampleModel.detail mustBe expectedDetail
     }
     "have the correct auditType when going to the check your answers page" in {
