@@ -19,12 +19,16 @@ package uk.gov.hmrc.ngrloginregisterfrontend.controllers
 import com.google.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
 import uk.gov.hmrc.ngrloginregisterfrontend.connectors.NGRConnector
+import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.RegistrationCompleteAuditModel
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.services.AuditingService
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.RegistrationCompleteView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,7 +38,7 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
                                                hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                                authenticate: AuthRetrievals,
                                                ngrConnector: NGRConnector,
-                                               mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)extends FrontendController(mcc) with I18nSupport {
+                                               mcc: MessagesControllerComponents, auditingService: AuditingService)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
 
   def show(recoveryId: Option[String]): Action[AnyContent] =
@@ -50,7 +54,11 @@ class RegistrationCompleteController @Inject()(view: RegistrationCompleteView,
   }
 
   def submit(recoveryId: Option[String]) : Action[AnyContent] =
-    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async {
+    (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { request =>
+      implicit val hc: HeaderCarrier =
+        HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      auditingService.extendedAudit(RegistrationCompleteAuditModel(request.credId.value,"dashboard"),
+        uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.RegistrationCompleteController.show(recoveryId).url)
       Future.successful(Redirect(routes.StartController.show))
     }
 

@@ -21,11 +21,13 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.ngrloginregisterfrontend.actions.{AuthRetrievals, HasMandotoryDetailsAction, RegistrationAction}
 import uk.gov.hmrc.ngrloginregisterfrontend.config.AppConfig
+import uk.gov.hmrc.ngrloginregisterfrontend.models.audit.AuditModel
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino
 import uk.gov.hmrc.ngrloginregisterfrontend.models.forms.Nino.form
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.ReferenceType.NINO
 import uk.gov.hmrc.ngrloginregisterfrontend.models.registration.{CredId, TRNReferenceNumber}
 import uk.gov.hmrc.ngrloginregisterfrontend.repo.RatepayerRegistrationRepo
+import uk.gov.hmrc.ngrloginregisterfrontend.services.AuditingService
 import uk.gov.hmrc.ngrloginregisterfrontend.views.html.NinoView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -38,7 +40,7 @@ class NinoController @Inject()(
                                 isRegisteredCheck: RegistrationAction,
                                 hasMandotoryDetailsAction: HasMandotoryDetailsAction,
                                 authenticate: AuthRetrievals,
-                                mcc: MessagesControllerComponents)(implicit appConfig: AppConfig, ec: ExecutionContext)
+                                mcc: MessagesControllerComponents, auditingService: AuditingService)(implicit appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
   def show: Action[AnyContent] = {
@@ -69,7 +71,7 @@ class NinoController @Inject()(
     (authenticate andThen isRegisteredCheck andThen hasMandotoryDetailsAction).async { implicit request =>
       val authNino = request.ratepayerRegistration.flatMap{ ratePayer =>
         ratePayer match {
-          case ratePayer if ratePayer.nino.isDefined == true => ratePayer.nino
+          case ratePayer if ratePayer.nino.isDefined => ratePayer.nino
           case _ => throw new RuntimeException("No nino found from auth")
         }
       }.getOrElse(throw new RuntimeException("No ratepayerRegistration found from mongo"))
@@ -78,6 +80,8 @@ class NinoController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
           nino => {
+            auditingService.extendedAudit(AuditModel(request.credId.value, "check-answers"),
+              uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.NinoController.show.url)
             mongo.updateTRN(CredId(request.credId.value), TRNReferenceNumber(NINO, nino.value))
             Future.successful(Redirect(routes.CheckYourAnswersController.show))
           }
