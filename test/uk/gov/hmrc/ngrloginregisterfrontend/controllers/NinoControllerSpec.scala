@@ -46,8 +46,7 @@ class NinoControllerSpec extends ControllerSpecSupport {
     mockIsRegisteredCheck,
     mockHasMandotoryDetailsAction,
     mockAuthJourney,
-    mcc,
-    mockAuditingService
+    mcc
   )
 
   override def beforeEach(): Unit = {
