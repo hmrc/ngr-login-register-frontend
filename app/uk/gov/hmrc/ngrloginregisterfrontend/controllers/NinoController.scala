@@ -80,7 +80,7 @@ class NinoController @Inject()(
         .fold(
           formWithErrors => Future.successful(BadRequest(ninoView(formWithErrors))),
           nino => {
-            auditingService.extendedAudit(AuditModel(request.credId.value, "check-answers"),
+            auditingService.extendedAudit(AuditModel(request.credId.value, "check-answers", nino = nino.value),
               uk.gov.hmrc.ngrloginregisterfrontend.controllers.routes.NinoController.show.url)
             mongo.updateTRN(CredId(request.credId.value), TRNReferenceNumber(NINO, nino.value))
             Future.successful(Redirect(routes.CheckYourAnswersController.show))
